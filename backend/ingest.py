@@ -9,6 +9,7 @@ from __future__ import annotations
 import math
 import time
 
+import config
 import db
 import sentiment
 import sources
