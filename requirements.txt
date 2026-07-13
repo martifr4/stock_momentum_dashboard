@@ -1,0 +1,8 @@
+# The dashboard runs almost entirely on the Python standard library.
+# One small dependency makes TLS work reliably on fresh Python installs
+# (Windows especially), where no CA bundle is configured and requests to some
+# hosts fail with CERTIFICATE_VERIFY_FAILED:
+truststore>=0.9      # use the OS-native certificate verifier for HTTPS
+
+# Optional fallback CA bundle (only used if truststore is unavailable):
+# certifi
