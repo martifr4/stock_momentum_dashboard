@@ -11,6 +11,7 @@ import time
 from datetime import datetime
 
 import config
+import watchlist
 from sources.http_util import get_json
 
 SOURCE = "stocktwits"
@@ -73,7 +74,7 @@ def _stream(symbol: str) -> list[dict]:
 
 
 def fetch() -> list[dict]:
-    symbols = list(config.WATCHLIST[:config.MAX_WATCHLIST_PER_RUN])
+    symbols = watchlist.polling_symbols(config.MAX_WATCHLIST_PER_RUN)
     for s in _trending_symbols(config.STOCKTWITS_TRENDING):
         if s not in symbols:
             symbols.append(s)

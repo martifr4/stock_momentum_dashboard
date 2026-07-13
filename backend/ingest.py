@@ -100,6 +100,18 @@ def ingest_once() -> dict:
             mentions_added += len(tickers)
             per_source[src] = per_source.get(src, 0) + len(tickers)
 
+    # Promote off-watchlist tickers that are sustaining buzz so the per-symbol
+    # sources start covering them on the next run.
+    promoted: list[str] = []
+    if config.DISCOVERY_AUTO_PROMOTE:
+        try:
+            import watchlist
+            promoted = watchlist.auto_promote()
+            if promoted:
+                print(f"[ingest] promoted to dynamic watchlist: {promoted}")
+        except Exception as e:  # noqa: BLE001 - promotion must never break a run
+            print(f"[ingest] auto-promote failed: {e}")
+
     with db.cursor() as cur:
         cur.execute(
             "UPDATE ingest_runs SET finished_at=?, posts_seen=?, mentions=?, note=? WHERE id=?",
@@ -109,7 +121,7 @@ def ingest_once() -> dict:
         )
 
     result = {"posts_seen": posts_seen, "mentions_added": mentions_added,
-              "per_source": per_source}
+              "per_source": per_source, "promoted": promoted}
     print(f"[ingest] done: {result}")
     return result
 

@@ -69,6 +69,17 @@ CREATE TABLE IF NOT EXISTS mention_audits (
 );
 CREATE INDEX IF NOT EXISTS idx_audits_status ON mention_audits(status);
 CREATE INDEX IF NOT EXISTS idx_audits_source ON mention_audits(source);
+
+-- Tickers discovered trending outside the hardcoded WATCHLIST and promoted to a
+-- dynamic watchlist so the per-symbol sources start covering them (see
+-- backend/watchlist.py + backend/discovery.py).
+CREATE TABLE IF NOT EXISTS discovered_watchlist (
+    ticker    TEXT PRIMARY KEY,
+    added_utc INTEGER NOT NULL,
+    buzz      REAL DEFAULT 0,
+    mentions  INTEGER DEFAULT 0,
+    reason    TEXT
+);
 """
 
 

@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 from email.utils import parsedate_to_datetime
 
 import config
+import watchlist
 from sources.http_util import get_text
 
 SOURCE = "yahoo_news"
@@ -68,7 +69,7 @@ def _feed(symbol: str) -> list[dict]:
 
 
 def fetch() -> list[dict]:
-    symbols = config.WATCHLIST[:config.MAX_WATCHLIST_PER_RUN]
+    symbols = watchlist.polling_symbols(config.MAX_WATCHLIST_PER_RUN)
     docs: list[dict] = []
     for sym in symbols:
         got = _feed(sym)

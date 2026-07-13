@@ -103,6 +103,7 @@
   tbody tr.sel { background: color-mix(in srgb, var(--blue) 12%, transparent); }
   .tk { font-weight: 650; font-size: 13.5px; }
   .badge-new { font-size: 9.5px; background: var(--blue); color: #fff; padding: 1px 5px; border-radius: 6px; margin-left: 6px; vertical-align: middle; letter-spacing: 0.03em; }
+  .badge-watched { font-size: 9.5px; background: var(--bull); color: #fff; padding: 1px 5px; border-radius: 6px; margin-left: 6px; vertical-align: middle; letter-spacing: 0.03em; }
 
   .mom { font-weight: 600; font-variant-numeric: tabular-nums; }
   .mom.up { color: var(--bull-text); }
@@ -200,6 +201,11 @@
       <h2 id="detailTitle">Select a ticker</h2>
       <div id="detailBody"><div class="detail-empty">Click a ticker on the left to see its mention &amp; sentiment trend and the posts driving the buzz.</div></div>
     </div>
+  </div>
+
+  <div class="card" id="discoveryCard">
+    <h2>🔎 New &amp; Trending <small id="discoverySub"></small></h2>
+    <div id="discoveryBody"><div class="detail-empty">Loading…</div></div>
   </div>
 
   <div class="card" id="auditCard">
@@ -526,8 +532,47 @@ async function loadAudit() {
   $("#auditBody").innerHTML = `<div class="qstrip">${chips}</div><div class="flags">${flags}</div>`;
 }
 
+function fmtSince(ts) {
+  if (!ts) return "—";
+  const d = (Date.now()/1000 - ts) / 86400;
+  if (d < 1) { const h = Math.max(1, Math.round(d*24)); return `${h}h ago`; }
+  return `${Math.round(d)}d ago`;
+}
+
+async function loadDiscovery() {
+  let d;
+  try { d = await getJSON(`/api/discovery?window=${state.window}`); }
+  catch(e) { return; }
+  const rows = d.tickers || [];
+  $("#discoverySub").textContent = rows.length
+    ? `· ${rows.length} off-watchlist · auto-add ≥ ${Math.round(d.promote_buzz)} buzz & ${d.promote_mentions} mentions`
+    : "· off your watchlist";
+  const body = $("#discoveryBody");
+  if (!rows.length) {
+    body.innerHTML = `<div class="detail-empty">Nothing trending outside your watchlist in this window yet. StockTwits trending symbols and <code>$CASHTAGS</code> in posts show up here as they arrive — pull data over time to populate it.</div>`;
+    return;
+  }
+  body.innerHTML = `<div style="overflow-x:auto"><table>
+    <thead><tr>
+      <th class="l">Ticker</th><th>Mentions</th><th>Momentum</th>
+      <th class="l">Sentiment</th><th>Buzz</th><th>First seen</th>
+    </tr></thead><tbody>
+    ${rows.map(r => `
+      <tr data-tk="${r.ticker}" class="${r.ticker===state.ticker?'sel':''}">
+        <td class="l"><span class="tk">${r.ticker}</span>${r.is_recent?'<span class="badge-new">NEW</span>':''}${r.promoted?'<span class="badge-watched" title="Auto-added to your polled watchlist">WATCHED</span>':''}</td>
+        <td>${fmtNum(r.mentions)}</td>
+        <td>${momCell(r.momentum, r.is_new)}</td>
+        <td class="l">${meter(r.weighted_sentiment)} <span style="color:${sentColor(r.weighted_sentiment)};font-size:12px">${r.weighted_sentiment>0?'+':''}${r.weighted_sentiment.toFixed(2)}</span></td>
+        <td>${fmtNum(Math.round(r.buzz))}</td>
+        <td>${fmtSince(r.first_seen)}</td>
+      </tr>`).join("")}
+    </tbody></table></div>`;
+  body.querySelectorAll("tr[data-tk]").forEach(tr =>
+    tr.addEventListener("click", () => selectTicker(tr.dataset.tk)));
+}
+
 async function refresh() {
-  await Promise.all([loadOverview(), loadMovers(), loadStatus(), loadAudit()]);
+  await Promise.all([loadOverview(), loadMovers(), loadStatus(), loadDiscovery(), loadAudit()]);
   if (state.ticker) await selectTicker(state.ticker);
 }
 

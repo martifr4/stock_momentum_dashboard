@@ -80,6 +80,20 @@ HOST = os.environ.get("DASH_HOST", "127.0.0.1")
 # so honor that when DASH_PORT isn't set explicitly.
 PORT = int(os.environ.get("DASH_PORT") or os.environ.get("PORT") or "8000")
 
+# --- Discovery / dynamic watchlist -----------------------------------------
+# Tickers that trend outside your WATCHLIST are surfaced in the dashboard's
+# discovery panel. When auto-promote is on, a discovered ticker that sustains
+# enough buzz/mentions is added to a DB-backed dynamic watchlist so the
+# per-symbol sources (StockTwits, Yahoo) start covering it in depth too.
+DISCOVERY_AUTO_PROMOTE = os.environ.get("DISCOVERY_AUTO_PROMOTE", "1") == "1"
+# Window used to judge "sustained" buzz for promotion.
+DISCOVERY_WINDOW = os.environ.get("DISCOVERY_WINDOW", "weekly")
+# A ticker must clear BOTH thresholds in that window to be auto-promoted.
+DISCOVERY_PROMOTE_BUZZ = float(os.environ.get("DISCOVERY_PROMOTE_BUZZ", "20"))
+DISCOVERY_PROMOTE_MENTIONS = int(os.environ.get("DISCOVERY_PROMOTE_MENTIONS", "10"))
+# Cap on how many dynamically-discovered tickers to retain (lowest buzz pruned).
+DISCOVERY_MAX_DYNAMIC = int(os.environ.get("DISCOVERY_MAX_DYNAMIC", "40"))
+
 # --- Optional access control ------------------------------------------------
 # When deployed on the public internet the dashboard is reachable by anyone who
 # has the URL. Set DASH_PASSWORD to require HTTP Basic auth. Leave it empty

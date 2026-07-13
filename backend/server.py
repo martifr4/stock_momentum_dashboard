@@ -128,6 +128,9 @@ class Handler(BaseHTTPRequestHandler):
             if route == "/api/audit":
                 import audit
                 return self._send_json({**audit.summary(), "run": _audit_state})
+            if route == "/api/discovery":
+                import discovery
+                return self._send_json(discovery.summary(window))
             return self.send_error(404)
         except Exception as e:  # noqa: BLE001
             return self._send_json({"error": str(e)}, 500)

@@ -147,6 +147,43 @@ background, and `GET /api/audit` returns a summary (flag rate, per-source counts
 recent flags). Add a new source's agent by dropping a `BaseAgent` subclass in
 `backend/agents/` and registering it in `backend/agents/__init__.py`.
 
+## Discovering new / trending tickers (beyond your watchlist)
+
+You don't have to hardcode every symbol. Two mechanisms pull in names outside
+your `WATCHLIST` automatically:
+
+- **StockTwits trending discovery** — each run also polls the current trending
+  cashtags (`STOCKTWITS_TRENDING`).
+- **Universal cashtag capture** — any `$XYZ` in a post is counted even if the
+  symbol isn't in your watchlist or `KNOWN_TICKERS`.
+
+These surface in the dashboard's **🔎 New & Trending** card, which lists tickers
+trending *outside* your watchlist, ranked by buzz/momentum, with a "first seen"
+column and a **NEW** badge for names that first appeared in the current window.
+
+**Auto-add to watchlist.** When a discovered ticker sustains enough activity, it
+is promoted to a DB-backed *dynamic watchlist* so the per-symbol sources
+(StockTwits, Yahoo) start covering it in depth too — promoted names show a
+**WATCHED** badge. Promotion runs at the end of each `ingest.py`. Promoted
+tickers get reserved polling slots so they aren't crowded out by the hardcoded
+watchlist. Tune it via env vars:
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `DISCOVERY_AUTO_PROMOTE` | 1 | Auto-add discovered tickers (`0` = discovery panel only) |
+| `DISCOVERY_WINDOW` | weekly | Window used to judge "sustained" buzz |
+| `DISCOVERY_PROMOTE_BUZZ` | 20 | Min buzz to promote |
+| `DISCOVERY_PROMOTE_MENTIONS` | 10 | Min mentions to promote |
+| `DISCOVERY_MAX_DYNAMIC` | 40 | Cap on retained dynamic tickers (lowest buzz pruned) |
+
+```powershell
+python backend/discovery.py                 # list off-watchlist trending names
+python backend/discovery.py --promote        # ...and promote qualifying ones now
+# or: .\run_discover.ps1
+```
+
+The dashboard reads this via `GET /api/discovery?window=...`.
+
 ## Configuration
 
 Everything is tunable via environment variables (see `backend/config.py`):
@@ -208,6 +245,8 @@ backend/
     reddit.py       false-positive extraction + bot-author checks
     aliases.py      ticker -> company-name map for relevance checks
   audit.py          runs the agents over stored mentions -> mention_audits
+  discovery.py      off-watchlist trending tickers (+ auto-promote)
+  watchlist.py      effective watchlist = config.WATCHLIST + dynamic discoveries
   server.py         stdlib HTTP API + serves the frontend
   seed_demo.py      synthetic demo data for exploring the UI
 frontend/
