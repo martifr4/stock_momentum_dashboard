@@ -105,11 +105,19 @@ def summary() -> dict:
                FROM mention_audits GROUP BY source ORDER BY flagged DESC""")
         by_source = [dict(r) for r in c.fetchall()]
         c.execute(
-            """SELECT ticker, post_id, source, reasons, stored_sentiment,
-                      agent_sentiment, confidence
-               FROM mention_audits WHERE status='flag'
-               ORDER BY audited_at DESC, confidence DESC LIMIT 50""")
-        recent_flags = [dict(r) for r in c.fetchall()]
+            """SELECT a.ticker, a.post_id, a.source, a.reasons, a.legit, a.agrees,
+                      a.stored_sentiment, a.agent_sentiment, a.confidence,
+                      p.permalink, p.title, p.body
+               FROM mention_audits a LEFT JOIN posts p ON p.id = a.post_id
+               WHERE a.status='flag'
+               ORDER BY a.audited_at DESC, a.confidence DESC LIMIT 50""")
+        recent_flags = []
+        for r in c.fetchall():
+            d = dict(r)
+            snippet = (d.pop("title", None) or d.pop("body", None) or "").strip()
+            d.pop("body", None)
+            d["snippet"] = snippet[:200] + ("..." if len(snippet) > 200 else "")
+            recent_flags.append(d)
         c.execute("SELECT MAX(audited_at) AS t FROM mention_audits")
         last = c.fetchone()["t"]
     flagged = sum(s["flagged"] or 0 for s in by_source)

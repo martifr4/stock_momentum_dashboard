@@ -134,6 +134,22 @@
   .legend span { display: inline-flex; align-items: center; gap: 5px; }
   .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
   .banner { background: color-mix(in srgb, var(--bear) 14%, var(--surface-1)); border: 1px solid var(--border); color: var(--text-primary); padding: 10px 14px; border-radius: 10px; margin-bottom: 16px; font-size: 13px; }
+
+  /* Data-quality (validation audit) surface */
+  #auditCard { margin-top: 18px; }
+  .qstrip { display: flex; gap: 8px; flex-wrap: wrap; padding: 4px 14px 12px; }
+  .qchip { display: inline-flex; align-items: center; gap: 6px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 999px; padding: 4px 11px; font-size: 12px; }
+  .qchip .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .qchip b { font-variant-numeric: tabular-nums; }
+  .qchip .s { color: var(--muted); font-size: 11px; }
+  .flags { padding: 0 4px 8px; }
+  .flag { padding: 9px 14px; border-bottom: 1px solid var(--grid); }
+  .flag:last-child { border-bottom: 0; }
+  .flag .meta { font-size: 11px; color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .flag .ttl { font-size: 12.5px; margin: 3px 0 0; color: var(--text-secondary); }
+  .reason { font-size: 10.5px; padding: 1px 7px; border-radius: 6px; font-weight: 600; background: color-mix(in srgb, var(--bear) 16%, transparent); color: var(--bear); }
+  .arrow { font-variant-numeric: tabular-nums; color: var(--text-secondary); }
+  .ok-note { padding: 26px 16px; color: var(--muted); text-align: center; font-size: 13px; }
 </style>
 
 <div class="wrap">
@@ -157,6 +173,7 @@
     <div class="seg" id="sourceSeg"></div>
     <button class="btn" id="refreshBtn">↻ Refresh</button>
     <button class="btn" id="ingestBtn">⤓ Pull new data</button>
+    <button class="btn" id="auditBtn">🛡 Validate</button>
   </div>
 
   <div class="kpis" id="kpis"></div>
@@ -183,6 +200,11 @@
       <h2 id="detailTitle">Select a ticker</h2>
       <div id="detailBody"><div class="detail-empty">Click a ticker on the left to see its mention &amp; sentiment trend and the posts driving the buzz.</div></div>
     </div>
+  </div>
+
+  <div class="card" id="auditCard">
+    <h2>Data quality <small id="auditSub"></small></h2>
+    <div id="auditBody"><div class="ok-note">Loading validation status…</div></div>
   </div>
 </div>
 
@@ -454,8 +476,58 @@ async function loadStatus() {
   } catch(e) { $("#status").textContent = "server offline"; }
 }
 
+const fmtSent = s => (s > 0 ? "+" : "") + (s || 0).toFixed(2);
+function timeAgo(ts) {
+  const m = Math.round((Date.now()/1000 - ts) / 60);
+  return m < 1 ? "just now" : m < 60 ? `${m}m ago` : `${Math.round(m/60)}h ago`;
+}
+
+async function loadAudit() {
+  let a;
+  try { a = await getJSON("/api/audit"); }
+  catch(e) { return; }
+  const running = a.run && a.run.running;
+  $("#auditBtn").disabled = running;
+  $("#auditBtn").textContent = running ? "⏳ Validating…" : "🛡 Validate";
+
+  if (!a.total_audited) {
+    $("#auditSub").textContent = "";
+    $("#auditBody").innerHTML = `<div class="ok-note">No validation run yet. Click <b>🛡 Validate</b> to check every post's legitimacy and whether its stored sentiment agrees with the text.</div>`;
+    return;
+  }
+
+  $("#auditSub").innerHTML = `· ${fmtNum(a.total_flagged)} of ${fmtNum(a.total_audited)} flagged (${Math.round(a.flag_rate*100)}%)`
+    + (a.last_audit ? ` · ${timeAgo(a.last_audit)}` : "");
+
+  const chips = (a.by_source || []).map(s => {
+    const m = srcMeta(s.source);
+    const flagged = s.flagged || 0;
+    const col = flagged > 0 ? "var(--bear)" : "var(--bull-text)";
+    return `<span class="qchip"><span class="dot" style="background:${m.color}"></span>${m.label} <b style="color:${col}">${fmtNum(flagged)}</b><span class="s">/${fmtNum(s.audited)} flagged</span></span>`;
+  }).join("");
+
+  const flags = (a.recent_flags && a.recent_flags.length) ? a.recent_flags.map(f => {
+    const m = srcMeta(f.source);
+    const reasons = (f.reasons || "").split("; ").filter(Boolean)
+      .map(r => `<span class="reason">${r.replace(/</g,"&lt;")}</span>`).join(" ");
+    const disagrees = f.agrees === 0;
+    const scoreBit = disagrees
+      ? `<span>·</span><span class="arrow">score ${fmtSent(f.stored_sentiment)} → text ${fmtSent(f.agent_sentiment)}</span>` : "";
+    const snip = f.snippet
+      ? `<div class="ttl">${f.permalink ? `<a href="${f.permalink}" target="_blank" rel="noopener">` : ""}${f.snippet.replace(/</g,"&lt;")}${f.permalink ? "</a>" : ""}</div>` : "";
+    return `<div class="flag">
+      <div class="meta"><span class="tk">${f.ticker}</span>
+        <span class="src-tag" style="background:${m.color}">${m.label}</span>
+        ${reasons}${scoreBit}</div>
+      ${snip}
+    </div>`;
+  }).join("") : `<div class="ok-note">✓ No posts flagged — every audited mention looks legit and agrees with its score.</div>`;
+
+  $("#auditBody").innerHTML = `<div class="qstrip">${chips}</div><div class="flags">${flags}</div>`;
+}
+
 async function refresh() {
-  await Promise.all([loadOverview(), loadMovers(), loadStatus()]);
+  await Promise.all([loadOverview(), loadMovers(), loadStatus(), loadAudit()]);
   if (state.ticker) await selectTicker(state.ticker);
 }
 
@@ -475,6 +547,16 @@ $("#ingestBtn").addEventListener("click", async () => {
     const s = await loadStatus();
     if (s && s.ingest && !s.ingest.running) { clearInterval(poll); refresh(); }
   }, 3000);
+});
+$("#auditBtn").addEventListener("click", async () => {
+  await fetch("/api/audit", {method:"POST"});
+  $("#auditBtn").disabled = true;
+  $("#auditBtn").textContent = "⏳ Validating…";
+  const poll = setInterval(async () => {
+    let a;
+    try { a = await getJSON("/api/audit"); } catch(e) { return; }
+    if (!(a.run && a.run.running)) { clearInterval(poll); loadAudit(); }
+  }, 2000);
 });
 
 refresh();
