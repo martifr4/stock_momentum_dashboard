@@ -1,6 +1,8 @@
 """Stdlib HTTP server: JSON API + serves the dashboard frontend."""
 from __future__ import annotations
 
+import base64
+import hmac
 import json
 import threading
 import urllib.parse
@@ -32,6 +34,28 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):  # quieter logging
         return
 
+    def _authorized(self):
+        """HTTP Basic auth gate. Open when no DASH_PASSWORD is configured."""
+        if not config.AUTH_PASSWORD:
+            return True
+        header = self.headers.get("Authorization", "")
+        if header.startswith("Basic "):
+            try:
+                decoded = base64.b64decode(header[6:]).decode("utf-8", "replace")
+                user, _, pw = decoded.partition(":")
+            except Exception:  # noqa: BLE001
+                user = pw = ""
+            # constant-time compare to avoid leaking length/prefix via timing
+            if hmac.compare_digest(user, config.AUTH_USERNAME) and hmac.compare_digest(
+                pw, config.AUTH_PASSWORD
+            ):
+                return True
+        self.send_response(401)
+        self.send_header("WWW-Authenticate", 'Basic realm="Momentum Dashboard"')
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+        return False
+
     def _send_json(self, obj, status=200):
         body = json.dumps(obj).encode()
         self.send_response(status)
@@ -54,6 +78,8 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def do_GET(self):
+        if not self._authorized():
+            return
         parsed = urllib.parse.urlparse(self.path)
         route = parsed.path
         q = urllib.parse.parse_qs(parsed.query)
@@ -88,6 +114,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._send_json({"error": str(e)}, 500)
 
     def do_POST(self):
+        if not self._authorized():
+            return
         parsed = urllib.parse.urlparse(self.path)
         if parsed.path == "/api/ingest":
             threading.Thread(target=_run_ingest_bg, daemon=True).start()

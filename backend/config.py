@@ -6,11 +6,13 @@ from pathlib import Path
 
 # --- Paths -----------------------------------------------------------------
 ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = ROOT / "data"
+# DATA_DIR is overridable so a cloud host can point it at a persistent disk
+# (e.g. a mounted Render Disk) and keep history across restarts/redeploys.
+DATA_DIR = Path(os.environ.get("DASH_DATA_DIR", str(ROOT / "data")))
 DB_PATH = DATA_DIR / "reddit.db"
 FRONTEND_DIR = ROOT / "frontend"
 
-DATA_DIR.mkdir(exist_ok=True)
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 # --- Reddit access ---------------------------------------------------------
 # Reddit now BLOCKS all non-OAuth / unidentified traffic, and throttles generic
@@ -72,5 +74,15 @@ MAX_WATCHLIST_PER_RUN = int(os.environ.get("MAX_WATCHLIST_PER_RUN", "30"))
 STOCKTWITS_TRENDING = int(os.environ.get("STOCKTWITS_TRENDING", "12"))
 
 # --- Server ----------------------------------------------------------------
+# HOST: bind 0.0.0.0 to accept connections from other devices / a cloud host.
 HOST = os.environ.get("DASH_HOST", "127.0.0.1")
-PORT = int(os.environ.get("DASH_PORT", "8000"))
+# PORT: many hosts (Render, Railway, Heroku, ...) inject the port via $PORT,
+# so honor that when DASH_PORT isn't set explicitly.
+PORT = int(os.environ.get("DASH_PORT") or os.environ.get("PORT") or "8000")
+
+# --- Optional access control ------------------------------------------------
+# When deployed on the public internet the dashboard is reachable by anyone who
+# has the URL. Set DASH_PASSWORD to require HTTP Basic auth. Leave it empty
+# (the default) to keep the dashboard open, e.g. for local use.
+AUTH_USERNAME = os.environ.get("DASH_USERNAME", "admin")
+AUTH_PASSWORD = os.environ.get("DASH_PASSWORD", "")

@@ -1,0 +1,19 @@
+# Render blueprint — deploys the dashboard as a free web service.
+# See DEPLOY.md for the step-by-step. Render auto-injects $PORT, which
+# backend/config.py honors; we only need to bind to all interfaces.
+services:
+  - type: web
+    name: momentum-dashboard
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python backend/server.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.4"
+      - key: DASH_HOST
+        value: "0.0.0.0"
+      # Password-protect the public URL. sync:false => Render prompts you for a
+      # value at deploy time and keeps it out of the repo. Strongly recommended.
+      - key: DASH_PASSWORD
+        sync: false
