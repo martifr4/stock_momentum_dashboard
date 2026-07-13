@@ -50,6 +50,25 @@ CREATE TABLE IF NOT EXISTS ingest_runs (
     mentions    INTEGER DEFAULT 0,
     note        TEXT
 );
+
+-- Per-mention validation verdicts produced by the source agents (see
+-- backend/agents/). One row per (ticker, post) mention that was audited.
+CREATE TABLE IF NOT EXISTS mention_audits (
+    ticker           TEXT NOT NULL,
+    post_id          TEXT NOT NULL,
+    source           TEXT NOT NULL,
+    status           TEXT NOT NULL,      -- ok|flag
+    legit            INTEGER NOT NULL,   -- 1 = post looks genuine/relevant
+    agrees           INTEGER NOT NULL,   -- 1 = stored sentiment agrees with agent
+    stored_sentiment REAL,               -- score that fed momentum/buzz
+    agent_sentiment  REAL,               -- agent's independent reading
+    confidence       REAL,               -- agent confidence in its reading
+    reasons          TEXT,               -- '; '-joined reason codes
+    audited_at       INTEGER NOT NULL,
+    PRIMARY KEY (ticker, post_id)
+);
+CREATE INDEX IF NOT EXISTS idx_audits_status ON mention_audits(status);
+CREATE INDEX IF NOT EXISTS idx_audits_source ON mention_audits(source);
 """
 
 

@@ -115,6 +115,38 @@ Make sure the Reddit env vars are set for the account that runs the task
 (set them at the machine level via `System Properties → Environment Variables`,
 or hard-code them in a small wrapper `.ps1`).
 
+## Validating the data (per-source agents)
+
+Every post that labels a ticker can be audited by a **validation agent** that
+asks two questions: *is this post legit?* and *does the stored sentiment agree
+with an independent reading of the text?* Each source has its own agent because
+the "legit" question differs by source:
+
+| Source | Agent checks (legitimacy) |
+|---|---|
+| **StockTwits** | promotional / pump-and-dump spam, cashtag-stuffed watchlist posts, no-commentary messages; user Bull/Bear tag vs. text |
+| **Yahoo Finance** | headline actually references the attributed ticker/company (catches generic "N stocks to buy" roundups) |
+| **Hacker News** | company-name collisions ("Apple" the fruit, "Arm" the CPU, "Meta" the prefix) via a market-context requirement |
+| **Reddit** | false-positive ticker extraction (re-runs the extractor), deleted/removed text, known bot authors (e.g. VisualMod) |
+
+All agents also re-derive sentiment from the text and flag disagreements with
+the score that fed momentum/buzz. The audit is **deterministic, dependency-free,
+and non-destructive** — it records a verdict per mention in the `mention_audits`
+table and never changes your momentum numbers.
+
+```powershell
+python backend/audit.py                 # audit all mentions, print report
+python backend/audit.py --flags         # ...and list the flagged ones
+python backend/audit.py --source reddit  # one source only
+python backend/audit.py --days 30        # only recent mentions
+# or: .\run_audit.ps1
+```
+
+You can also trigger it from the running server: `POST /api/audit` runs it in the
+background, and `GET /api/audit` returns a summary (flag rate, per-source counts,
+recent flags). Add a new source's agent by dropping a `BaseAgent` subclass in
+`backend/agents/` and registering it in `backend/agents/__init__.py`.
+
 ## Configuration
 
 Everything is tunable via environment variables (see `backend/config.py`):
@@ -168,6 +200,14 @@ backend/
     reddit_source.py Reddit adapter
   ingest.py         the pipeline: sources -> tickers -> sentiment -> DB
   analytics.py      window aggregation + momentum + source filtering
+  agents/           per-source validation agents (legitimacy + sentiment audit)
+    base.py         shared Verdict + audit logic
+    stocktwits.py   spam / pump / cashtag-stuffing / tag-vs-text checks
+    yahoo_news.py   headline-attribution check
+    hackernews.py   company-name collision check
+    reddit.py       false-positive extraction + bot-author checks
+    aliases.py      ticker -> company-name map for relevance checks
+  audit.py          runs the agents over stored mentions -> mention_audits
   server.py         stdlib HTTP API + serves the frontend
   seed_demo.py      synthetic demo data for exploring the UI
 frontend/

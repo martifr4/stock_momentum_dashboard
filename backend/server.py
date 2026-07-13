@@ -14,6 +14,8 @@ import db
 
 _ingest_lock = threading.Lock()
 _ingest_state = {"running": False, "last_result": None}
+_audit_lock = threading.Lock()
+_audit_state = {"running": False, "last_result": None}
 
 
 def _run_ingest_bg():
@@ -28,6 +30,20 @@ def _run_ingest_bg():
         _ingest_state["last_result"] = {"error": str(e)}
     finally:
         _ingest_state["running"] = False
+
+
+def _run_audit_bg():
+    import audit
+    with _audit_lock:
+        if _audit_state["running"]:
+            return
+        _audit_state["running"] = True
+    try:
+        _audit_state["last_result"] = audit.audit()
+    except Exception as e:  # noqa: BLE001
+        _audit_state["last_result"] = {"error": str(e)}
+    finally:
+        _audit_state["running"] = False
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -109,6 +125,9 @@ class Handler(BaseHTTPRequestHandler):
                 })
             if route == "/api/status":
                 return self._send_json({**analytics.status(), "ingest": _ingest_state})
+            if route == "/api/audit":
+                import audit
+                return self._send_json({**audit.summary(), "run": _audit_state})
             return self.send_error(404)
         except Exception as e:  # noqa: BLE001
             return self._send_json({"error": str(e)}, 500)
@@ -119,6 +138,9 @@ class Handler(BaseHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         if parsed.path == "/api/ingest":
             threading.Thread(target=_run_ingest_bg, daemon=True).start()
+            return self._send_json({"started": True})
+        if parsed.path == "/api/audit":
+            threading.Thread(target=_run_audit_bg, daemon=True).start()
             return self._send_json({"started": True})
         return self.send_error(404)
 
