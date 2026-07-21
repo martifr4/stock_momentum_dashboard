@@ -6,3 +6,8 @@ __pycache__/
 *.db
 *.db-wal
 *.db-shm
+
+# Generated committee reports (keep the tracked sample + the dir placeholder)
+crypto_agents/reports/*
+!crypto_agents/reports/.gitkeep
+!crypto_agents/reports/SAMPLE_committee_BTC.md
