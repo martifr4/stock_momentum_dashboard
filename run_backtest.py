@@ -24,7 +24,10 @@ import sys
 
 import pandas as pd
 
+from crypto_research.env import load_dotenv
 from crypto_research.config import Config
+
+load_dotenv()  # pick up ANTHROPIC_API_KEY from a git-ignored .env if present
 from crypto_research.data.ingest import load_universe
 from crypto_research.features.price import compute_price_features
 from crypto_research.features.volume import compute_volume_features

@@ -24,7 +24,10 @@ import sys
 
 import pandas as pd
 
+from crypto_research.env import load_dotenv
 from crypto_research.config import Config
+
+load_dotenv()  # pick up ANTHROPIC_API_KEY from a git-ignored .env if present
 from crypto_research.data.ingest import load_universe
 from crypto_research.features.social import fetch_stocktwits_mentions
 from crypto_research.decision.claude_multisignal import ClaudeMultiSignalCombiner

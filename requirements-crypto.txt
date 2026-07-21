@@ -8,6 +8,7 @@ pyyaml>=6.0          # config loading
 requests>=2.28       # Coinbase REST client
 pytest>=7.0          # test suite
 
-# Optional: only needed if you switch decision.combiner to "llm".
-# The system runs fully without it (LLM combiner degrades gracefully).
-# anthropic>=0.40
+# Needed for the LLM / Claude multi-signal strategies (decision.combiner:
+# "llm" or "claude_multisignal"). The rules strategy runs fully without it, and
+# the LLM combiners degrade gracefully if the package or key is missing.
+anthropic>=0.40
