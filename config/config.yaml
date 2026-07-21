@@ -41,7 +41,7 @@ social:
   lag_days: 1                 # conservative no-lookahead lag on Fear & Greed
 
 decision:
-  combiner: "rules"           # "rules" | "llm"
+  combiner: "rules"           # "rules" | "llm" | "claude_multisignal"
   # Rules combiner weights (applied to standardized signals -> raw score).
   rules:
     weights:
@@ -53,19 +53,21 @@ decision:
     short_threshold: -0.25    # score below -> short (set allow_short below)
     allow_short: false        # long/flat only by default (honest, tradable)
   llm:
+    provider: "anthropic"     # "anthropic" | "deepseek" | "openai"
     model: "claude-opus-4-8"
     max_tokens: 2000
     temperature: 0.0
-    # Reads ANTHROPIC_API_KEY from env. If missing, combiner reports
-    # unavailable instead of inventing positions.
-  # Strategy 2: technicals + momentum + forum/social sentiment, fused by Claude.
+    # Reads the provider's API key from env (ANTHROPIC_API_KEY / DEEPSEEK_API_KEY
+    # / OPENAI_API_KEY). If missing, the combiner reports unavailable instead of
+    # inventing positions.
+  # Strategy 2: technicals + momentum + forum/social sentiment, fused by an LLM.
   claude_multisignal:
-    model: "claude-opus-4-8"
+    provider: "anthropic"     # switch to "deepseek" to use a DeepSeek key/model
+    model: "claude-opus-4-8"  # for deepseek use e.g. "deepseek-chat" or "deepseek-reasoner"
     max_tokens: 2000
     temperature: 0.0
-    decision_every: 5         # query Claude every N days, hold between
+    decision_every: 5         # query the model every N days, hold between
     allow_short: false
-    # Also reads ANTHROPIC_API_KEY; degrades to all-flat (flagged) without it.
 
 portfolio:
   gross_leverage: 1.0         # sum(|weight|) target before vol scaling

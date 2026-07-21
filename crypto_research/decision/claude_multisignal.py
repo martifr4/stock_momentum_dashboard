@@ -1,8 +1,8 @@
-"""Claude multi-signal combiner: technicals + momentum + social, fused by Claude.
+"""Multi-signal LLM combiner: technicals + momentum + social, fused by an LLM.
 
-This is a distinct strategy from the rules/plain-LLM combiners. For each decision
-date it hands Claude a **structured, three-pillar** view of each asset and asks
-for a target weight, stance, and rationale:
+A distinct strategy from the rules/plain-LLM combiners. For each decision date
+it hands the reasoning model a **structured, three-pillar** view of each asset
+and asks for a target weight, stance, and rationale:
 
 * **Technicals** — position vs the 50/200-day moving averages, fast/slow MA
   relationship, ATR%, realized vol, drawdown state.
@@ -12,12 +12,10 @@ for a target weight, stance, and rationale:
   mention volume can be appended (see ``features/social.py``); in backtests only
   the timestamped market-wide reading is used, and that limitation is stated.
 
-It inherits all the safety machinery of :class:`LLMCombiner`:
-
-* point-in-time prompts (only data <= T, so no lookahead),
-* on-disk response caching (keyed incl. the system prompt),
-* graceful degradation to all-flat + a clear note when no API key is present —
-  it never fabricates positions.
+The reasoning backend is pluggable (Claude / DeepSeek / OpenAI) via ``provider``.
+It inherits all the safety machinery of :class:`LLMCombiner`: point-in-time
+prompts (no lookahead), on-disk response caching, and graceful degradation to
+all-flat + a clear note when the provider is unavailable.
 """
 from __future__ import annotations
 
@@ -56,7 +54,6 @@ class ClaudeMultiSignalCombiner(LLMCombiner):
     name = "claude_multisignal"
 
     def __init__(self, model: str, **kwargs):
-        # Flatten the pillar features for the base-class notna() checks etc.
         prompt_features = _TECH + _MOMENTUM + _SOCIAL
         kwargs.setdefault("cache_dir", "data_cache/claude_multisignal_cache")
         super().__init__(

@@ -1,8 +1,8 @@
-"""Claude multi-signal combiner: decision loop driven by a MOCK Claude client.
+"""Multi-signal combiner: decision loop driven by a MOCK provider caller.
 
-No network / API key: we inject a fake client so the plumbing (prompt -> parse ->
-weights, holding between decision dates, caching, long-only clipping) is verified
-deterministically.
+No network / API key: we inject a fake ``call(system, prompt) -> text`` so the
+plumbing (prompt -> parse -> weights, holding between decision dates, caching,
+long-only clipping, provider selection) is verified deterministically.
 """
 from __future__ import annotations
 
@@ -13,37 +13,22 @@ import pandas as pd
 import pytest
 
 from crypto_research.decision.claude_multisignal import ClaudeMultiSignalCombiner
+from crypto_research.decision.providers import get_caller
 from crypto_research.features.price import compute_price_features
 from crypto_research.features.volume import compute_volume_features
-from crypto_research.features.social import build_social_features
 from tests.conftest import make_panel
 
 
-# -- fake anthropic client -------------------------------------------------
-class _Block:
-    type = "text"
-    def __init__(self, text): self.text = text
-
-
-class _Msg:
-    def __init__(self, text): self.content = [_Block(text)]
-
-
-class _Messages:
-    def __init__(self, counter): self._counter = counter
-    def create(self, **kwargs):
-        self._counter["calls"] += 1
-        # Deterministic: long BTC, flat ETH, short SOL (clipped if long-only).
+def _fake_call(counter):
+    def call(system, prompt):
+        counter["calls"] += 1
         payload = {
             "BTC-USD": {"weight": 0.9, "stance": "long", "why": "momentum+technicals"},
             "ETH-USD": {"weight": 0.0, "stance": "flat", "why": "mixed"},
             "SOL-USD": {"weight": -0.7, "stance": "short", "why": "broken trend"},
         }
-        return _Msg(json.dumps(payload))
-
-
-class _FakeClient:
-    def __init__(self, counter): self.messages = _Messages(counter)
+        return json.dumps(payload)
+    return call
 
 
 def _features():
@@ -55,7 +40,6 @@ def _features():
     )
     vol = compute_volume_features(panel, baseline_window=30, zscore_window=30)
     feats = price.join(vol, how="outer").sort_index()
-    # Attach neutral social columns so the prompt assembles.
     for c in ("social_value", "social_sentiment", "social_z"):
         feats[c] = 0.0
     return feats
@@ -63,7 +47,7 @@ def _features():
 
 def _combiner_with_mock(monkeypatch, counter, **kw):
     c = ClaudeMultiSignalCombiner(model="claude-opus-4-8", decision_every=5, **kw)
-    monkeypatch.setattr(c, "_client", lambda: (_FakeClient(counter), ""))
+    monkeypatch.setattr(c, "_caller", lambda: (_fake_call(counter), ""))
     return c
 
 
@@ -72,9 +56,7 @@ def test_long_only_clips_short(monkeypatch):
     c = _combiner_with_mock(monkeypatch, counter, allow_short=False)
     out = c.generate(_features())
     assert out.available is True
-    # SOL short (-0.7) must be clipped to 0 under long-only.
     assert (out.weights["SOL-USD"] >= -1e-12).all()
-    # BTC long should appear.
     assert (out.weights["BTC-USD"] > 0).any()
 
 
@@ -91,9 +73,7 @@ def test_holds_between_decision_dates(monkeypatch):
     feats = _features()
     out = c.generate(feats)
     n_dates = feats.index.get_level_values("date").nunique()
-    # decision_every=5 -> far fewer API calls than dates (holds in between).
     assert counter["calls"] <= n_dates // 5 + 1
-    # Weights are piecewise-constant between decisions (no NaNs, bounded).
     assert out.weights.abs().to_numpy().max() <= 1.0 + 1e-9
     assert not np.isnan(out.weights.to_numpy()).any()
 
@@ -104,7 +84,35 @@ def test_response_is_cached(monkeypatch, tmp_path):
     feats = _features()
     c.generate(feats)
     first = counter["calls"]
-    # Second run should hit the on-disk cache and make no new calls.
     c2 = _combiner_with_mock(monkeypatch, counter, allow_short=True, cache_dir=str(tmp_path))
     c2.generate(feats)
     assert counter["calls"] == first, "cache miss: model was re-queried"
+
+
+# -- provider routing ------------------------------------------------------
+def test_provider_degrades_without_key(monkeypatch):
+    for env in ("ANTHROPIC_API_KEY", "DEEPSEEK_API_KEY", "OPENAI_API_KEY"):
+        monkeypatch.delenv(env, raising=False)
+    for provider in ("anthropic", "deepseek", "openai"):
+        call, why = get_caller(provider, "m", 100, 0.0)
+        assert call is None
+        assert "not set" in why
+
+
+def test_unknown_provider_flagged(monkeypatch):
+    call, why = get_caller("acme", "m", 100, 0.0)
+    assert call is None
+    assert "unknown provider" in why
+
+
+def test_deepseek_provider_is_selected(monkeypatch):
+    # With a DeepSeek key present but no openai package needed for selection
+    # logic, the caller factory should attempt the OpenAI-compatible path.
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "sk-test")
+    c = ClaudeMultiSignalCombiner(model="deepseek-chat", provider="deepseek")
+    assert c.provider == "deepseek"
+    # _caller routes to the deepseek branch; result depends only on whether the
+    # openai package is installed, not on Anthropic.
+    call, why = c._caller()
+    assert (call is not None) or ("openai package not installed" in why)

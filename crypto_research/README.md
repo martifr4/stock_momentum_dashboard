@@ -62,41 +62,45 @@ out in [`../HONEST_ASSESSMENT.md`](../HONEST_ASSESSMENT.md).
 
 ```bash
 python run_backtest.py --combiner rules              # Strategy 1: transparent rules
-python run_backtest.py --combiner llm                # plain Claude over features
+python run_backtest.py --combiner llm                # plain LLM over features
 python run_backtest.py --combiner claude_multisignal # Strategy 2 (below)
 ```
 
-All combiners only ever see the current day's causal features (no lookahead),
-cache responses to disk, and **degrade gracefully** (all-flat + a clear note) if
-no `ANTHROPIC_API_KEY` is present — they never invent positions.
+All LLM combiners only ever see the current day's causal features (no
+lookahead), cache responses to disk, and **degrade gracefully** (all-flat + a
+clear note) if the provider's key/SDK is missing — they never invent positions.
 
-### Strategy 2 — Claude multi-signal (technicals + momentum + forums)
+### Strategy 2 — multi-signal (technicals + momentum + forums)
 
-`decision/claude_multisignal.py` fuses **three pillars** and lets Claude make the
-call:
-
-1. **Technicals** — position vs 50/200-day MAs, fast/slow MA, ATR%, realized
-   vol, drawdown.
-2. **Momentum** — 12-1 momentum + 1/3-month returns.
-3. **Social / forums** — see below.
-
-The social input is where honesty bites, and it is handled in two modes:
+`decision/claude_multisignal.py` fuses **three pillars** (technicals, momentum,
+social/forums) and lets the model decide. The social input is handled honestly:
 
 | Mode | Social source | Lookahead-safe? |
 |---|---|---|
-| **Backtest** | **Fear & Greed Index** (alternative.me, free, daily since 2018), lagged 1 day | Yes — timestamped, and lagged for safety. But it is *market-wide*, not per-coin forum counts. |
-| **Live** (`run_live.py`) | **StockTwits** per-coin mentions + bull/bear tags | Yes — "now" has no future. This is the real per-coin forum signal, usable forward only (no free history). |
+| **Backtest** | Fear & Greed Index (free, daily since 2018), lagged 1 day | Yes — timestamped, lagged. But *market-wide*, not per-coin. |
+| **Live** (`run_live.py`) | StockTwits per-coin mentions + bull/bear tags | Yes — "now" has no future. Real per-coin forum signal, forward only. |
+
+### Reasoning backend is swappable (Claude / DeepSeek / OpenAI)
+
+The model that makes the decision is pluggable via `provider` in
+`config/config.yaml` (`decision.llm` and `decision.claude_multisignal`):
+
+```yaml
+decision:
+  claude_multisignal:
+    provider: "anthropic"     # or "deepseek" or "openai"
+    model: "claude-opus-4-8"  # deepseek: "deepseek-chat" / "deepseek-reasoner"
+```
+
+Each provider reads its own key from the environment
+(`ANTHROPIC_API_KEY` / `DEEPSEEK_API_KEY` / `OPENAI_API_KEY`). DeepSeek uses its
+OpenAI-compatible endpoint, so `pip install openai` covers both `deepseek` and
+`openai`. Keys can live in a git-ignored `.env` at the repo root (auto-loaded).
 
 ```bash
 # Forward/paper decision for today (real per-coin forum mentions participate):
-ANTHROPIC_API_KEY=... python run_live.py
-# Without a key it still prints every gathered live signal, just no decision.
+DEEPSEEK_API_KEY=... python run_live.py   # provider: deepseek in config
 ```
-
-**Status:** the strategy is fully wired, unit-tested (with a mock Claude client),
-and runnable. It has **not** been run over history here (no API key in the build
-environment), so this repo makes **no performance claim** for it yet — see
-`../HONEST_ASSESSMENT.md`.
 
 ## Configuration
 

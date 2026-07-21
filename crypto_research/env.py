@@ -1,9 +1,11 @@
 """Zero-dependency .env loader.
 
-Lets you keep secrets (e.g. ``ANTHROPIC_API_KEY``) in a git-ignored ``.env`` file
-at the repo root instead of exporting them every session:
+Lets you keep secrets (e.g. ``ANTHROPIC_API_KEY`` or ``DEEPSEEK_API_KEY``) in a
+git-ignored ``.env`` file at the repo root instead of exporting them every
+session:
 
     ANTHROPIC_API_KEY=sk-ant-...
+    DEEPSEEK_API_KEY=sk-...
 
 ``load_dotenv`` is called at the top of ``run_backtest.py`` and ``run_live.py``.
 It never overrides a variable already present in the real environment (so an
@@ -20,8 +22,8 @@ def load_dotenv(path: str | os.PathLike | None = None) -> bool:
     """Load KEY=VALUE lines from a .env file into os.environ.
 
     Returns True if a file was found and parsed. Existing env vars are not
-    overwritten. Lines that are blank, comments (``#``), or malformed are
-    skipped. Surrounding quotes on values are stripped.
+    overwritten. Blank lines, comments (``#``), and malformed lines are skipped.
+    Surrounding quotes on values are stripped.
     """
     env_path = Path(path) if path else Path(__file__).resolve().parent.parent / ".env"
     if not env_path.exists():

@@ -1,21 +1,26 @@
-"""LLM-reasoning combiner (Claude via the Anthropic API).
+"""LLM-reasoning combiner — provider-swappable (Claude / DeepSeek / OpenAI).
 
 Swappable with :class:`RulesCombiner` behind the same interface. For each
-decision date it hands Claude the *current* feature cross-section (only data at
-or before that date — no future rows are ever in the prompt) and asks for a
+decision date it hands the model the *current* feature cross-section (only data
+at or before that date — no future rows are ever in the prompt) and asks for a
 target weight per asset plus a one-line rationale.
+
+The reasoning backend is pluggable via ``provider`` (see
+:mod:`crypto_research.decision.providers`): ``anthropic`` (Claude),
+``deepseek``, or ``openai``. The rest of the logic is identical across
+providers.
 
 Honesty / safety properties:
 
-* **Graceful degradation** — if ``ANTHROPIC_API_KEY`` is unset or the
-  ``anthropic`` package is missing, ``generate`` returns ``available=False`` and
-  an all-flat frame with a clear note, instead of inventing positions.
+* **Graceful degradation** — if the provider's API key is unset or its SDK is
+  missing, ``generate`` returns ``available=False`` and an all-flat frame with a
+  clear note, instead of inventing positions.
 * **No lookahead** — the prompt for date ``T`` contains only the row for ``T``
-  (which itself is built from causal features). The model cannot see ``T+1``.
+  (built from causal features). The model cannot see ``T+1``.
 * **Cost control** — calling an LLM for every day over years is expensive, so
-  the combiner (a) only decides on a configurable schedule (e.g. every N days,
+  the combiner (a) only decides on a configurable schedule (every N days,
   holding between decisions) and (b) caches every response to disk keyed by a
-  hash of the prompt, so re-runs cost nothing.
+  hash of provider+model+system+prompt, so re-runs cost nothing.
 
 This module never *requires* an API key to import or to run the rest of the
 system; the rules combiner remains the default.
@@ -24,13 +29,13 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 from .base import Combiner, CombinerOutput
+from .providers import get_caller
 
 _SYSTEM = (
     "You are a disciplined systematic crypto portfolio manager. You are given a "
@@ -64,6 +69,7 @@ class LLMCombiner(Combiner):
         allow_short: bool = False,
         system_prompt: str | None = None,
         prompt_features: list[str] | None = None,
+        provider: str = "anthropic",
     ):
         self.model = model
         self.max_tokens = max_tokens
@@ -71,21 +77,20 @@ class LLMCombiner(Combiner):
         self.decision_every = decision_every
         self.cache_dir = Path(cache_dir)
         self.allow_short = allow_short
+        # Which reasoning backend runs the decision (anthropic|deepseek|openai).
+        self.provider = provider
         # Subclasses (e.g. the multi-signal combiner) override these to change
         # what the model is told and which features it sees.
         self.system_prompt = system_prompt or _SYSTEM
         self.prompt_features = prompt_features or _PROMPT_FEATURES
 
     # -- availability ------------------------------------------------------
-    def _client(self):
-        key = os.environ.get("ANTHROPIC_API_KEY")
-        if not key:
-            return None, "ANTHROPIC_API_KEY not set"
-        try:
-            import anthropic  # noqa: PLC0415 (optional dependency)
-        except ImportError:
-            return None, "anthropic package not installed"
-        return anthropic.Anthropic(api_key=key), ""
+    def _caller(self):
+        """Return ``(call, "")`` for the configured provider, else ``(None, reason)``.
+
+        ``call(system, prompt) -> str``. Overridable in tests with a stub.
+        """
+        return get_caller(self.provider, self.model, self.max_tokens, self.temperature)
 
     # -- prompt / cache ----------------------------------------------------
     def _prompt_for(self, date: pd.Timestamp, cross: pd.DataFrame) -> str:
@@ -102,24 +107,17 @@ class LLMCombiner(Combiner):
         return json.dumps(payload, sort_keys=True)
 
     def _cache_key(self, prompt: str) -> Path:
-        # Include the system prompt so combiners that send the same features but
-        # different instructions do not share cached responses.
-        material = f"{self.model}|{self.system_prompt}|{prompt}"
+        # Include provider + system prompt so different backends / instructions
+        # do not share cached responses.
+        material = f"{self.provider}|{self.model}|{self.system_prompt}|{prompt}"
         h = hashlib.sha256(material.encode()).hexdigest()[:24]
         return self.cache_dir / f"{h}.json"
 
-    def _query(self, client, prompt: str) -> dict:
+    def _query(self, call, prompt: str) -> dict:
         cache_file = self._cache_key(prompt)
         if cache_file.exists():
             return json.loads(cache_file.read_text())
-        msg = client.messages.create(
-            model=self.model,
-            max_tokens=self.max_tokens,
-            temperature=self.temperature,
-            system=self.system_prompt,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        text = "".join(block.text for block in msg.content if block.type == "text")
+        text = call(self.system_prompt, prompt)
         parsed = _extract_json(text)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         cache_file.write_text(json.dumps(parsed))
@@ -127,16 +125,17 @@ class LLMCombiner(Combiner):
 
     # -- main --------------------------------------------------------------
     def generate(self, features: pd.DataFrame) -> CombinerOutput:
-        client, why = self._client()
+        call, why = self._caller()
         assets = sorted(features.index.get_level_values("asset").unique())
         dates = features.index.get_level_values("date").unique().sort_values()
         weights = pd.DataFrame(0.0, index=dates, columns=assets)
 
-        if client is None:
+        if call is None:
             return CombinerOutput(
                 weights=weights, available=False,
                 note=f"LLM combiner unavailable ({why}); returned all-flat. "
-                     "Switch decision.combiner to 'rules' or set the API key.",
+                     "Switch decision.combiner to 'rules', pick another provider, "
+                     "or set the API key.",
             )
 
         rationales: dict[tuple, str] = {}
@@ -148,7 +147,7 @@ class LLMCombiner(Combiner):
                 cross = cross[cross["mom_12_1"].notna()] if "mom_12_1" in cross else cross
                 if len(cross):
                     prompt = self._prompt_for(date, cross)
-                    parsed = self._query(client, prompt)
+                    parsed = self._query(call, prompt)
                     row = pd.Series(0.0, index=assets)
                     for asset in assets:
                         entry = parsed.get(asset) or {}
@@ -172,8 +171,8 @@ class LLMCombiner(Combiner):
         Because the decision timestamp is "now", using current data introduces
         no lookahead. Returns ``(weights: dict[asset->float], rationales, note)``.
         """
-        client, why = self._client()
-        if client is None:
+        call, why = self._caller()
+        if call is None:
             return {}, {}, f"LLM combiner unavailable ({why})."
         last = features.index.get_level_values("date").max()
         cross = features.xs(last, level="date").copy()
@@ -183,7 +182,7 @@ class LLMCombiner(Combiner):
                     for k, v in fields.items():
                         cross.loc[asset, k] = v
         prompt = self._prompt_for(last, cross)
-        parsed = self._query(client, prompt)
+        parsed = self._query(call, prompt)
         weights, rationales = {}, {}
         for asset in cross.index:
             entry = parsed.get(asset) or {}
@@ -198,7 +197,7 @@ class LLMCombiner(Combiner):
 
 def _extract_json(text: str) -> dict:
     """Best-effort parse of a JSON object from model output."""
-    text = text.strip()
+    text = (text or "").strip()
     start, end = text.find("{"), text.rfind("}")
     if start == -1 or end == -1:
         return {}

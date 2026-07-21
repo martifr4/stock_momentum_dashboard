@@ -84,42 +84,39 @@ up," which buy-and-hold does more cheaply.
    record, so I make **no** claim about whether LLM reasoning adds edge. Treat
    `decision.combiner: llm` as wired-and-testable, not as validated.
 
-## Strategy 2 — Claude multi-signal (technicals + momentum + forums)
+## Strategy 2 — multi-signal (technicals + momentum + forums), any LLM provider
 
-A second strategy fuses technicals, momentum, and a social/forum signal via a
-Claude decision. Honest status and caveats:
+A second strategy fuses technicals, momentum, and a social/forum signal via an
+LLM decision (provider swappable: Claude / DeepSeek / OpenAI). Honest status:
 
-1. **No performance claim yet.** The build environment has no `ANTHROPIC_API_KEY`,
-   so it has not been run over history here. The pipeline, prompt assembly,
-   parsing, caching, no-lookahead handling, and risk sizing are unit-tested with
-   a mock client, but **I have produced zero real Claude results**. Do not read
-   any number for this strategy as validated — there are none.
+1. **No performance claim yet.** No provider key was available in the build
+   environment, so it has not been run over history. The pipeline, prompt
+   assembly, parsing, caching, no-lookahead handling, provider routing, and risk
+   sizing are unit-tested with a mock caller, but **zero real LLM results have
+   been produced.** Any number for this strategy would be unvalidated — there
+   are none.
 2. **The backtestable social signal is a proxy, not per-coin forums.** Free,
-   timestamped, per-coin forum-mention history does not exist. So in backtest the
-   "forums" pillar is the **market-wide Fear & Greed index** (lagged 1 day for
-   lookahead safety). That is a legitimate, timestamped crowd-sentiment gauge —
-   but it is the *same value for every coin on a given day*, so it cannot
-   distinguish "SOL is being hyped" from "BTC is being hyped". Treat it as a
-   market-regime input, not a per-coin forum signal.
+   timestamped, per-coin forum-mention history does not exist. In backtest the
+   "forums" pillar is the **market-wide Fear & Greed index** (lagged 1 day). It
+   is the *same value for every coin on a given day*, so it cannot distinguish
+   "SOL is being hyped" from "BTC is being hyped." Treat it as a market-regime
+   input, not a per-coin forum signal.
 3. **The real per-coin forum signal (StockTwits) is live-only.** `run_live.py`
-   pulls current per-coin mentions and bull/bear tags and feeds them to Claude
-   for a forward decision. This is genuinely lookahead-safe (there is no future
-   at decision time) but it **cannot be backtested** for free, so its historical
-   value is unknown.
-4. **LLM non-determinism and cost.** Even at temperature 0, model outputs can
-   drift across versions; responses are cached to disk for reproducibility of a
-   given run, but a re-run on a new model version is a different experiment.
-   Querying every day over years is expensive, which is why decisions are made on
-   a schedule (`decision_every`) and held between — itself a modeling choice that
-   affects results.
+   feeds current per-coin mentions to the model for a forward decision —
+   lookahead-safe, but **not backtestable** for free, so its historical value is
+   unknown.
+4. **Provider choice changes the experiment.** Results from `deepseek` are not
+   interchangeable with `anthropic` or `openai`; each is a different model.
+   Responses are cached per provider+model for reproducibility of a given run,
+   but switching providers (or model versions) is a new experiment. LLM outputs
+   can also drift across versions even at temperature 0.
 5. **Same universe-survivorship and single-vendor-price caveats as Strategy 1
    apply here too.**
 
-If you want an honest read on whether Claude-fused signals beat the rules
-baseline, the next step is: set an API key, run `--combiner claude_multisignal`
-over the **in-sample** period only, freeze nothing about the design based on OOS,
-then evaluate OOS exactly once — and still expect the market-wide social proxy to
-limit what the "forums" pillar can contribute.
+To get an honest read: set a provider key, run `--combiner claude_multisignal`
+over the **in-sample** period only, freeze nothing based on OOS, then evaluate
+OOS exactly once — and still expect the market-wide social proxy to limit what
+the "forums" pillar can contribute.
 
 ## What I would trust
 

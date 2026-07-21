@@ -26,8 +26,6 @@ import pandas as pd
 
 from crypto_research.env import load_dotenv
 from crypto_research.config import Config
-
-load_dotenv()  # pick up ANTHROPIC_API_KEY from a git-ignored .env if present
 from crypto_research.data.ingest import load_universe
 from crypto_research.features.price import compute_price_features
 from crypto_research.features.volume import compute_volume_features
@@ -36,6 +34,8 @@ from crypto_research.features.social import build_social_features
 from crypto_research.decision.rules import RulesCombiner
 from crypto_research.decision.llm import LLMCombiner
 from crypto_research.decision.claude_multisignal import ClaudeMultiSignalCombiner
+
+load_dotenv()  # pick up API keys from a git-ignored .env if present
 from crypto_research.portfolio.risk import apply_risk
 from crypto_research.backtest.engine import run_backtest, open_to_open_returns
 from crypto_research.backtest.metrics import compute_metrics, Metrics
@@ -79,12 +79,14 @@ def make_combiner(cfg: Config, which: str):
         return ClaudeMultiSignalCombiner(
             model=c.model, max_tokens=c.max_tokens, temperature=c.temperature,
             decision_every=c.decision_every, allow_short=c.allow_short,
+            provider=c.get("provider", "anthropic"),
         )
     if which == "llm":
         c = cfg.decision.llm
         return LLMCombiner(
             model=c.model, max_tokens=c.max_tokens, temperature=c.temperature,
             allow_short=cfg.decision.rules.allow_short,
+            provider=c.get("provider", "anthropic"),
         )
     r = cfg.decision.rules
     return RulesCombiner(

@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
-"""Live / forward decision for the Claude multi-signal strategy.
+"""Live / forward decision for the multi-signal strategy.
 
 This is the mode where the **per-coin forum signal genuinely participates**: it
 pulls the latest prices, builds today's technical + momentum features, fetches
-*current* StockTwits per-coin mentions and the Fear & Greed reading, and asks
-Claude for today's target positions with a rationale.
+*current* StockTwits per-coin mentions and the Fear & Greed reading, and asks the
+reasoning model (Claude/DeepSeek/OpenAI, per config) for today's target positions
+with a rationale.
 
 Because the decision timestamp is "now", using current data is lookahead-safe by
-construction (there is no future to peek at). This does NOT backtest the per-coin
-forum signal — see HONEST_ASSESSMENT.md for why free per-coin forum history is
-not available.
+construction. This does NOT backtest the per-coin forum signal — see
+HONEST_ASSESSMENT.md for why free per-coin forum history is not available.
 
 Usage:
-    ANTHROPIC_API_KEY=... python run_live.py           # real decision
-    python run_live.py                                  # shows inputs, notes no key
+    ANTHROPIC_API_KEY=... python run_live.py     # or DEEPSEEK_API_KEY, per config
+    python run_live.py                            # shows inputs, notes no key
 
-Requires ANTHROPIC_API_KEY for the decision step; without it, the script still
-prints all the gathered signals so you can see what would be sent.
+Without a usable provider key the script still prints all gathered signals.
 """
 from __future__ import annotations
 
@@ -26,19 +25,19 @@ import pandas as pd
 
 from crypto_research.env import load_dotenv
 from crypto_research.config import Config
-
-load_dotenv()  # pick up ANTHROPIC_API_KEY from a git-ignored .env if present
 from crypto_research.data.ingest import load_universe
 from crypto_research.features.social import fetch_stocktwits_mentions
 from crypto_research.decision.claude_multisignal import ClaudeMultiSignalCombiner
 from crypto_research.portfolio.risk import apply_risk
 from run_backtest import build_features
 
+load_dotenv()  # pick up API keys from a git-ignored .env if present
+
 
 def main(argv=None) -> int:
     cfg = Config.load(argv[0] if argv else None)
     print("=" * 68)
-    print("CLAUDE MULTI-SIGNAL — LIVE DECISION")
+    print("MULTI-SIGNAL — LIVE DECISION")
     print("=" * 68)
 
     # Latest data (refresh so 'today' is current). Live mode extends the end
@@ -67,28 +66,28 @@ def main(argv=None) -> int:
             print(f"  {asset}: {d['mentions']} recent msgs, "
                   f"{d['bull_frac']:.0%} bull / {d['bear_frac']:.0%} bear")
 
-    # Market-wide social reading already in the features (Fear & Greed).
     cross = features.xs(last, level="date")
     if "social_value" in cross:
         fg = cross["social_value"].dropna()
         if len(fg):
             print(f"\nFear & Greed (lagged): {fg.iloc[0]:.0f}/100")
 
-    # Ask Claude for today's decision.
+    # Ask the configured reasoning model for today's decision.
     c = cfg.decision.claude_multisignal
     combiner = ClaudeMultiSignalCombiner(
         model=c.model, max_tokens=c.max_tokens, temperature=c.temperature,
         decision_every=1, allow_short=c.allow_short,
+        provider=c.get("provider", "anthropic"),
     )
+    print(f"\nProvider: {combiner.provider} | model: {combiner.model}")
     weights, rationales, note = combiner.decide_latest(features, extra_per_asset=per_asset)
-    print(f"\n{note}")
+    print(note)
 
     if not weights:
-        print("\nNo decision produced (set ANTHROPIC_API_KEY to enable the Claude "
+        print("\nNo decision produced (set the provider's API key to enable the "
               "decision step). All signals above were still gathered live.")
         return 0
 
-    # Size the raw targets through the same risk module the backtest uses.
     raw = pd.DataFrame([weights], index=[last])
     asset_returns = res.panel["close"].unstack("asset").sort_index().pct_change()
     pf = cfg.portfolio

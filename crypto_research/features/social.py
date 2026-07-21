@@ -65,8 +65,7 @@ def load_fear_greed(
     """Load the daily Fear & Greed index as a UTC-date-indexed frame.
 
     Columns: ``fng_value`` (0-100 int) and ``fng_norm`` in [-1, 1] where
-    ``(value - 50) / 50``. Cached to Parquet. No gap handling beyond what the
-    source provides; missing days are simply absent and align to NaN downstream.
+    ``(value - 50) / 50``. Cached to Parquet.
     """
     cache = Path(cache_dir)
     cache.mkdir(parents=True, exist_ok=True)
@@ -164,7 +163,6 @@ def build_social_features(
     ``social_z`` (causal expanding z-score of sentiment).
     """
     dates = feature_index.get_level_values("date").unique().sort_values()
-    assets = feature_index.get_level_values("asset").unique()
     empty = pd.DataFrame(
         {"social_value": np.nan, "social_sentiment": 0.0, "social_z": 0.0},
         index=feature_index,
