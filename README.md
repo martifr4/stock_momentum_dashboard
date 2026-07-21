@@ -25,6 +25,14 @@ attention is heading.
   momentum arrows, sentiment meters, per-ticker trend charts, and the actual
   posts/headlines driving the buzz.
 
+> **Also in this repo:** [`crypto_agents/`](crypto_agents/) — a separate
+> **multi-agent crypto trade committee** (three trader agents + data-quality
+> analysts + a strict unanimous-70% decision rule and append-only portfolio
+> ledger). It ships in two forms: a deterministic, key-free Python pipeline
+> (`python coordinator.py BTC`) and a set of Claude Code subagents in
+> [`.claude/agents/`](.claude/agents/) (`Use the trade-coordinator subagent on
+> BTC/USD`). See [`crypto_agents/README.md`](crypto_agents/README.md).
+
 ## Install
 
 ```powershell
