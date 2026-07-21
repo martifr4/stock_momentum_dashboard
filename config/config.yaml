@@ -1,0 +1,71 @@
+# ============================================================================
+# Crypto trading research system — single source of configuration.
+# Everything downstream (data, features, decision, portfolio, backtest) reads
+# from here so runs are reproducible and nothing is hard-coded in the modules.
+# ============================================================================
+
+data:
+  # Coinbase Exchange product ids. Quote currency is USD.
+  universe: ["BTC-USD", "ETH-USD", "SOL-USD"]
+  # Buy-and-hold single-asset benchmark (must be in the universe).
+  benchmark_asset: "BTC-USD"
+  start: "2019-01-01"        # inclusive, UTC calendar date
+  end:   "2025-06-30"        # inclusive, UTC calendar date
+  granularity_seconds: 86400 # daily bars
+  cache_dir: "data_cache"    # Parquet cache location (relative to repo root)
+  max_forward_fill_days: 2   # cap on how many missing bars we will fill
+
+features:
+  return_horizons: [1, 5, 10, 21, 63]   # trading-day lookbacks for returns
+  momentum:
+    lookback: 252   # ~12 months
+    skip: 21        # skip most-recent month -> classic 12-1 momentum
+  moving_averages: [10, 20, 50, 100, 200]
+  realized_vol_window: 21     # rolling std of daily returns
+  atr_window: 14
+  volume:
+    baseline_window: 63       # volume trend measured vs this baseline
+    zscore_window: 63
+
+news:
+  enabled: false              # QUARANTINED. Off for backtests by default.
+  # If enabled without proven lookahead-safe timestamped data, the module
+  # still returns a neutral signal and sets news_available = False.
+  rss_feeds: []
+
+decision:
+  combiner: "rules"           # "rules" | "llm"
+  # Rules combiner weights (applied to standardized signals -> raw score).
+  rules:
+    weights:
+      momentum_12_1: 1.0
+      trend_ma: 1.0
+      vol_penalty: 0.5        # subtracts when realized vol is high
+      volume_confirm: 0.5
+    long_threshold: 0.25      # score above -> long
+    short_threshold: -0.25    # score below -> short (set allow_short below)
+    allow_short: false        # long/flat only by default (honest, tradable)
+  llm:
+    model: "claude-opus-4-8"
+    max_tokens: 2000
+    temperature: 0.0
+    # Reads ANTHROPIC_API_KEY from env. If missing, combiner reports
+    # unavailable instead of inventing positions.
+
+portfolio:
+  gross_leverage: 1.0         # sum(|weight|) target before vol scaling
+  max_position: 0.5           # per-asset cap on |weight|
+  max_gross: 1.0              # hard cap on sum(|weight|) after all scaling
+  vol_target_annual: 0.20     # annualized portfolio vol target (0 = disabled)
+  vol_lookback: 21
+  max_leverage_from_vol: 1.5  # cap on vol-target scaling multiplier
+
+backtest:
+  initial_capital: 100000.0
+  cost_bps: 10.0              # round-trip-agnostic: charged per unit turnover
+  slippage_bps: 5.0           # additional execution slippage per unit turnover
+  execution: "next_open"      # decide on T close, execute at T+1 open
+  # Walk-forward: the OOS holdout is never used to pick parameters.
+  oos_start: "2024-01-01"     # >= this date is out-of-sample
+  trading_days_per_year: 365  # crypto trades every calendar day
+  risk_free_annual: 0.0

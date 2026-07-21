@@ -1,3 +1,14 @@
+# This repo hosts two independent projects
+
+1. **Crypto Trading Research System** — a modular, honestly-evaluated crypto
+   backtesting pipeline. See [`crypto_research/README.md`](crypto_research/README.md)
+   and [`HONEST_ASSESSMENT.md`](HONEST_ASSESSMENT.md). Entry point:
+   `python run_backtest.py`.
+2. **Reddit Momentum Dashboard** (below) — the original retail-attention
+   dashboard. Untouched by the crypto work.
+
+---
+
 # Reddit Momentum Dashboard
 
 A local dashboard that digests what retail-investment communities are talking
