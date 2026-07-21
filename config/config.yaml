@@ -33,6 +33,13 @@ news:
   # still returns a neutral signal and sets news_available = False.
   rss_feeds: []
 
+social:
+  # Forum / crowd-sentiment signal for the Claude multi-signal strategy.
+  enabled: true
+  fear_greed: true            # backtestable, timestamped market-wide sentiment
+  stocktwits_live: true       # per-coin forum mentions — LIVE mode only
+  lag_days: 1                 # conservative no-lookahead lag on Fear & Greed
+
 decision:
   combiner: "rules"           # "rules" | "llm"
   # Rules combiner weights (applied to standardized signals -> raw score).
@@ -51,6 +58,14 @@ decision:
     temperature: 0.0
     # Reads ANTHROPIC_API_KEY from env. If missing, combiner reports
     # unavailable instead of inventing positions.
+  # Strategy 2: technicals + momentum + forum/social sentiment, fused by Claude.
+  claude_multisignal:
+    model: "claude-opus-4-8"
+    max_tokens: 2000
+    temperature: 0.0
+    decision_every: 5         # query Claude every N days, hold between
+    allow_short: false
+    # Also reads ANTHROPIC_API_KEY; degrades to all-flat (flagged) without it.
 
 portfolio:
   gross_leverage: 1.0         # sum(|weight|) target before vol scaling

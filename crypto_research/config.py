@@ -47,6 +47,7 @@ class Config:
     data: Section
     features: Section
     news: Section
+    social: Section
     decision: Section
     portfolio: Section
     backtest: Section
@@ -62,6 +63,8 @@ class Config:
             data=Section(raw["data"]),
             features=Section(raw["features"]),
             news=Section(raw["news"]),
+            social=Section(raw.get("social", {"enabled": False, "fear_greed": False,
+                                              "stocktwits_live": False, "lag_days": 1})),
             decision=Section(raw["decision"]),
             portfolio=Section(raw["portfolio"]),
             backtest=Section(raw["backtest"]),

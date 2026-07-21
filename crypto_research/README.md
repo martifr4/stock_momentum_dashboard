@@ -58,16 +58,45 @@ The honest caveats — survivorship in the universe itself, in-sample-informed
 design choices, single-vendor data, the untested LLM track record — are all laid
 out in [`../HONEST_ASSESSMENT.md`](../HONEST_ASSESSMENT.md).
 
-## Switching combiners
+## Strategies (swappable combiners)
 
 ```bash
-python run_backtest.py --combiner rules     # default, transparent
-python run_backtest.py --combiner llm        # Claude; needs ANTHROPIC_API_KEY
+python run_backtest.py --combiner rules              # Strategy 1: transparent rules
+python run_backtest.py --combiner llm                # plain Claude over features
+python run_backtest.py --combiner claude_multisignal # Strategy 2 (below)
 ```
 
-The LLM combiner only ever sees the current day's causal features (no
-lookahead), caches responses to disk, and **degrades gracefully** (all-flat +
-a clear note) if no API key is present — it never invents positions.
+All combiners only ever see the current day's causal features (no lookahead),
+cache responses to disk, and **degrade gracefully** (all-flat + a clear note) if
+no `ANTHROPIC_API_KEY` is present — they never invent positions.
+
+### Strategy 2 — Claude multi-signal (technicals + momentum + forums)
+
+`decision/claude_multisignal.py` fuses **three pillars** and lets Claude make the
+call:
+
+1. **Technicals** — position vs 50/200-day MAs, fast/slow MA, ATR%, realized
+   vol, drawdown.
+2. **Momentum** — 12-1 momentum + 1/3-month returns.
+3. **Social / forums** — see below.
+
+The social input is where honesty bites, and it is handled in two modes:
+
+| Mode | Social source | Lookahead-safe? |
+|---|---|---|
+| **Backtest** | **Fear & Greed Index** (alternative.me, free, daily since 2018), lagged 1 day | Yes — timestamped, and lagged for safety. But it is *market-wide*, not per-coin forum counts. |
+| **Live** (`run_live.py`) | **StockTwits** per-coin mentions + bull/bear tags | Yes — "now" has no future. This is the real per-coin forum signal, usable forward only (no free history). |
+
+```bash
+# Forward/paper decision for today (real per-coin forum mentions participate):
+ANTHROPIC_API_KEY=... python run_live.py
+# Without a key it still prints every gathered live signal, just no decision.
+```
+
+**Status:** the strategy is fully wired, unit-tested (with a mock Claude client),
+and runnable. It has **not** been run over history here (no API key in the build
+environment), so this repo makes **no performance claim** for it yet — see
+`../HONEST_ASSESSMENT.md`.
 
 ## Configuration
 

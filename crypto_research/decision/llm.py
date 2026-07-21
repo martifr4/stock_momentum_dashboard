@@ -62,6 +62,8 @@ class LLMCombiner(Combiner):
         decision_every: int = 5,
         cache_dir: str = "data_cache/llm_cache",
         allow_short: bool = False,
+        system_prompt: str | None = None,
+        prompt_features: list[str] | None = None,
     ):
         self.model = model
         self.max_tokens = max_tokens
@@ -69,6 +71,10 @@ class LLMCombiner(Combiner):
         self.decision_every = decision_every
         self.cache_dir = Path(cache_dir)
         self.allow_short = allow_short
+        # Subclasses (e.g. the multi-signal combiner) override these to change
+        # what the model is told and which features it sees.
+        self.system_prompt = system_prompt or _SYSTEM
+        self.prompt_features = prompt_features or _PROMPT_FEATURES
 
     # -- availability ------------------------------------------------------
     def _client(self):
@@ -88,7 +94,7 @@ class LLMCombiner(Combiner):
             "assets": {
                 asset: {
                     f: (None if pd.isna(row[f]) else round(float(row[f]), 4))
-                    for f in _PROMPT_FEATURES if f in row
+                    for f in self.prompt_features if f in row
                 }
                 for asset, row in cross.iterrows()
             },
@@ -96,7 +102,10 @@ class LLMCombiner(Combiner):
         return json.dumps(payload, sort_keys=True)
 
     def _cache_key(self, prompt: str) -> Path:
-        h = hashlib.sha256((self.model + "|" + prompt).encode()).hexdigest()[:24]
+        # Include the system prompt so combiners that send the same features but
+        # different instructions do not share cached responses.
+        material = f"{self.model}|{self.system_prompt}|{prompt}"
+        h = hashlib.sha256(material.encode()).hexdigest()[:24]
         return self.cache_dir / f"{h}.json"
 
     def _query(self, client, prompt: str) -> dict:
@@ -107,7 +116,7 @@ class LLMCombiner(Combiner):
             model=self.model,
             max_tokens=self.max_tokens,
             temperature=self.temperature,
-            system=_SYSTEM,
+            system=self.system_prompt,
             messages=[{"role": "user", "content": prompt}],
         )
         text = "".join(block.text for block in msg.content if block.type == "text")
@@ -153,6 +162,38 @@ class LLMCombiner(Combiner):
             weights.loc[date] = last_row  # hold between decision dates
 
         return CombinerOutput(weights=weights.sort_index(), rationales=rationales)
+
+    # -- live / forward single decision ------------------------------------
+    def decide_latest(self, features: pd.DataFrame, extra_per_asset: dict | None = None):
+        """One forward decision for the latest date (live/paper trading).
+
+        ``extra_per_asset`` optionally merges live-only fields into each asset's
+        row (e.g. per-coin StockTwits mentions), which the prompt will include.
+        Because the decision timestamp is "now", using current data introduces
+        no lookahead. Returns ``(weights: dict[asset->float], rationales, note)``.
+        """
+        client, why = self._client()
+        if client is None:
+            return {}, {}, f"LLM combiner unavailable ({why})."
+        last = features.index.get_level_values("date").max()
+        cross = features.xs(last, level="date").copy()
+        if extra_per_asset:
+            for asset, fields in extra_per_asset.items():
+                if asset in cross.index:
+                    for k, v in fields.items():
+                        cross.loc[asset, k] = v
+        prompt = self._prompt_for(last, cross)
+        parsed = self._query(client, prompt)
+        weights, rationales = {}, {}
+        for asset in cross.index:
+            entry = parsed.get(asset) or {}
+            w = float(entry.get("weight", 0.0)) if isinstance(entry, dict) else 0.0
+            if not self.allow_short:
+                w = max(w, 0.0)
+            weights[asset] = float(np.clip(w, -1.0, 1.0))
+            if isinstance(entry, dict) and entry.get("why"):
+                rationales[asset] = str(entry["why"])
+        return weights, rationales, f"decided for {last.date()}"
 
 
 def _extract_json(text: str) -> dict:

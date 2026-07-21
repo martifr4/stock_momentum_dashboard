@@ -29,8 +29,10 @@ from crypto_research.data.ingest import load_universe
 from crypto_research.features.price import compute_price_features
 from crypto_research.features.volume import compute_volume_features
 from crypto_research.features.news import compute_news_features
+from crypto_research.features.social import build_social_features
 from crypto_research.decision.rules import RulesCombiner
 from crypto_research.decision.llm import LLMCombiner
+from crypto_research.decision.claude_multisignal import ClaudeMultiSignalCombiner
 from crypto_research.portfolio.risk import apply_risk
 from crypto_research.backtest.engine import run_backtest, open_to_open_returns
 from crypto_research.backtest.metrics import compute_metrics, Metrics
@@ -53,10 +55,28 @@ def build_features(cfg: Config, panel: pd.DataFrame) -> pd.DataFrame:
     features["news_sentiment"] = news.scores
     features.attrs["news_available"] = news.news_available
     features.attrs["news_reason"] = news.reason
+
+    # Social / forum sentiment (used by the Claude multi-signal strategy).
+    soc = build_social_features(
+        features.index,
+        enabled=cfg.social.enabled, fear_greed=cfg.social.fear_greed,
+        cache_dir=cfg.data.cache_dir, lag_days=cfg.social.lag_days,
+    )
+    for col in ("social_value", "social_sentiment", "social_z"):
+        features[col] = soc.features[col]
+    features.attrs["social_market_available"] = soc.market_available
+    features.attrs["social_per_coin_available"] = soc.per_coin_available
+    features.attrs["social_reason"] = soc.reason
     return features
 
 
 def make_combiner(cfg: Config, which: str):
+    if which == "claude_multisignal":
+        c = cfg.decision.claude_multisignal
+        return ClaudeMultiSignalCombiner(
+            model=c.model, max_tokens=c.max_tokens, temperature=c.temperature,
+            decision_every=c.decision_every, allow_short=c.allow_short,
+        )
     if which == "llm":
         c = cfg.decision.llm
         return LLMCombiner(
@@ -145,7 +165,7 @@ def run_pipeline(cfg: Config, combiner_name: str | None = None, refresh: bool = 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description="Crypto strategy backtest")
     p.add_argument("--config", default=None)
-    p.add_argument("--combiner", default=None, choices=["rules", "llm"])
+    p.add_argument("--combiner", default=None, choices=["rules", "llm", "claude_multisignal"])
     p.add_argument("--refresh", action="store_true")
     p.add_argument("--null-runs", type=int, default=200)
     p.add_argument("--null-mode", default="shuffle", choices=["shuffle", "random"])
@@ -182,6 +202,9 @@ def main(argv=None) -> int:
     features = build_features(cfg, panel)
     emit(f"\nNews module: available={features.attrs['news_available']} "
          f"({features.attrs['news_reason']})")
+    emit(f"Social module: market={features.attrs['social_market_available']}, "
+         f"per_coin={features.attrs['social_per_coin_available']}")
+    emit(f"  ({features.attrs['social_reason']})")
 
     # 3. Decision -----------------------------------------------------------
     combiner = make_combiner(cfg, combiner_name)
