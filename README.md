@@ -33,6 +33,59 @@ attention is heading.
 > [`.claude/agents/`](.claude/agents/) (`Use the trade-coordinator subagent on
 > BTC/USD`). See [`crypto_agents/README.md`](crypto_agents/README.md).
 
+## Macro & politics prediction-market monitor
+
+A second page at <http://127.0.0.1:8000/markets> tracks **Polymarket** and
+**Kalshi** markets on macro indicators, policy, elections and geopolitics
+worldwide. For each one it records how the odds change, detects **new markets**,
+and translates odds moves into **pressure on sectors, industries and stocks**.
+Both APIs are public, so there is nothing to sign up for.
+
+```powershell
+python backend/markets/ingest.py     # or: .\run_markets_ingest.ps1  (~1 min, ~5-6k markets)
+python backend/server.py             # then open http://127.0.0.1:8000/markets
+```
+
+Schedule the ingest every 15-60 min (same Task Scheduler recipe as below, with
+`backend\markets\ingest.py`). Each run stores a price snapshot, so 24h / 7d /
+30d changes get more accurate over time. Until then, 24h changes come from
+Kalshi's previous price and 7d / 30d changes from Polymarket's reported price
+changes.
+
+**What the page shows**
+
+| Panel | What it answers |
+|---|---|
+| KPI row | markets / events tracked, new listings, big odds moves (5+ pts), alerts, 24h volume |
+| Sector pressure | net tailwind / headwind per GICS sector; click a sector to see the markets driving it |
+| Stocks in the line of fire | representative stocks of the most-affected sectors and industries |
+| Sector × theme heatmap | which theme (Fed, oil, tariffs, Middle East, elections…) moves which sector |
+| Industries / Themes / Regions | defense, homebuilders, semis, crypto…; which way each theme is being repriced; where in the world odds are moving |
+| Alerts | new markets, odds moves of 8+ pts in 24h, volume spikes (3x or more), markets crossing 95% / 5% |
+| Markets | searchable table; click any market for its odds history, how it's read, and the effect of +10 pts on each sector |
+
+**How a market becomes a sector signal** (`backend/markets/`):
+
+1. `classify.py` assigns each market to **themes** such as *Central banks & rates* or
+   *Tariffs & trade*, plus **regions**, using keyword rules from
+   `impact_map.py`. Each theme defines a direction (for example "easier policy").
+   Wording rules give each market a polarity: "cut" = +1, "hike" = −1,
+   "unemployment above 5%" = weaker labor, a bucket like "2.9–3.0%" = 0.
+2. `analytics.py`: pressure on exposure *e* = Δodds × polarity × β(theme, *e*) ×
+   volume weight. Multi-outcome events count once, markets that expire within
+   7 days are damped (time decay is not news), and non-US markets spill over
+   at 40%.
+3. Industries (defense, airlines, homebuilders, semis, regional banks, crypto,
+   gold, clean energy…) roll up into their sector at 50%.
+
+The β sensitivities are hand-set and transparent. Tune them, and the theme
+keywords, in `backend/markets/impact_map.py`. Settings live in
+`backend/config.py`: `POLYMARKET_TAGS`, `KALSHI_CATEGORIES`,
+`MARKETS_MIN_VOLUME`, `ALERT_PROB_MOVE`, `ALERT_VOLUME_SPIKE`,
+`ENABLE_POLYMARKET` and `ENABLE_KALSHI`.
+
+Tests: `python -m unittest discover -s backend/markets -t backend`
+
 ## Install
 
 ```powershell
@@ -178,8 +231,16 @@ backend/
   analytics.py      window aggregation + momentum + source filtering
   server.py         stdlib HTTP API + serves the frontend
   seed_demo.py      synthetic demo data for exploring the UI
+  markets/          prediction-market monitor (Polymarket + Kalshi)
+    impact_map.py   themes, polarity rules, sector/industry betas, regions
+    classify.py     market -> themes (+ polarity) + regions
+    sources.py      Polymarket Gamma API + Kalshi trade API v2
+    store.py        SQLite schema (data/markets.db)
+    ingest.py       fetch -> classify -> snapshot -> alerts
+    analytics.py    odds changes -> sector / industry / stock / region pressure
 frontend/
   index.html        the dashboard (self-contained, no CDN)
+  markets.html      the prediction-market monitor page
 data/
   reddit.db         SQLite database (created on first run)
 ```

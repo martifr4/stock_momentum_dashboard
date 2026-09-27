@@ -74,3 +74,29 @@ STOCKTWITS_TRENDING = int(os.environ.get("STOCKTWITS_TRENDING", "12"))
 # --- Server ----------------------------------------------------------------
 HOST = os.environ.get("DASH_HOST", "127.0.0.1")
 PORT = int(os.environ.get("DASH_PORT", "8000"))
+
+# --- Prediction-market monitor (Polymarket + Kalshi) ----------------------
+MARKETS_DB_PATH = DATA_DIR / "markets.db"
+ENABLE_POLYMARKET = os.environ.get("ENABLE_POLYMARKET", "1") == "1"
+ENABLE_KALSHI = os.environ.get("ENABLE_KALSHI", "1") == "1"
+# Polymarket tag slugs to pull events from (results are de-duplicated).
+POLYMARKET_TAGS = [
+    "economy", "fed-rates", "inflation", "macro-indicators", "finance", "business",
+    "trade-war", "tariffs", "commodities", "oil", "politics", "elections",
+    "global-elections", "geopolitics", "world",
+]
+POLYMARKET_MAX_PAGES = int(os.environ.get("POLYMARKET_MAX_PAGES", "5"))  # x100 events per tag
+# Kalshi event categories kept (everything else - sports etc. - is dropped).
+KALSHI_CATEGORIES = {
+    "Economics", "Politics", "Elections", "Financials", "Commodities", "World",
+    "Companies", "Crypto", "Health", "Climate and Weather",
+}
+KALSHI_MAX_PAGES = int(os.environ.get("KALSHI_MAX_PAGES", "100"))  # x200 events
+# Ignore thin markets (lifetime volume, USD for Polymarket / contracts for Kalshi).
+MARKETS_MIN_VOLUME = float(os.environ.get("MARKETS_MIN_VOLUME", "5000"))
+# Alert thresholds.
+ALERT_PROB_MOVE = float(os.environ.get("ALERT_PROB_MOVE", "0.08"))       # 8 points in 24h
+ALERT_MOVE_MIN_VOLUME = float(os.environ.get("ALERT_MOVE_MIN_VOLUME", "25000"))
+ALERT_VOLUME_SPIKE = float(os.environ.get("ALERT_VOLUME_SPIKE", "3.0"))   # 24h vol vs 7d avg
+ALERT_SPIKE_MIN_24H = float(os.environ.get("ALERT_SPIKE_MIN_24H", "50000"))
+NEW_MARKET_DAYS = float(os.environ.get("NEW_MARKET_DAYS", "3"))
