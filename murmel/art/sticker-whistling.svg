@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-labelledby="t d">
+  <title id="t">Murmel whistling</title>
+  <desc id="d">The marmot stands tall like a sentinel and whistles; music notes float up past green candles. Bull-market mode.</desc>
+  <defs>
+  <filter id="sticker" x="-10%" y="-10%" width="120%" height="120%">
+    <feMorphology in="SourceAlpha" operator="dilate" radius="12" result="grown"/>
+    <feFlood flood-color="#FFFFFF"/>
+    <feComposite in2="grown" operator="in" result="outline"/>
+    <feMorphology in="SourceAlpha" operator="dilate" radius="12" result="grown2"/>
+    <feOffset in="grown2" dx="0" dy="8" result="shadowOff"/>
+    <feFlood flood-color="#2A1E17" flood-opacity="0.25"/>
+    <feComposite in2="shadowOff" operator="in" result="shadow"/>
+    <feMerge><feMergeNode in="shadow"/><feMergeNode in="outline"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <clipPath id="scene"><circle cx="256" cy="256" r="232"/></clipPath>
+  </defs>
+  <g filter="url(#sticker)">
+    <circle cx="256" cy="256" r="236" fill="#BDE7E0" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <g clip-path="url(#scene)"><path d="M30 400 L150 230 L230 330 L320 200 L482 400 Z" fill="#7FA9A2" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><path d="M150 230 L122 270 L140 262 L156 276 L176 266 Z M320 200 L290 244 L310 236 L326 250 L346 238 Z" fill="#FBF8F1" stroke="#2A1E17" stroke-width="5" stroke-linejoin="round"/></g>
+    <path d="M70 226 V364" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><rect x="56" y="250" width="28" height="90" rx="5" fill="#3FBF7F" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><path d="M110 176 V334" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><rect x="96" y="200" width="28" height="110" rx="5" fill="#3FBF7F" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><path d="M150 126 V294" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><rect x="136" y="150" width="28" height="120" rx="5" fill="#3FBF7F" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <ellipse cx="190" cy="462" rx="38" ry="18" fill="#6B4228" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <ellipse cx="322" cy="462" rx="38" ry="18" fill="#6B4228" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M256 220 C150 220 118 320 126 390 C134 450 190 470 256 470 C322 470 378 450 386 390 C394 320 362 220 256 220 Z" fill="#9A6440" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <ellipse cx="256" cy="378" rx="78" ry="82" fill="#F2DDB8"/>
+    <circle cx="174" cy="122" r="26" fill="#9A6440" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><circle cx="174" cy="122" r="12" fill="#6B4228"/>
+    <circle cx="338" cy="122" r="26" fill="#9A6440" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><circle cx="338" cy="122" r="12" fill="#6B4228"/>
+    <ellipse cx="256" cy="190" rx="108" ry="94" fill="#9A6440" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M206 118 Q256 96 306 118" fill="none" stroke="#6B4228" stroke-width="10" stroke-linecap="round"/>
+    <ellipse cx="256" cy="230" rx="54" ry="40" fill="#F2DDB8"/>
+    <ellipse cx="190" cy="222" rx="18" ry="11" fill="#F59E6C" opacity="0.55"/><ellipse cx="322" cy="222" rx="18" ry="11" fill="#F59E6C" opacity="0.55"/>
+    <circle cx="214" cy="182" r="12" fill="#2A1E17"/><circle cx="210" cy="177" r="4" fill="#fff"/><circle cx="298" cy="182" r="12" fill="#2A1E17"/><circle cx="294" cy="177" r="4" fill="#fff"/>
+    <path d="M256 214 V226" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><circle cx="256" cy="238" r="9" fill="#7A2E2E" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <ellipse cx="256" cy="208" rx="15" ry="10" fill="#2A1E17"/>
+    <ellipse cx="251" cy="205" rx="5" ry="3" fill="#fff" opacity="0.6"/>
+    <path d="M178 290 L232 312" stroke="#2A1E17" stroke-width="48" stroke-linecap="round"/><path d="M178 290 L232 312" stroke="#9A6440" stroke-width="34" stroke-linecap="round"/><path d="M334 290 L280 312" stroke="#2A1E17" stroke-width="48" stroke-linecap="round"/><path d="M334 290 L280 312" stroke="#9A6440" stroke-width="34" stroke-linecap="round"/><ellipse cx="236" cy="312" rx="24" ry="18" fill="#6B4228" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><ellipse cx="276" cy="312" rx="24" ry="18" fill="#6B4228" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <g transform="translate(372 140) scale(1.1)"><path d="M0 0 V-46 L30 -54 V-8" fill="none" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round"/><ellipse cx="-8" cy="2" rx="12" ry="9" fill="#2A1E17"/><ellipse cx="22" cy="-6" rx="12" ry="9" fill="#2A1E17"/></g><g transform="translate(430 80) scale(0.8)"><path d="M0 0 V-46 L30 -54 V-8" fill="none" stroke="#3FBF7F" stroke-width="7" stroke-linejoin="round"/><ellipse cx="-8" cy="2" rx="12" ry="9" fill="#3FBF7F"/><ellipse cx="22" cy="-6" rx="12" ry="9" fill="#3FBF7F"/></g><g transform="translate(330 70) scale(0.7)"><path d="M0 0 V-46 L30 -54 V-8" fill="none" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round"/><ellipse cx="-8" cy="2" rx="12" ry="9" fill="#2A1E17"/><ellipse cx="22" cy="-6" rx="12" ry="9" fill="#2A1E17"/></g>
+  </g>
+</svg>

@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>$MURMEL</title>
+<meta name="description" content="$MURMEL: a sleepy Swiss marmot memecoin on Solana. No roadmap, no utility, no promises. Just a marmot.">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fur: #9A6440; --fur-dark: #6B4228; --cream: #F2DDB8; --ink: #2A1E17;
+    --snooze: #2B3A67; --mint: #BDE7E0; --snow: #FBF8F1; --green: #2E9E68;
+    --red: #D93B41; --glow: #F59E6C; --gold: #F2C14E;
+    --bg: var(--snow); --surface: #FFFFFF; --text: var(--ink); --muted: #6E5E52; --line: #E6DCCF;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #17140F; --surface: #221D17; --text: #F5EDE2; --muted: #B9A999; --line: #3A3128;
+      --green: #4CC98A; --red: #F06A6E;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #17140F; --surface: #221D17; --text: #F5EDE2; --muted: #B9A999; --line: #3A3128;
+    --green: #4CC98A; --red: #F06A6E;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.6 Fredoka, system-ui, sans-serif; }
+  a { color: inherit; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+  header.hero { background: var(--mint); border-bottom: 4px solid var(--ink); padding: 48px 0 24px; text-align: center; }
+  .hero img { width: min(260px, 70vw); height: auto; }
+  h1 { font-size: clamp(2.2rem, 6vw, 3.4rem); margin: 8px 0 0; line-height: 1.1; color: var(--ink); }
+  .tagline { font-size: 1.2rem; color: #4A3C31; margin: 8px 0 24px; }
+  h2 { font-size: 1.7rem; margin: 0 0 12px; }
+  section { padding: 40px 0; border-bottom: 1px solid var(--line); }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px; }
+  .addr { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; }
+  .addr code { font: 0.95rem ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--surface); color: var(--text);
+               border: 2px dashed var(--fur); border-radius: 12px; padding: 8px 12px; overflow-wrap: anywhere; max-width: 100%; }
+  button { font: 600 0.95rem Fredoka, sans-serif; background: var(--ink); color: var(--snow); border: 0; border-radius: 12px; padding: 9px 14px; cursor: pointer; }
+  button:focus-visible, a:focus-visible { outline: 3px solid var(--glow); outline-offset: 2px; }
+  .label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 18px 0 6px; }
+  .note { font-size: 0.9rem; color: var(--muted); }
+
+  /* Hibernation meter */
+  .meter { display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: center; }
+  .meter img { width: 100%; height: auto; transition: transform .4s; }
+  .state { font-size: 1.6rem; font-weight: 700; margin: 0; }
+  .quote { font-size: 1.1rem; margin: 4px 0 16px; }
+  .bar { position: relative; height: 22px; border-radius: 11px; border: 2px solid var(--ink);
+         background: linear-gradient(90deg, var(--red) 0 15%, var(--snooze) 15% 40%, var(--gold) 40% 60%, var(--green) 60% 85%, #A855F7 85% 100%); }
+  .pin { position: absolute; top: -9px; width: 6px; height: 36px; background: var(--ink); border: 2px solid var(--snow); border-radius: 3px; transform: translateX(-50%); transition: left .6s; left: 50%; }
+  .ticks { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 14px; font-size: 0.95rem; }
+  .stats b { font-variant-numeric: tabular-nums; }
+
+  .stickers { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .stickers figure { margin: 0; text-align: center; font-size: 0.85rem; color: var(--muted); }
+  .stickers img { width: 100%; height: auto; }
+  .links { display: flex; flex-wrap: wrap; gap: 10px; }
+  .links a { text-decoration: none; background: var(--surface); border: 2px solid var(--ink); border-radius: 14px; padding: 10px 16px; font-weight: 600; }
+  .links a[aria-disabled="true"] { opacity: .5; pointer-events: none; }
+  .honest li { margin-bottom: 6px; }
+  footer { padding: 32px 0 48px; font-size: 0.9rem; color: var(--muted); text-align: center; }
+  @media (max-width: 640px) {
+    .meter { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+    .meter img { width: 180px; }
+    .stickers { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <img src="assets/logo.svg" alt="$MURMEL logo: a smiling Swiss marmot on a gold ribbon">
+    <h1>$MURMEL</h1>
+    <p class="tagline">A sleepy Swiss marmot. Hibernates through bear markets. Wakes up whistling.</p>
+    <div class="label">Contract address (Solana)</div>
+    <div class="addr"><code id="ca"></code><button type="button" data-copy="ca">Copy</button></div>
+    <p class="note" id="ca-note"></p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section aria-labelledby="meter-h">
+    <h2 id="meter-h">The hibernation meter</h2>
+    <div class="card meter">
+      <img id="meter-img" src="assets/sticker-waking.svg" alt="">
+      <div>
+        <p class="state" id="meter-state">Checking the weather…</p>
+        <p class="quote" id="meter-quote">Murmel is sniffing the air outside the burrow.</p>
+        <div class="bar" role="img" id="meter-bar" aria-label="SOL 7-day change meter"><div class="pin" id="meter-pin"></div></div>
+        <div class="ticks"><span>−10%</span><span>−2%</span><span>+2%</span><span>+10%</span></div>
+        <div class="stats">
+          <span>SOL price: <b id="sol-price">–</b></span>
+          <span>24h: <b id="sol-24h">–</b></span>
+          <span>7d: <b id="sol-7d">–</b></span>
+          <span class="note" id="meter-src"></span>
+        </div>
+      </div>
+    </div>
+    <p class="note">The meter reads <strong>SOL's</strong> 7-day price change, not $MURMEL's. It decides whether a cartoon marmot is awake. That is all it decides. It is a joke, not a signal.</p>
+  </section>
+
+  <section aria-labelledby="story-h">
+    <h2 id="story-h">The story</h2>
+    <p>High above the tree line, in a burrow with excellent views and terrible Wi-Fi, lives Murmel. Murmel is a marmot (in German a <em>Murmeltier</em>, in Swiss German a <em>Mungg</em>, and in crypto "extremely relatable").</p>
+    <p>Murmel discovered that marmots and markets run on the same schedule. When the charts turn cold and red, Murmel does what every marmot has done for a million years: eats one last snack, pulls up a blanket, and sleeps for six months. No panic-selling. No doom-scrolling. Just snoring.</p>
+    <p>When the snow melts and the candles turn green, Murmel pops out of the burrow, stands up very straight, and whistles. Real marmots whistle to warn their friends. Murmel whistles because it's sunny.</p>
+    <p>Murmel has no roadmap, no utility, no team of experts and no idea what a "token unlock" is. Murmel has a burrow, a nightcap, and a strong opinion that hibernation is underrated.</p>
+    <div class="stickers" aria-label="Murmel's moods">
+      <figure><img src="assets/sticker-panicking.svg" alt="Murmel screaming at red candles"><figcaption>Panicking</figcaption></figure>
+      <figure><img src="assets/sticker-sleeping.svg" alt="Murmel asleep under the moon"><figcaption>Hibernating</figcaption></figure>
+      <figure><img src="assets/sticker-waking.svg" alt="Murmel yawning and stretching"><figcaption>Waking</figcaption></figure>
+      <figure><img src="assets/sticker-whistling.svg" alt="Murmel whistling"><figcaption>Whistling</figcaption></figure>
+      <figure><img src="assets/sticker-partying.svg" alt="Murmel in a party hat"><figcaption>Partying</figcaption></figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="dev-h">
+    <h2 id="dev-h">The dev wallet</h2>
+    <p>This is the creator's public wallet. Anything it does is on-chain and visible to anyone. Planned sells are announced in advance on the transparency page.</p>
+    <div class="addr" style="justify-content:flex-start"><code id="dev"></code><button type="button" data-copy="dev">Copy</button></div>
+    <p><a id="dev-explorer" href="#">View on Solscan</a> · <a href="transparency.html">Transparency page</a></p>
+  </section>
+
+  <section aria-labelledby="links-h">
+    <h2 id="links-h">Links</h2>
+    <div class="links" id="links"></div>
+    <p class="note">These are the only official links. The Telegram has one bot, called "Murmel (bot)", and it is labeled as a bot. Nobody from $MURMEL will DM you first, ask for your seed phrase, or offer you "support."</p>
+  </section>
+
+  <section aria-labelledby="honest-h">
+    <h2 id="honest-h">The honest part</h2>
+    <ul class="honest">
+      <li>$MURMEL is a memecoin. It has <strong>no utility, no roadmap, and no intrinsic value</strong>. It is a joke about a marmot.</li>
+      <li>Nobody is promising you a price, a return, a listing, or anything else. Most memecoins go to zero. This one might too.</li>
+      <li>Only spend money you'd be fine losing completely. If you wouldn't be fine, please go outside and look at a real marmot instead. It's free.</li>
+      <li>No paid promotion goes out without a clear <em>#ad</em> label. No bought followers. No bots pretending to be people. No wash trading.</li>
+      <li>Always copy the contract address from this page or the pinned posts. Look-alike tokens are common.</li>
+      <li>Nothing here is financial advice. Murmel is a cartoon rodent.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="wrap">
+  $MURMEL is a fan-made meme with no affiliation to Switzerland, its government, tourism boards, or any actual marmots.<br>
+  Art and site are released for memeing. Please do not use Murmel to scam people. Murmel will be very disappointed.
+</footer>
+
+<script>
+/* ===== EDIT THESE BEFORE PUBLISHING ===== */
+const CONFIG = {
+  contractAddress: "",                 // leave empty until launch; page shows "not launched yet"
+  devWallet: "YOUR_PUBLIC_DEV_WALLET_ADDRESS",
+  links: [
+    { label: "X / Twitter", url: "" },
+    { label: "TikTok",      url: "" },
+    { label: "Telegram",    url: "" },
+    { label: "Pump.fun",    url: "" },  // fill in after launch, with the real CA in the URL
+  ],
+};
+/* ======================================== */
+
+const $ = (id) => document.getElementById(id);
+
+$("ca").textContent = CONFIG.contractAddress || "Not launched yet. Coming soon (no, there is no presale).";
+$("ca-note").textContent = CONFIG.contractAddress
+  ? "Always double-check this address. Anything else with the name is not this coin."
+  : "Anyone posting a $MURMEL contract address before launch day is not us.";
+$("dev").textContent = CONFIG.devWallet;
+$("dev-explorer").href = "https://solscan.io/account/" + encodeURIComponent(CONFIG.devWallet);
+
+for (const l of CONFIG.links) {
+  const a = document.createElement("a");
+  a.textContent = l.label;
+  if (l.url) { a.href = l.url; a.rel = "noopener"; a.target = "_blank"; }
+  else { a.setAttribute("aria-disabled", "true"); a.textContent += " (soon)"; }
+  $("links").appendChild(a);
+}
+
+document.querySelectorAll("[data-copy]").forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    const text = $(btn.dataset.copy).textContent;
+    if (btn.dataset.copy === "ca" && !CONFIG.contractAddress) return;
+    try { await navigator.clipboard.writeText(text); btn.textContent = "Copied!"; }
+    catch { btn.textContent = "Select & copy"; }
+    setTimeout(() => (btn.textContent = "Copy"), 1500);
+  });
+});
+
+/* ===== Hibernation meter ===== */
+const STATES = [
+  { max: -10, img: "panicking", name: "PANIC (but cozy)", quote: "AAAAAA. Okay. Okay. Deep breaths. Burrow. Now." },
+  { max: -2,  img: "sleeping",  name: "Hibernating",      quote: "Zzz… wake me when the snow melts… zzz." },
+  { max: 2,   img: "waking",    name: "Drowsy",           quote: "*yaaawn* Is it spring? It smells a bit like spring." },
+  { max: 10,  img: "whistling", name: "Awake & whistling", quote: "Fweeeet! The sun is out. Excellent day to sit on a rock." },
+  { max: Infinity, img: "partying", name: "Full meadow party", quote: "WHEEEE! Everyone grab a party hat! Also drink water." },
+];
+const pct = (x) => (x >= 0 ? "+" : "") + x.toFixed(2) + "%";
+
+function render({ price, ch24, ch7, source }) {
+  const s = STATES.find((st) => ch7 < st.max);
+  $("meter-img").src = `assets/sticker-${s.img}.svg`;
+  $("meter-img").alt = `Murmel is ${s.name.toLowerCase()}`;
+  $("meter-state").textContent = s.name;
+  $("meter-quote").textContent = s.quote;
+  $("sol-price").textContent = "$" + price.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  $("sol-24h").textContent = ch24 == null ? "–" : pct(ch24);
+  $("sol-7d").textContent = pct(ch7);
+  // Piecewise scale so the coloured bands line up with the thresholds.
+  const stops = [[-20, 0], [-10, 15], [-2, 40], [2, 60], [10, 85], [20, 100]];
+  const v = Math.max(-20, Math.min(20, ch7));
+  let left = 50;
+  for (let i = 1; i < stops.length; i++) {
+    const [x0, p0] = stops[i - 1], [x1, p1] = stops[i];
+    if (v <= x1) { left = p0 + ((v - x0) / (x1 - x0)) * (p1 - p0); break; }
+  }
+  $("meter-pin").style.left = left + "%";
+  $("meter-bar").setAttribute("aria-label", `SOL 7-day change ${pct(ch7)}: Murmel is ${s.name}`);
+  $("meter-src").textContent = `Source: ${source} · updated ${new Date().toLocaleTimeString()}`;
+}
+
+async function fromCoinGecko() {
+  const r = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=solana&price_change_percentage=24h,7d", { signal: AbortSignal.timeout(8000) });
+  if (!r.ok) throw new Error("coingecko " + r.status);
+  const [c] = await r.json();
+  if (!c || c.price_change_percentage_7d_in_currency == null) throw new Error("coingecko: no data");
+  return { price: c.current_price, ch24: c.price_change_percentage_24h_in_currency, ch7: c.price_change_percentage_7d_in_currency, source: "CoinGecko" };
+}
+
+async function fromBinance() {
+  const r = await fetch("https://api.binance.com/api/v3/klines?symbol=SOLUSDT&interval=1d&limit=8", { signal: AbortSignal.timeout(8000) });
+  if (!r.ok) throw new Error("binance " + r.status);
+  const k = await r.json();                    // [openTime, open, high, low, close, ...]
+  const close = (row) => parseFloat(row[4]);
+  const price = close(k[k.length - 1]);
+  const weekAgo = parseFloat(k[0][4]);
+  const dayAgo = close(k[k.length - 2]);
+  return { price, ch24: (price / dayAgo - 1) * 100, ch7: (price / weekAgo - 1) * 100, source: "Binance (SOL/USDT)" };
+}
+
+async function updateMeter() {
+  for (const src of [fromCoinGecko, fromBinance]) {
+    try { render(await src()); return; } catch (e) { console.warn(e); }
+  }
+  $("meter-state").textContent = "Meter is napping";
+  $("meter-quote").textContent = "Couldn't reach a price feed. Murmel took that as a sign and went back to sleep.";
+  $("meter-img").src = "assets/sticker-sleeping.svg";
+}
+updateMeter();
+setInterval(updateMeter, 5 * 60 * 1000);
+</script>
+</body>
+</html>

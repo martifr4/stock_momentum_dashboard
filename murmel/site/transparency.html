@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>$MURMEL Transparency</title>
+<meta name="description" content="Dev wallet, pre-announced sells and creator-fee income for $MURMEL, all with on-chain links.">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#2A1E17; --mint:#BDE7E0; --bg:#FBF8F1; --surface:#fff; --text:#2A1E17; --muted:#6E5E52; --line:#E6DCCF; --green:#2E9E68; --red:#D93B41; --gold:#F2C14E; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#17140F; --surface:#221D17; --text:#F5EDE2; --muted:#B9A999; --line:#3A3128; --green:#4CC98A; --red:#F06A6E; } }
+  :root[data-theme="dark"] { --bg:#17140F; --surface:#221D17; --text:#F5EDE2; --muted:#B9A999; --line:#3A3128; --green:#4CC98A; --red:#F06A6E; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 Fredoka, system-ui, sans-serif; }
+  a { color: inherit; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+  header { background: var(--mint); color: #2A1E17; border-bottom: 4px solid var(--ink); padding: 28px 0; }
+  header .wrap { display:flex; gap:16px; align-items:center; }
+  header img { width: 84px; height: 84px; }
+  h1 { margin:0; font-size: clamp(1.6rem, 5vw, 2.4rem); line-height:1.1; }
+  h2 { margin: 36px 0 8px; font-size: 1.4rem; }
+  .muted { color: var(--muted); }
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px; }
+  .scroll { overflow-x: auto; }
+  table { width:100%; border-collapse: collapse; font-size: 0.95rem; }
+  th, td { text-align:left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  td.num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  th.num { text-align: right; }
+  code { font: 0.88rem ui-monospace, Menlo, monospace; overflow-wrap: anywhere; }
+  .pill { display:inline-block; padding: 1px 10px; border-radius: 999px; font-size: .8rem; font-weight: 600; border: 1.5px solid currentColor; }
+  .pill.planned { color: #B7791F; } .pill.done { color: var(--green); } .pill.cancelled { color: var(--muted); }
+  .kpis { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .kpi b { display:block; font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+  .empty { color: var(--muted); font-style: italic; }
+  ol.rules li { margin-bottom: 6px; }
+  footer { padding: 32px 0 48px; color: var(--muted); font-size: .9rem; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <img src="assets/logo.svg" alt="">
+    <div>
+      <h1>$MURMEL transparency page</h1>
+      <div>Everything the creator wallet does, written down before and after it happens.</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="muted" id="updated"></p>
+
+  <h2>The creator's rules</h2>
+  <ol class="rules card" id="rules"></ol>
+
+  <h2>Wallets</h2>
+  <div class="card scroll"><table id="wallets"><thead><tr><th>Wallet</th><th>Address</th><th>Purpose</th></tr></thead><tbody></tbody></table></div>
+
+  <h2>At a glance</h2>
+  <div class="kpis" id="kpis"></div>
+
+  <h2>Sells: announced in advance</h2>
+  <p class="muted">Every sell from the dev wallet is posted here (and on X and Telegram) <strong id="notice"></strong> before it happens, with the planned size. If plans change it stays listed as "cancelled", never deleted.</p>
+  <div class="card scroll"><table id="sells"><thead><tr>
+    <th>Announced</th><th>Planned for</th><th class="num">Amount ($MURMEL)</th><th class="num">% of supply</th><th>Reason</th><th>Status</th><th>Tx</th>
+  </tr></thead><tbody></tbody></table></div>
+
+  <h2>Creator-fee income</h2>
+  <p class="muted">Creator fees earned from trading, logged by period. Fees go to the creator; they are income, not a promise of anything.</p>
+  <div class="card scroll"><table id="fees"><thead><tr>
+    <th>Period</th><th class="num">SOL earned</th><th>Claimed tx</th><th>Notes</th>
+  </tr></thead><tbody></tbody></table></div>
+
+  <h2>What fee income was spent on</h2>
+  <div class="card scroll"><table id="spend"><thead><tr>
+    <th>Date</th><th class="num">SOL</th><th>What</th><th>Proof / tx</th>
+  </tr></thead><tbody></tbody></table></div>
+
+  <h2>Paid promotion &amp; collaborations</h2>
+  <p class="muted">Any paid post is labeled <em>#ad</em> by whoever posts it, and listed here.</p>
+  <div class="card scroll"><table id="promos"><thead><tr>
+    <th>Date</th><th>Who</th><th>Paid</th><th>Link</th>
+  </tr></thead><tbody></tbody></table></div>
+
+  <h2>Change log</h2>
+  <div class="card scroll"><table id="changelog"><thead><tr><th>Date</th><th>Change</th></tr></thead><tbody></tbody></table></div>
+</main>
+
+<footer class="wrap">
+  Nothing here is a promise of price, returns or utility. $MURMEL is a memecoin about a marmot. Verify everything on-chain yourself. <a href="index.html">Back to the burrow</a>.
+</footer>
+
+<!--
+  ===== EDIT THIS JSON TO UPDATE THE PAGE =====
+  - Never delete rows. Mark sells "cancelled" instead.
+  - Dates: YYYY-MM-DD (UTC). Tx: full Solana signature (linked to Solscan).
+-->
+<script type="application/json" id="data">
+{
+  "lastUpdated": "YYYY-MM-DD",
+  "totalSupply": 1000000000,
+  "sellNoticeHours": 48,
+  "rules": [
+    "The dev wallet below is the only wallet the creator uses for $MURMEL. If another wallet is ever added, it gets listed here first.",
+    "Every sell is announced at least 48 hours in advance, with size and reason. No surprise sells.",
+    "No single sell larger than 1% of total supply.",
+    "No wash trading, no bundled buys from hidden wallets, no bought followers, no bots posing as people.",
+    "Paid promotion is always disclosed and listed on this page.",
+    "Creator-fee income is logged here at least monthly."
+  ],
+  "wallets": [
+    { "name": "Dev / creator wallet", "address": "YOUR_PUBLIC_DEV_WALLET_ADDRESS", "purpose": "Created the token. Holds the creator's launch buy. Receives creator fees." }
+  ],
+  "launch": { "date": "YYYY-MM-DD", "devBuyTokens": 0, "devBuySol": 0, "tx": "" },
+  "sells": [
+    { "announced": "YYYY-MM-DD", "plannedFor": "YYYY-MM-DD", "amount": 0, "reason": "Example row: replace or delete before publishing", "status": "planned", "tx": "" }
+  ],
+  "fees": [
+    { "period": "YYYY-MM", "sol": 0, "tx": "", "notes": "Example row" }
+  ],
+  "spend": [],
+  "promos": [],
+  "changelog": [
+    { "date": "YYYY-MM-DD", "change": "Page created." }
+  ]
+}
+</script>
+
+<script>
+const D = JSON.parse(document.getElementById("data").textContent);
+const el = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
+const fmt = (n, d = 0) => Number(n).toLocaleString(undefined, { maximumFractionDigits: d });
+const txLink = (sig) => {
+  if (!sig) return el("span", "–", "muted");
+  const a = el("a", sig.slice(0, 6) + "…" + sig.slice(-4));
+  a.href = "https://solscan.io/tx/" + encodeURIComponent(sig); a.target = "_blank"; a.rel = "noopener";
+  return a;
+};
+function rows(id, list, cells) {
+  const tb = document.querySelector(`#${id} tbody`);
+  if (!list.length) { const tr = el("tr"); const td = el("td", "Nothing yet.", "empty"); td.colSpan = 9; tr.append(td); tb.append(tr); return; }
+  for (const item of list) {
+    const tr = el("tr");
+    for (const c of cells(item)) {
+      const td = el("td", null, c.num ? "num" : "");
+      td.append(c.node ?? document.createTextNode(c.text ?? ""));
+      tr.append(td);
+    }
+    tb.append(tr);
+  }
+}
+
+document.getElementById("updated").textContent = "Last updated: " + D.lastUpdated;
+document.getElementById("notice").textContent = `at least ${D.sellNoticeHours} hours`;
+for (const r of D.rules) document.getElementById("rules").append(el("li", r));
+
+rows("wallets", D.wallets, (w) => {
+  const a = el("a"); a.href = "https://solscan.io/account/" + encodeURIComponent(w.address); a.target = "_blank"; a.rel = "noopener";
+  a.append(el("code", w.address));
+  return [{ text: w.name }, { node: a }, { text: w.purpose }];
+});
+
+const doneSells = D.sells.filter((s) => s.status === "done");
+const sold = doneSells.reduce((t, s) => t + Number(s.amount || 0), 0);
+const feeSol = D.fees.reduce((t, f) => t + Number(f.sol || 0), 0);
+const kpis = [
+  ["Dev buy at launch", `${fmt(D.launch.devBuyTokens)} $MURMEL (${fmt(D.launch.devBuyTokens / D.totalSupply * 100, 2)}%)`],
+  ["Sold so far", `${fmt(sold)} $MURMEL (${fmt(sold / D.totalSupply * 100, 2)}%)`],
+  ["Sells announced, pending", String(D.sells.filter((s) => s.status === "planned").length)],
+  ["Creator fees logged", `${fmt(feeSol, 4)} SOL`],
+];
+for (const [k, v] of kpis) { const c = el("div", null, "card kpi"); c.append(el("span", k, "muted"), el("b", v)); document.getElementById("kpis").append(c); }
+
+rows("sells", D.sells, (s) => [
+  { text: s.announced }, { text: s.plannedFor },
+  { text: fmt(s.amount), num: true }, { text: fmt(s.amount / D.totalSupply * 100, 3) + "%", num: true },
+  { text: s.reason }, { node: el("span", s.status, "pill " + s.status) }, { node: txLink(s.tx) },
+]);
+rows("fees", D.fees, (f) => [{ text: f.period }, { text: fmt(f.sol, 4), num: true }, { node: txLink(f.tx) }, { text: f.notes }]);
+rows("spend", D.spend, (s) => [{ text: s.date }, { text: fmt(s.sol, 4), num: true }, { text: s.what }, { node: s.tx ? txLink(s.tx) : el("span", s.proof || "–") }]);
+rows("promos", D.promos, (p) => {
+  const a = el("a", "post"); a.href = p.url; a.target = "_blank"; a.rel = "noopener";
+  return [{ text: p.date }, { text: p.who }, { text: p.paid }, { node: a }];
+});
+rows("changelog", D.changelog, (c) => [{ text: c.date }, { text: c.change }]);
+</script>
+</body>
+</html>

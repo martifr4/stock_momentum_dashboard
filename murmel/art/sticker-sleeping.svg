@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-labelledby="t d">
+  <title id="t">Murmel sleeping</title>
+  <desc id="d">The marmot dozes in a snow burrow under a crescent moon, wearing a nightcap. Bear-market mode.</desc>
+  <defs>
+  <filter id="sticker" x="-10%" y="-10%" width="120%" height="120%">
+    <feMorphology in="SourceAlpha" operator="dilate" radius="12" result="grown"/>
+    <feFlood flood-color="#FFFFFF"/>
+    <feComposite in2="grown" operator="in" result="outline"/>
+    <feMorphology in="SourceAlpha" operator="dilate" radius="12" result="grown2"/>
+    <feOffset in="grown2" dx="0" dy="8" result="shadowOff"/>
+    <feFlood flood-color="#2A1E17" flood-opacity="0.25"/>
+    <feComposite in2="shadowOff" operator="in" result="shadow"/>
+    <feMerge><feMergeNode in="shadow"/><feMergeNode in="outline"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <clipPath id="scene"><circle cx="256" cy="256" r="232"/></clipPath>
+  </defs>
+  <g filter="url(#sticker)">
+    <circle cx="256" cy="256" r="236" fill="#2B3A67" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="120" cy="120" r="44" fill="#F2C14E"/><circle cx="142" cy="106" r="40" fill="#2B3A67"/>
+    <circle cx="96" cy="230" r="5" fill="#FBF8F1"/><circle cx="420" cy="230" r="6" fill="#FBF8F1"/><circle cx="200" cy="60" r="4" fill="#FBF8F1"/>
+    <g transform="translate(0 -6) rotate(-8 256 300)">
+    <ellipse cx="190" cy="462" rx="38" ry="18" fill="#6B4228" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <ellipse cx="322" cy="462" rx="38" ry="18" fill="#6B4228" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M256 220 C150 220 118 320 126 390 C134 450 190 470 256 470 C322 470 378 450 386 390 C394 320 362 220 256 220 Z" fill="#9A6440" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <ellipse cx="256" cy="378" rx="78" ry="82" fill="#F2DDB8"/>
+    <circle cx="174" cy="122" r="26" fill="#9A6440" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><circle cx="174" cy="122" r="12" fill="#6B4228"/>
+    <circle cx="338" cy="122" r="26" fill="#9A6440" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><circle cx="338" cy="122" r="12" fill="#6B4228"/>
+    <ellipse cx="256" cy="190" rx="108" ry="94" fill="#9A6440" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M206 118 Q256 96 306 118" fill="none" stroke="#6B4228" stroke-width="10" stroke-linecap="round"/>
+    <ellipse cx="256" cy="230" rx="54" ry="40" fill="#F2DDB8"/>
+    <ellipse cx="190" cy="222" rx="18" ry="11" fill="#F59E6C" opacity="0.55"/><ellipse cx="322" cy="222" rx="18" ry="11" fill="#F59E6C" opacity="0.55"/>
+    <path d="M199 182 Q214 194 229 182" fill="none" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><path d="M283 182 Q298 194 313 182" fill="none" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M256 214 V228 M236 226 Q246 234 256 228 Q266 234 276 226" fill="none" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><rect x="244" y="231" width="12" height="20" rx="3" fill="#fff" stroke="#2A1E17" stroke-width="4"/><rect x="256" y="231" width="12" height="20" rx="3" fill="#fff" stroke="#2A1E17" stroke-width="4"/>
+    <ellipse cx="256" cy="208" rx="15" ry="10" fill="#2A1E17"/>
+    <ellipse cx="251" cy="205" rx="5" ry="3" fill="#fff" opacity="0.6"/>
+    <ellipse cx="212" cy="306" rx="24" ry="18" fill="#6B4228" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><ellipse cx="300" cy="306" rx="24" ry="18" fill="#6B4228" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M160 132 Q250 70 340 120 Q392 160 404 222 L330 132 Z" fill="#2B3A67" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M150 140 Q256 92 352 132" fill="none" stroke="#FBF8F1" stroke-width="22" stroke-linecap="round"/>
+    <circle cx="404" cy="226" r="18" fill="#FBF8F1" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    </g>
+    <path d="M30 430 Q120 380 256 400 Q392 380 482 430 Q470 470 256 488 Q42 470 30 430 Z" fill="#FBF8F1" stroke="#2A1E17" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="360" y="120" font-family="Fredoka, &quot;Baloo 2&quot;, &quot;Arial Rounded MT Bold&quot;, sans-serif" font-weight="700" fill="#FBF8F1" stroke="#2A1E17" stroke-width="4" paint-order="stroke"><tspan font-size="64">Z</tspan><tspan dx="6" dy="-30" font-size="46">z</tspan><tspan dx="4" dy="-26" font-size="32">z</tspan></text>
+  </g>
+</svg>
