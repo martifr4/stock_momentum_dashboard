@@ -1,101 +1,114 @@
-# Propuesta 1 — «Gominolas»
+# Propuesta 1 — «Gominolas» (ronda 2)
 
 **Estilo:** pegatina kawaii de gominola. Tres adjetivos: **blandito, brillante, entrañable**.
 
-## Idea central (el truco memorable)
-Mapi y Capi son **las dos mitades de un mismo cerebro**. Cada uno tiene un lado
-plano (la «cara interior» del hemisferio) y un lado redondo lleno de lóbulos.
-Cuando se abrazan, los lados planos encajan y forman un cerebro completo, con un
-corazoncito sobre la costura → avatar y logotipo. El lado plano es el «gancho»
-visual: en cualquier escena siempre se miran por ese lado, se buscan.
+## Idea central
+Mapi y Capi son **dos formas de pensar dentro de un mismo cerebro**: dos gominolas
+con circunvoluciones. No representan hemisferios ni regiones reales (evitamos el
+mito del «cerebro izquierdo / derecho»). El truco memorable: **cuando se abrazan se
+funden en UNA sola silueta de cerebro**: se pintan primero los dos contornos y
+luego los dos rellenos, de modo que el contorno interior desaparece y queda un
+único perfil cerrado con una cisura fina donde se tocan. Es el avatar y el logotipo.
 
 ## Lenguaje de formas
 | | Mapi (Sistema 1) | Capi (Sistema 2) |
 |---|---|---|
-| Silueta | Bola alta, **pesada arriba**, contorno con **muchos lóbulos pequeños e irregulares** (nervioso, arrugado), dos pelillos sueltos (pliegues «despeinados»). | Pera ancha, **pesada abajo**, **pocos lóbulos grandes y lisos**, asentada. Siempre con taza humeante (rompe la silueta por un lado). |
-| Tamaño | ~80 % de la altura de Capi, más estrecho. | Más grande y ancho (≈1,3× de ancho). |
-| Pliegues | Cortos, torcidos, cada uno hacia un lado. Nacen en las muescas del contorno. | Largos, paralelos, con la misma curvatura: «peinados». |
-| Ojos | Enormes, separados, bajos; dos brillos; en alarma, brillo duplicado = pupila temblorosa. | Párpados a media asta (párpado = semiplano recortado, curva suave); en alarma, ojos en blanco con pupila diminuta. |
-| Postura | Inclinado, brazos arriba, pies en movimiento, gotas de sudor. | Vertical, quieto, brazos caídos o sujetando la taza. |
+| Silueta | Bola **alta y estrecha**, pesada arriba, **8 lóbulos grandes e irregulares**, un único rizo suelto. | **Cúpula/pera ancha y baja** (≈1,4× más ancha que Mapi), peso abajo, **6 lóbulos amplios y simétricos**, taza humeante. Sin aristas rectas. |
+| Surcos | 2 surcos largos y sinuosos (uno cruza la frente; otro baja por el costado) + 2 espuelas con remate de bola. | 4 surcos largos, ondulados y **paralelos**, que recorren el cuerpo de arriba abajo (dos a cada lado de la cara) + uno corto central. |
+| Ojos | Enormes, separados; **asimétricos** (el izquierdo un 10 % mayor, siempre). | Párpados a media asta; sólo los abre del todo cuando se alarma. |
+| Postura por defecto | **Inclinado (−7°) con un pie en el aire.** Nunca quieto. | Vertical, asentado, brazos caídos o con la taza. |
+| Valor en gris | Claro (L* 58) | Oscuro (L* 37) → 21 puntos de diferencia, se distinguen en blanco y negro. |
 
-Proporciones chibi: cabeza = cuerpo (no hay cuello); brazos y piernas son
-«salchichas» de gominola con extremo redondo. Cara en el tercio inferior-central
-del cuerpo (rasgo kawaii).
+Proporciones chibi: cabeza = cuerpo; brazos y piernas son «salchichas» de gominola.
+
+## Firmas propias (para no ser «kawaii genérico»)
+1. **Surco con remate de bola:** todo surco que acaba dentro del cuerpo termina en
+   una bolita de tinta, como una gota de gominola. Aparece en ambos y en el logo.
+2. **Ojos asimétricos de Mapi:** el ojo izquierdo siempre algo más grande; refuerza
+   su descontrol sin necesidad de gestos.
+3. **El abrazo-fusión:** dos siluetas que se convierten en una.
 
 ## Construcción
-- `chars.js` define una sola vez: cuerpos (paths Bézier), pliegues principales
-  (tinta) y secundarios (sombra), ojos paramétricos (`eye()` con mirada, párpado e
-  inclinación), cejas, bocas, rubor, extremidades, gotas de sudor y taza.
-  Expresiones: `neutral`, `alarm`, `euphoria`, `happy`, `skeptic`, `panic` (Mapi);
-  `neutral`, `alarm`, `happy`, `skeptic`, `sip` (Capi). Poses: `stand`, `panic`,
-  `run`, `cheer`, `hips` / `stand`, `mug`, `cross`, `point`, `shrug`, más `custom`.
-- `scenes.js` compone las escenas y los accesorios (bolsas, etiqueta, monedas,
-  monedero, bocadillos, filtro de pegatina, abrazo `hug()`, logotipo).
-- `render.js`: `node render.js [escena…]` → escribe `<escena>.svg` y `<escena>.png`
-  (Playwright + Chromium, Fredoka de Google Fonts).
+- `chars.js`: `lobed()` genera cada cuerpo a partir de una elipse base y una lista
+  de cúspides (ángulos + abombamiento por lóbulo); `smooth()` traza surcos
+  (Catmull-Rom → Bézier). Ojos paramétricos (`eye()`), cejas, bocas, rubor,
+  extremidades (`limb()`, con opción rígida), sudor y taza. Expresiones de Mapi:
+  `neutral`, `alarm`, `euphoria`, `happy`, `skeptic`; de Capi: `neutral`, `alarm`,
+  `happy`, `skeptic`. Poses: `stand`, `panic`, `run`, `cheer`, `hips` / `stand`,
+  `mug`, `mugFront`, `sides`, `raise`, `point`, `shrug`, y `custom`.
+- `scenes.js`: escenas y accesorios (bolsas, etiqueta, monedas, monedero de
+  boquilla, bocadillos, filtro de pegatina, `hug()` con fusión de siluetas, logotipo).
+- `render.js`: `node render.js [escena…]` → `<escena>.svg` + `<escena>.png`.
 
 ## Acabado
-- Contorno exterior grueso (9 px a escala 1) en ciruela oscura, nunca negro.
-  Líneas interiores a 5 px. Puntas y uniones redondeadas.
-- Sombreado plano de una sola capa: el cuerpo se dibuja en tono sombra y encima el
-  tono base desplazado 12 px hacia la luz (arriba-izquierda en Mapi,
-  arriba-derecha en Capi), recortado a la silueta. Nada de degradados.
-- Brillo de caramelo: un trazo blanco curvo + un punto, siempre en el lóbulo más
-  alto del lado exterior.
-- Contorno blanco de pegatina (`feMorphology dilate`) con sombra suave solo en el
-  avatar, el logotipo y el «7» de la portada.
-- Fondos pastel planos, uno por post, con motitas del mismo tono un paso más oscuro.
+- Contorno ciruela de 9 px (nunca negro), surcos de 5 px, extremos redondeados.
+- Sombreado plano de una sola capa (el tono base desplazado 12 px hacia la luz
+  sobre el tono sombra, recortado a la silueta). Sin degradados.
+- Brillo de caramelo: un trazo blanco curvo + un punto en el lóbulo alto exterior.
+- Contorno blanco de pegatina sólo en avatar y en el «7» de la portada.
+- Fondos pastel planos, uno por post.
 
 ## Paleta (hex)
 | Uso | Hex |
 |---|---|
-| Contorno / texto (ciruela) | `#33203A` |
-| Mapi rojo cereza / sombra | `#EE3D5B` / `#C2244A` |
-| Capi azul / sombra | `#4F86E8` / `#3361C4` |
+| Contorno / texto | `#33203A` |
+| Mapi / sombra | `#F5506A` / `#CF3152` |
+| Capi / sombra | `#2850B8` / `#1B3889` |
 | Rubor / interior de boca | `#FF9BB5` / `#FF6F8A` |
-| Acento (taza, monedas, etiquetas) | `#FFE27A` (`#F2BE3C` sombra) |
+| Acento (taza, monedas, etiqueta) | `#FFE27A` (`#F2BE3C`) |
 | Sudor | `#8FD8F7` |
-| Fondos pastel por post | menta `#CDEFDF` · lila `#E2DAFF` · mantequilla `#FFEDB0` · cielo `#D3E9FF` · melocotón `#FFD9CC` |
+| Fondos | menta `#CDEFDF` · lila `#E2DAFF` · mantequilla `#FFEDB0` · cielo `#D3E9FF` · melocotón `#FFD9CC` |
 
 (Sin crema `#F4EEE3`, sin coral `#FF5A36`, sin Fraunces.)
 
 ## Tipografía
-**Fredoka** (Google Fonts) 500/600/700: redondeada y gruesa, con buen soporte de
-acentos y ¿¡. Títulos 700, bocadillos 600, texto de apoyo 500.
+**Fredoka** 500/600/700 (Google Fonts): redondeada, gruesa, buenos acentos y ¿¡.
 
 ## Nombres
-Se mantienen **Mapi** y **Capi**: cortos, simétricos, se leen bien en etiquetas
-pequeñas y suenan a mascota. Además riman, lo que refuerza que son pareja, y la
-pregunta «¿Eres más Mapi o más Capi?» funciona tal cual.
+**Mapi** y **Capi**: cortos, riman (son pareja) y la pregunta «¿Eres más Mapi o
+más Capi?» funciona tal cual.
 
 ## Animación en Reels
-- **Mapi:** squash & stretch exagerado en cada gesto (es gominola: rebota). Ciclo
-  de reposo en 2 fotogramas con temblor de 1–2 px; los pelillos se agitan con
-  retraso (follow-through). Pupila temblorosa = brillo que alterna entre dos
-  posiciones cada 2 fotogramas. Entra en plano corriendo con líneas de velocidad.
-- **Capi:** se mueve a la mitad de fotogramas que Mapi. Parpadeo lento (el
-  párpado baja del 50 % al 100 % y sube). Vapor de la taza en bucle. Gag fijo:
-  entra en plano tarde, cuando el diálogo ya ha empezado.
-- **Encaje:** al final de cada Reel se abrazan y los lados planos se pegan con un
-  «blop» de gominola (squash horizontal) → aparece el corazón → logotipo.
-- Todo está construido con grupos SVG separados (cuerpo, cara, brazos, piernas,
-  accesorios), así que se puede exportar por capas a After Effects/Rive/Lottie.
+- **Mapi:** squash & stretch exagerado (rebota como gominola); reposo con temblor de
+  1–2 px; el rizo va con retraso (follow-through); en pánico, pupilas encogidas que
+  vibran y brazos rígidos.
+- **Capi:** la mitad de fotogramas que Mapi; parpadeo lento del párpado del 50 % al
+  100 %; vapor en bucle. Gag fijo: entra en plano tarde.
+- **Cierre:** se abrazan, «blop» de fusión (las dos siluetas se vuelven una), sale el
+  corazón → logotipo.
 
 ## Puntos débiles conocidos
-- **«Cerebro» a primera vista:** Mapi se lee cerebro gracias a los pliegues; Capi,
-  más liso, puede leerse como «gominola azul/nube» si aparece solo. Los pliegues de
-  tinta ayudan, pero el concepto «mitades» se entiende de verdad cuando están juntos.
-- Mapi, roja y lobulada, puede recordar a una frambuesa a tamaño muy pequeño.
-- El estilo kawaii es amable pero muy extendido en stickers; la personalidad tiene
-  que venir de las poses y del guion, no solo del dibujo.
-- Las extremidades son trazos simples (salchichas); para Reels convendría una
-  versión con codo para gestos más ricos.
-- La asimetría de tamaños hace que el «cerebro completo» del abrazo no sea
-  perfectamente simétrico (se ha compensado escalando a Capi al 96 % en `hug()`).
-- Los SVG cargan Fredoka por `@import`; sin conexión caen a una sans genérica (el
-  PNG ya va renderizado).
+- Capi, de frente y solo, puede leerse a ratos como «flan/gelatina azul»; los surcos
+  largos ayudan, pero su lectura de «cerebro» sigue siendo más débil que la de Mapi.
+- La silueta fusionada del abrazo es un cerebro asimétrico (más alto por el lado de
+  Mapi): funciona como cerebro de perfil, no como vista frontal simétrica.
+- En la hoja de expresiones Capi sale pequeño (por su anchura); su cara es legible
+  pero con menos detalle que la de Mapi.
+- El kawaii es un territorio muy transitado: la personalidad debe venir también de
+  poses y guion.
+- Los SVG cargan Fredoka por `@import`; sin conexión caen a una sans genérica.
+
+## Ronda 2 — cambios
+1. **Capi redibujado:** cúpula/pera sin aristas rectas, 6 lóbulos amplios, 4 surcos
+   largos que recorren todo el cuerpo (+1 central). Ya no es «tofu».
+2. **Mapi redibujado:** de ~14 bultos a 8 lóbulos grandes; los ganchos en C se
+   sustituyen por 2 surcos largos y continuos; los dos pelos pasan a un solo rizo.
+3. **Contraste:** Capi 1,4× más ancho y bajo (peso abajo); azul oscurecido a
+   `#2850B8` (L* 37) y Mapi aclarado a `#F5506A` (L* 58): 21 puntos de L*.
+   Mapi por defecto inclinado y con un pie en el aire. `check-150px.png` incluye
+   siluetas y versión en gris.
+4. **Fuera «mitades/hemisferios»:** el texto del hero es «Dos formas de pensar, un
+   mismo cerebro.». El abrazo ahora se funde en una sola silueta cerrada (avatar y
+   logo); por eso se mantiene el truco.
+5. **Textos y expresión:** «Uno compra primero. El otro piensa después.». La alarma
+   de Mapi tiene boca de grito ovalada y alta, pupilas encogidas, cejas muy alzadas
+   y brazos rígidos con marcas de vibración. La alarma de Capi pasa a ser «abre los
+   ojos del todo + gota», para no repetir la de Mapi.
+6. **Extras:** monedero rectangular de boquilla con cierre visible en la portada;
+   la etiqueta «−70 %» va atada con cordel a la bolsa; la taza de Capi queda a ~50 px
+   del borde; firmas propias (surco con bolita, ojos asimétricos, abrazo-fusión).
 
 ## Archivos
 `hero.png/.svg`, `expressions.png/.svg`, `cover-mock.png/.svg`,
-`avatar.png/.svg` (320×320), `check-150px.png/.svg` (prueba de lectura a 150 px y
-siluetas), `chars.js`, `scenes.js`, `render.js`, `notes.md`.
+`avatar.png/.svg` (320×320), `check-150px.png/.svg`, `chars.js`, `scenes.js`,
+`render.js`, `notes.md`.

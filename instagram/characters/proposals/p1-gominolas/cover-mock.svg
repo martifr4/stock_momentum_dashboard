@@ -61,6 +61,7 @@
       <text x="356" y="406" style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:72px" fill="#33203A">que te <tspan fill="#CF3152">vacían</tspan></text>
       <path d="M 600 428 q 23 -13 46 0 t 46 0 t 46 0 t 46 0" fill="none" stroke="#CF3152" stroke-width="7" stroke-linecap="round"/>
       <text x="540" y="548" text-anchor="middle" style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:80px" fill="#33203A">la cuenta cada mes</text>
+      <g transform="translate(0 -40)">
       <ellipse cx="330" cy="1176" rx="165" ry="23.1" fill="#F5D98A"/>
       <ellipse cx="806" cy="1162" rx="180" ry="25.200000000000003" fill="#F5D98A"/>
       <g stroke="#33203A" stroke-width="5" stroke-linecap="round"><path d="M 600 930 L 600 954"/><path d="M 506 1020 L 506 1044"/><path d="M 620 1094 L 620 1114"/></g><g transform="translate(800 1140) rotate(0) scale(0.94 0.94)"><path d="M -70 -2 Q -73.6 8.8 -72 20" fill="none" stroke="#33203A" stroke-width="38.4" stroke-linecap="round"/>
@@ -140,11 +141,12 @@
     <path d="M -11 -7 C -9 -12 -5 -14.399999999999999 0 -15" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
   </g>
       <g>
-    <g fill="#33203A" transform="translate(6 7)"><rect x="680" y="695" width="340" height="150" rx="46" ry="46"/><path d="M 808 843 Q 824 871.5 830 900 Q 842 871.5 852 843 Z"/></g>
-    <g fill="#fff" stroke="#33203A" stroke-width="7" stroke-linejoin="round"><rect x="680" y="695" width="340" height="150" rx="46" ry="46"/><path d="M 808 843 Q 824 871.5 830 900 Q 842 871.5 852 843 Z"/></g>
-    <path d="M 812 843 L 848 843" stroke="#fff" stroke-width="9"/>
-    <text x="850" y="762.02" text-anchor="middle" style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:38px" fill="#33203A">Espera…</text><text x="850" y="804.5799999999999" text-anchor="middle" style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:38px" fill="#33203A">déjame pensarlo.</text>
+    <g fill="#33203A" transform="translate(6 7)"><rect x="680" y="705" width="340" height="150" rx="46" ry="46"/><path d="M 808 853 Q 824 878.5 830 904 Q 842 878.5 852 853 Z"/></g>
+    <g fill="#fff" stroke="#33203A" stroke-width="7" stroke-linejoin="round"><rect x="680" y="705" width="340" height="150" rx="46" ry="46"/><path d="M 808 853 Q 824 878.5 830 904 Q 842 878.5 852 853 Z"/></g>
+    <path d="M 812 853 L 848 853" stroke="#fff" stroke-width="9"/>
+    <text x="850" y="772.02" text-anchor="middle" style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:38px" fill="#33203A">Espera…</text><text x="850" y="814.5799999999999" text-anchor="middle" style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:38px" fill="#33203A">déjame pensarlo.</text>
   </g>
+      </g>
       <g transform="translate(1008 1290)">
         <rect x="-232" y="-40" width="232" height="66" rx="33" fill="#33203A"/>
         <text x="-116" y="6" text-anchor="middle" style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:32px" fill="#fff">Desliza  →</text>

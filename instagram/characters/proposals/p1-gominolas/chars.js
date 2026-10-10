@@ -275,6 +275,9 @@ const CAPI_POSES = {
   stand: { arms: [[-160, -66, -182, -32], [160, -66, 182, -32]] },
   mug: { arms: [[-160, -66, -182, -32], [158, -70, 170, -40]], mug: true },
   point: { arms: [[-160, -78, -196, -104], [160, -66, 182, -32]] },
+  sides: { arms: [[-160, -62, -170, -28], [160, -62, 170, -28]] },
+  raise: { arms: [[-160, -62, -170, -28], [158, -80, 178, -120]] },
+  mugFront: { arms: [[-160, -62, -170, -28], [156, -64, 132, -30]], mugFront: true },
   shrug: { arms: [[-160, -74, -196, -92], [160, -74, 196, -92]] },
 };
 const CAPI_LEGS = [[-70, -2, -72, 20], [70, -2, 72, 20]];
@@ -329,6 +332,7 @@ function capi(o = {}) {
   g.push(capiFace(o.expr || 'neutral'));
   if (o.expr === 'alarm') g.push(sweatDrop(150, -186, 0.8, 20));
   if (pose.mug) g.push(mug(196, -12, 0.95));
+  if (pose.mugFront) g.push(mug(118, 4, 0.85));
   if (o.beforeArms) g.push(o.beforeArms);
   if (!o.noArms) g.push(limbs(pose.arms, 20));
   if (o.extra) g.push(o.extra);

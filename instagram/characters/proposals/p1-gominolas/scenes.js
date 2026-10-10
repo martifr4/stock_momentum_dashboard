@@ -125,13 +125,14 @@ module.exports = {
   // ---------- HERO ----------
   hero: () => {
     const W = 1080, H = 1350;
-    // la etiqueta va atada al asa de la bolsa amarilla y sale volando hacia atrás
-    const flyingTag = priceTag(-78, -52, -24, '−70 %', 0.62, 'M 92 6 C 110 14 124 40 130 58');
-    const bagL = bag('#FFE27A', '#F2BE3C', 10, `<text x="0" y="96" text-anchor="middle" style="${FONT};font-weight:700;font-size:34px" fill="${P.ink}">%</text>`, flyingTag);
+    // la etiqueta «−70 %» va atada con un cordel al asa de la bolsa amarilla
+    const tagOnBag = `<path d="M -14 26 C -26 44 -26 60 -24 76" fill="none" stroke="${P.ink}" stroke-width="4" stroke-linecap="round"/>
+      ${priceTag(6, 84, -12, '−70 %', 0.5)}`;
+    const bagL = bag('#FFE27A', '#F2BE3C', 10, tagOnBag);
     const bagR = bag('#9EE6C4', '#6CCBA0', -12,
       `<path d="M 0 98 C -10 90 -20 82 -20 72 C -20 62 -6 60 0 70 C 6 60 20 62 20 72 C 20 82 10 90 0 98 Z" fill="${P.mouth}" stroke="${P.ink}" stroke-width="5" stroke-linejoin="round"/>`);
     const m = mapi({
-      x: 344, y: 1036, s: 1.3, r: -8, expr: 'euphoria', sweat: 2,
+      x: 372, y: 1036, s: 1.3, r: -8, expr: 'euphoria', sweat: 1,
       custom: { arms: [[-100, -92, -150, -108], [100, -100, 118, -172]] },
       beforeArms: `<g transform="translate(-150 -108)">${bagL}</g><g transform="translate(118 -172)">${bagR}</g>`,
     });
@@ -142,7 +143,7 @@ module.exports = {
       body: `<rect width="${W}" height="${H}" fill="${BG.mint}"/>
       <g fill="${SHADOW.mint}"><circle cx="120" cy="250" r="10"/><circle cx="960" cy="200" r="14"/><circle cx="1000" cy="520" r="8"/><circle cx="560" cy="60" r="8"/></g>
       ${logo(540 - 120, 130, 1)}
-      ${ground(344, 1066, 160, SHADOW.mint)}
+      ${ground(372, 1066, 160, SHADOW.mint)}
       ${ground(790, 1046, 190, SHADOW.mint)}
       ${speed}
       ${c}
@@ -166,19 +167,19 @@ module.exports = {
       { expr: 'skeptic', pose: 'hips' },
     ];
     const capiStates = [
-      { expr: 'neutral', pose: 'mug', dx: -30, s: 0.56 },
-      { expr: 'alarm', pose: 'shrug', dx: 0, s: 0.56 },
-      { expr: 'happy', pose: 'mug', dx: -30, s: 0.56 },
-      { expr: 'skeptic', pose: 'point', dx: 10, s: 0.56 },
+      { expr: 'neutral', pose: 'mugFront', dx: 0, s: 0.62 },
+      { expr: 'alarm', pose: 'sides', dx: 0, s: 0.62 },
+      { expr: 'happy', pose: 'mugFront', dx: 0, s: 0.62 },
+      { expr: 'skeptic', pose: 'raise', dx: -6, s: 0.62 },
     ];
-    const row = (y, who, states, color, light) => {
+    const row = (y, who, states, color, light, ch) => {
       const panel = `<rect x="${x0}" y="${y}" width="${4 * cw + 3 * gap}" height="${ch}" rx="40" fill="#fff" stroke="${P.ink}" stroke-width="6"/>`;
       return panel + states.map((st, i) => {
         const x = x0 + i * (cw + gap);
         const fig = who === 'm'
-          ? mapi(Object.assign({ x: x + cw / 2 + 4, y: y + 318, s: 0.78 }, st))
-          : capi(Object.assign({ x: x + cw / 2 + st.dx, y: y + 318 }, st));
-        return `${ground(x + cw / 2, y + 334, 92, light)}${fig}
+          ? mapi(Object.assign({ x: x + cw / 2 + (i === 0 ? 14 : 4), y: y + ch - 112, s: 0.86 }, st))
+          : capi(Object.assign({ x: x + cw / 2 + st.dx, y: y + ch - 110 }, st));
+        return `${ground(x + cw / 2, y + ch - 96, 92, light)}${fig}
         <rect x="${x + 22}" y="${y + ch - 76}" width="${cw - 44}" height="54" rx="27" fill="${color}"/>
         <text x="${x + cw / 2}" y="${y + ch - 38}" text-anchor="middle" style="${FONT};font-weight:600;font-size:30px" fill="#fff">${labels[i]}</text>`;
       }).join('');
@@ -191,9 +192,9 @@ module.exports = {
       <text x="${x0}" y="98" style="${FONT};font-weight:700;font-size:58px" fill="${P.ink}">Hoja de expresiones</text>
       ${logo(W - x0 - 270, 92, 0.9)}
       ${head(184, 'Mapi', 'Sistema 1 · rápido, emocional', P.red)}
-      ${row(212, 'm', mapiStates, P.red, '#FFE0E6')}
-      ${head(730, 'Capi', 'Sistema 2 · lento, deliberado', P.blue)}
-      ${row(758, 'c', capiStates, P.blue, '#DCE5FA')}
+      ${row(212, 'm', mapiStates, P.red, '#FFE0E6', 470)}
+      ${head(784, 'Capi', 'Sistema 2 · lento, deliberado', P.blue)}
+      ${row(812, 'c', capiStates, P.blue, '#DCE5FA', 320)}
       <text x="${W / 2}" y="${H - 50}" text-anchor="middle" style="${FONT};font-weight:500;font-size:26px" fill="${P.ink}" opacity="0.6">Propuesta 1 · «Gominolas» · ronda 2</text>`,
     };
   },
@@ -227,10 +228,12 @@ module.exports = {
       <g fill="${SHADOW.butter}"><circle cx="980" cy="640" r="12"/><circle cx="80" cy="680" r="9"/><circle cx="1010" cy="120" r="8"/></g>
       ${logo(80 + 50, 112, 0.85)}
       ${title}
+      <g transform="translate(0 -40)">
       ${ground(330, 1176, 165, SHADOW.butter)}
       ${ground(806, 1162, 180, SHADOW.butter)}
       ${fall}${c}${m}${coins}
-      ${bubble(850, 770, 340, 150, [830, 900], ['Espera…', 'déjame pensarlo.'], { fs: 38 })}
+      ${bubble(850, 780, 340, 150, [830, 904], ['Espera…', 'déjame pensarlo.'], { fs: 38 })}
+      </g>
       <g transform="translate(${W - 72} ${H - 60})">
         <rect x="-232" y="-40" width="232" height="66" rx="33" fill="${P.ink}"/>
         <text x="-116" y="6" text-anchor="middle" style="${FONT};font-weight:600;font-size:32px" fill="#fff">Desliza  →</text>

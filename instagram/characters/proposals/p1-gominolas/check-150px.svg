@@ -12,7 +12,7 @@
     <feMerge><feMergeNode in="sh"/><feMergeNode in="white"/><feMergeNode in="SourceGraphic"/></feMerge>
   </filter></defs>
     <rect width="640" height="640" fill="#FFEDB0"/>
-    <g filter="url(#stk)"><g transform="translate(300 470) scale(1.25)">
+    <g filter="url(#stk)"><g transform="translate(304 462) scale(1.12)">
     <defs><clipPath id="hugc5"><path d="M 148.3 -24.5 C 124.6 8.2 -124.6 8.2 -148.3 -24.5 C -182.1 -39 -166.4 -121.3 -129.6 -122.4 C -143.2 -153 -76 -205.6 -49.5 -185 C -41.6 -214.7 41.6 -214.7 49.5 -185 C 76 -205.6 143.2 -153 129.6 -122.4 C 166.4 -121.3 182.1 -39 148.3 -24.5 Z" transform="translate(92 0) scale(1.0)"/></clipPath></defs>
     <g transform="translate(-62 0) scale(0.94)"><path d="M -34 -4 Q -38.6 6.5 -38 18" fill="none" stroke="#33203A" stroke-width="34.4" stroke-linecap="round"/>
   <path d="M -34 -4 Q -38.6 6.5 -38 18" fill="none" stroke="#F5506A" stroke-width="20" stroke-linecap="round"/></g>
