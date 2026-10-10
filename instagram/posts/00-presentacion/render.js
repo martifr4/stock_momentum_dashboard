@@ -301,7 +301,7 @@ S[8] = async (M) => {
 
 S[9] = async (M) => {
   const ly = L();
-  add(ly, pageChrome({ n: 9, ink: 'plum', signoff: 'Dinero Irracional' }));
+  add(ly, pageChrome({ n: 9, ink: 'plum', signoff: '@dinero_irracional' }));
   add(ly, richText({ x: X0, y: 250, lines: [[h('¿Quién manda más')], [h('en tu cabeza?')]], size: 104, lh: 0.96, ls: -0.01 }));
   // botones de voto: punto de tinta + nombre, encima de cada personaje
   const vy = 476;
