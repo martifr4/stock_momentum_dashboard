@@ -40,7 +40,8 @@ function roundPoly(pts, r = 5) {
     const p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n];
     const v1 = [p0[0] - p1[0], p0[1] - p1[1]], v2 = [p2[0] - p1[0], p2[1] - p1[1]];
     const l1 = Math.hypot(...v1), l2 = Math.hypot(...v2);
-    const rr = Math.min(r, l1 / 2.2, l2 / 2.2);
+    const rv = Array.isArray(r) ? r[i] : r;
+    const rr = Math.min(rv, l1 / 2.2, l2 / 2.2);
     const a = [p1[0] + v1[0] / l1 * rr, p1[1] + v1[1] / l1 * rr];
     const b = [p1[0] + v2[0] / l2 * rr, p1[1] + v2[1] / l2 * rr];
     d += (i === 0 ? 'M' : 'L') + f(a[0]) + ' ' + f(a[1]) + ' Q' + p1[0] + ' ' + p1[1] + ' ' + f(b[0]) + ' ' + f(b[1]) + ' ';
@@ -112,129 +113,153 @@ function teardrop(x, y, s, rot = 0, color = INK.blue) {
 }
 
 // =====================================================================
-// MAPI — Sistema 1. Polígono en zigzag: los pliegues del cerebro son picos.
-// Sistema local: centro del cuerpo en (0,0). Ancho ~220, alto ~165 (+ patas).
+// MAPI — Sistema 1. Un cerebrito facetado: cúpula en sierra de puntas romas,
+// base plana, dos surcos en zigzag y una cisura horizontal.
+// Sistema local: (0,0) ≈ centro del cuerpo. Cuerpo ≈ 232 × 195 (+ patas de 52).
 // =====================================================================
-// Contorno: perfil de cerebro (más ancho que alto) cuyo borde superior es una sierra:
-// cada diente es una circunvolución. Los dientes no son iguales a propósito (nervio).
-// Contorno: perfil de cerebro facetado (más ancho que alto). Sólo la cúpula lleva sierra:
-// cada diente es una circunvolución. Los dientes no son iguales a propósito (nervio).
+// Cada diente es una circunvolución. Solo 3 dientes son afilados (S), el resto romos (r≈9).
 const MAPI_TEETH = [0.8, 1.2, 0.95, 1.35, 1.0, 1.15, 0.75];
+const MAPI_SHARP = [false, true, false, true, false, false, true];
 function mapiArc(scale, a0, a1, amp, cy, teeth = MAPI_TEETH) {
   const pts = [], N = teeth.length;
   for (let i = 0; i <= N * 2; i++) {
     const a = a0 + (a1 - a0) * (i / (N * 2));
     const k = i % 2 === 1 ? teeth[(i - 1) / 2] : 0;
     const front = Math.max(0, Math.cos(a)) * 10 * scale; // lóbulo frontal más alto
-    const rx = 112 * scale + k * amp * 0.35, ry = 76 * scale + k * amp;
+    const rx = 112 * scale + k * amp * 0.35, ry = 92 * scale + k * amp;
     pts.push([Math.round(Math.cos(a) * rx), Math.round(cy - Math.sin(a) * (ry + front))]);
   }
   return pts;
 }
-const MAPI_BODY = [
-  [-104, 46], [-116, 10], [-108, -22],
-  ...mapiArc(1, Math.PI * 0.85, Math.PI * 0.13, 20, 4),
-  [108, -18], [116, 14], [104, 46], [76, 64], [44, 62], [18, 74], [-22, 70], [-58, 74], [-84, 62],
-];
-// surcos (reservas en zigzag que repiten la sierra hacia dentro)
+const MAPI_DOME = mapiArc(1, Math.PI * 0.86, Math.PI * 0.12, 26, 0);
+// Contorno: facetas laterales + cúpula de lóbulos. Los lóbulos romos son arcos (cúbicas);
+// solo 3 son puntas afiladas: el nervio de Mapi, sin que deje de ser un cerebro.
+function mapiBodyPath() {
+  const D = MAPI_DOME;
+  let d = 'M-66 70 L-92 56 Q-100 51 -104 44 L-118 8 L-110 -24 L' + D[0].join(' ');
+  for (let i = 0; i + 2 < D.length; i += 2) {
+    const v0 = D[i], p = D[i + 1], v1 = D[i + 2];
+    if (MAPI_SHARP[i / 2]) { d += ` L${p[0]} ${p[1]} L${v1[0]} ${v1[1]}`; continue; }
+    const mx = (v0[0] + v1[0]) / 2, my = (v0[1] + v1[1]) / 2, nx = p[0] - mx, ny = p[1] - my;
+    const k = 1.33;
+    d += ` C${f(v0[0] + nx * k)} ${f(v0[1] + ny * k)} ${f(v1[0] + nx * k)} ${f(v1[1] + ny * k)} ${v1[0]} ${v1[1]}`;
+  }
+  return d + ' L112 -18 L118 10 L104 42 Q100 50 92 54 L64 70 Z';
+}
+const MAPI_BODY_D = mapiBodyPath();
+// surcos: dos zigzags concéntricos + cisura horizontal en la nuca
 const MAPI_FOLDS = [
-  mapiArc(0.66, Math.PI * 0.9, Math.PI * 0.12, 20, 2, [1, 1.2, 0.9, 1.25, 1, 1.1, 0.9]),
-  [[-100, -4], [-86, -20], [-72, -4], [-58, -20], [-44, -6]],
+  mapiArc(0.8, Math.PI * 0.84, Math.PI * 0.2, 13, 0, [1, 1.2, 0.9, 1.25, 1, 1.1, 0.9]).slice(1, -1),
+  mapiArc(0.54, Math.PI * 0.8, Math.PI * 0.36, 11, -2, [1, 1.2, 1.1]).slice(1, -1),
+  [[-114, 8], [-96, 2], [-80, 10], [-62, 4], [-50, 8]],
 ];
+// enchufes fijos de las extremidades (siempre en la mitad baja, lejos de la cara)
+const SOCK = { legL: [-34, 68], legR: [32, 68], armL: [-106, 36], armR: [106, 34] };
 function mapiFace(expr) {
   const o = L();
-  const E1 = [-14, 12], E2 = [38, 10];
+  const E1 = [-14, -2], E2 = [38, -4];
   const ex = expr;
   if (ex === 'neutral') {
     add(o, eye({ cx: E1[0], cy: E1[1], r: 17, look: [4, 1] }));
     add(o, eye({ cx: E2[0], cy: E2[1], r: 17, look: [4, 1] }));
-    o.black += strokeP(`M-30 -14 L-2 -20 M24 -21 L52 -16`, INK.black, 5, 'stroke-linecap="round"');
-    o.black += strokeP(`M2 44 L9 39 L16 44 L23 39 L30 44`, INK.black, 4.5, 'stroke-linecap="round" stroke-linejoin="round"');
+    o.black += strokeP(`M-30 -28 L-2 -30 M24 -32 L52 -30`, INK.black, 5, 'stroke-linecap="round"');
+    o.black += strokeP(`M4 32 Q16 36 28 31`, INK.black, 4.5, 'stroke-linecap="round"');
   } else if (ex === 'euforia' || ex === 'alarma') {
     const big = 20;
     add(o, eye({ cx: E1[0] - 2, cy: E1[1] - 2, r: big, pr: 5.5, look: ex === 'alarma' ? [-3, -2] : [3, -4] }));
     add(o, eye({ cx: E2[0] + 2, cy: E2[1] - 3, r: big, pr: 5.5, look: ex === 'alarma' ? [-3, -2] : [3, -4] }));
-    o.black += strokeP(ex === 'alarma' ? `M-34 -26 L-4 -16 M28 -17 L58 -28` : `M-34 -18 L-20 -31 L-5 -22 M27 -25 L42 -37 L57 -25`, INK.black, 5, 'stroke-linecap="round" stroke-linejoin="round"');
-    // boca enorme abierta en forma de trapecio dentado
-    if (ex === 'alarma') o.black += `<path d="${roundPoly([[-2, 36], [32, 36], [36, 58], [-6, 58]], 4)}" fill="${INK.black}"/>`;
-    else o.black += `<path d="M-10 32 L44 29 C42 52 30 66 16 66 C2 66 -8 52 -10 32Z" fill="${INK.black}"/>`;
-    if (ex === 'euforia') o.red += `<path d="M-7 33.5 L41 31 L39 38 L-5 40Z" fill="${W}"/>`; // dientes (reserva)
-    else o.red += `<path d="M1 38 L31 38 L31.5 43 L0.5 43Z" fill="${W}"/>`;
+    o.black += strokeP(ex === 'alarma' ? `M-34 -38 L-4 -28 M28 -29 L58 -40` : `M-34 -32 L-20 -45 L-5 -36 M27 -39 L42 -51 L57 -39`, INK.black, 5, 'stroke-linecap="round" stroke-linejoin="round"');
+    if (ex === 'alarma') {
+      o.black += `<path d="${roundPoly([[-2, 24], [32, 24], [36, 46], [-6, 46]], 4)}" fill="${INK.black}"/>`;
+      o.red += `<path d="M1 26 L31 26 L31.5 31 L0.5 31Z" fill="${W}"/>`;
+    } else {
+      o.black += `<path d="M-10 22 L44 19 C42 40 30 50 16 50 C2 50 -8 40 -10 22Z" fill="${INK.black}"/>`;
+      o.red += `<path d="M-7 23.5 L41 21 L39 28 L-5 30Z" fill="${W}"/>`; // dientes (reserva)
+    }
   } else if (ex === 'feliz') {
     add(o, closedEye(E1[0], E1[1] + 4, 14, true, 5.5));
     add(o, closedEye(E2[0], E2[1] + 4, 14, true, 5.5));
-    o.black += strokeP(`M-30 -18 L-4 -24 M24 -25 L50 -19`, INK.black, 5, 'stroke-linecap="round"');
-    o.black += `<path d="M-6 34 L40 32 C36 52 26 60 16 60 C5 60 -3 50 -6 34Z" fill="${INK.black}"/>`;
-    o.red += `<path d="M-3 35 L37 33.5 L35 39 L-1 40Z" fill="${W}"/>`;
+    o.black += strokeP(`M-30 -30 L-4 -34 M24 -35 L50 -31`, INK.black, 5, 'stroke-linecap="round"');
+    o.black += `<path d="M-6 22 L40 20 C36 40 26 48 16 48 C5 48 -3 38 -6 22Z" fill="${INK.black}"/>`;
+    o.red += `<path d="M-3 23 L37 21.5 L35 27 L-1 28Z" fill="${W}"/>`;
   } else if (ex === 'esceptico') {
     add(o, eye({ cx: E1[0], cy: E1[1], r: 17, lid: 0.42, tilt: -8, look: [6, 5], pr: 7 }));
     add(o, eye({ cx: E2[0], cy: E2[1], r: 17, lid: 0.18, tilt: 6, look: [6, 3], pr: 7 }));
-    o.black += strokeP(`M-30 -8 L-1 -6 M24 -28 L40 -36 L54 -24`, INK.black, 5, 'stroke-linecap="round" stroke-linejoin="round"');
-    o.black += strokeP(`M4 46 L34 38`, INK.black, 5, 'stroke-linecap="round"');
+    o.black += strokeP(`M-30 -22 L-1 -20 M24 -42 L40 -50 L54 -38`, INK.black, 5, 'stroke-linecap="round" stroke-linejoin="round"');
+    o.black += strokeP(`M4 34 L34 26`, INK.black, 5, 'stroke-linecap="round"');
   }
   return o;
 }
+// Poses: cada extremidad parte de su enchufe fijo (SOCK) y solo se dan codo/rodilla y mano/pie.
+// feet: [dirección de la puntera: -1 izquierda, +1 derecha]
 const MAPI_POSES = {
-  stand: {
-    legs: [[[-26, 62], [-38, 88], [-28, 114]], [[30, 56], [42, 84], [34, 114]]],
-    feet: [[-28, 114, -46], [34, 114, 14]],
-    arms: [[[-100, 22], [-124, 8], [-132, 32]], [[104, 18], [126, 2], [134, 24]]],
+  stand: { // relajado: brazos colgando, peso en una pierna
+    legL: [[-56, 94], [-44, 122]], legR: [[48, 96], [38, 122]], feet: [-1, 1],
+    armL: [[-130, 62], [-122, 88]], armR: [[126, 62], [134, 86]],
   },
-  cheer: {
-    legs: [[[-26, 62], [-44, 84], [-30, 112]], [[30, 56], [46, 80], [40, 110]]],
-    feet: [[-30, 112, -48], [40, 110, 20]],
-    arms: [[[-100, 10], [-128, -18], [-118, -52]], [[104, 6], [134, -20], [126, -56]]],
+  happy: { // brazos abiertos, un pie levantado
+    legL: [[-50, 92], [-44, 122]], legR: [[54, 88], [70, 108]], feet: [-1, 1],
+    armL: [[-136, 26], [-150, -2]], armR: [[132, 24], [148, -4]],
+  },
+  cheer: { // euforia: brazos arriba, rodilla arriba
+    legL: [[-46, 94], [-42, 122]], legR: [[62, 82], [52, 106]], feet: [-1, 1],
+    armL: [[-132, 6], [-126, -40]], armR: [[128, 4], [136, -42]],
   },
   shrug: {
-    legs: [[[-26, 62], [-34, 88], [-26, 114]], [[30, 56], [36, 86], [32, 114]]],
-    feet: [[-26, 114, -44], [32, 114, 14]],
-    arms: [[[-100, 24], [-128, 30], [-138, 10]], [[104, 20], [132, 26], [142, 6]]],
+    legL: [[-44, 94], [-38, 122]], legR: [[40, 94], [36, 122]], feet: [-1, 1],
+    armL: [[-136, 46], [-146, 24]], armR: [[132, 46], [142, 24]],
   },
-  none: { legs: [], feet: [], arms: [] },
-  hips: { // brazos en jarras
-    legs: [[[-26, 62], [-34, 88], [-26, 114]], [[30, 56], [38, 86], [32, 114]]],
-    feet: [[-26, 114, -44], [32, 114, 14]],
-    arms: [[[-102, 18], [-132, 36], [-104, 52]], [[106, 16], [136, 34], [106, 50]]],
+  hips: { // en jarras
+    legL: [[-46, 94], [-40, 122]], legR: [[40, 94], [44, 122]], feet: [-1, 1],
+    armL: [[-140, 52], [-112, 64]], armR: [[136, 52], [108, 64]],
   },
-  lunge: { // se lanza hacia delante (derecha): brazo delantero estirado, pierna trasera tirante
-    legs: [[[-30, 60], [-62, 82], [-96, 92]], [[26, 58], [48, 82], [24, 104]]],
-    feet: [[-96, 92, -114], [24, 104, 6]],
-    arms: [[[-100, 0], [-128, -26], [-152, -12]], [[106, -4], [144, -22], [178, -48]]],
+  lunge: { // se lanza a la derecha: brazo delantero estirado, pierna trasera tirante
+    legL: [[-66, 92], [-104, 104]], legR: [[66, 84], [58, 110]], feet: [-1, 1],
+    armL: [[-138, 8], [-152, -24]], armR: [[140, 12], [178, -22]],
   },
-  hold: { // sujeta algo con las dos manos delante (monedas, cartera)
-    legs: [[[-26, 62], [-40, 86], [-30, 114]], [[30, 56], [44, 84], [38, 114]]],
-    feet: [[-30, 114, -48], [38, 114, 18]],
-    arms: [[[-100, 10], [-130, -30], [-110, -70]], [[104, 6], [132, -32], [118, -74]]],
+  hold: {
+    legL: [[-46, 94], [-40, 122]], legR: [[40, 94], [36, 122]], feet: [-1, 1],
+    armL: [[-136, 10], [-120, -26]], armR: [[132, 8], [118, -28]],
   },
+  none: null,
 };
-function mapi({ x = 0, y = 0, s = 1, rot = 0, flip = false, expr = 'neutral', pose = 'stand', sweat = 0, speed = 0, knockFor = null, faceKnock = null }) {
+function mapi({ x = 0, y = 0, s = 1, rot = 0, lean = 0, flip = false, expr = 'neutral', pose = 'stand', sweat = 0, speed = 0, knockFor = null, knockClip = null, faceKnock = null }) {
   const o = L();
   const P = MAPI_POSES[pose];
-  const body = roundPoly(MAPI_BODY, 4.5);
-  // extremidades de alambre (tinta negra), quebradas en ángulo
-  for (const leg of P.legs) o.black += strokeP(poly(leg), INK.black, 6, 'stroke-linejoin="miter" stroke-linecap="round"');
-  for (const [fx, fy, tx] of P.feet) o.black += `<path d="M${fx} ${fy - 3} L${tx} ${fy - 1} L${tx + (tx < fx ? -2 : 2)} ${fy + 5} L${fx + (tx < fx ? 3 : -3)} ${fy + 5}Z" fill="${INK.black}" stroke="${INK.black}" stroke-width="2" stroke-linejoin="round"/>`;
-  for (const arm of P.arms) {
-    o.black += strokeP(poly(arm), INK.black, 6, 'stroke-linejoin="miter" stroke-linecap="round"');
-    const h = arm[arm.length - 1];
-    o.black += `<circle cx="${h[0]}" cy="${h[1]}" r="7" fill="${INK.black}"/>`;
+  const body = MAPI_BODY_D;
+  if (P) {
+    const legs = [[SOCK.legL, ...P.legL], [SOCK.legR, ...P.legR]];
+    legs.forEach((leg, i) => {
+      o.black += strokeP(poly(leg), INK.black, 6, 'stroke-linejoin="miter" stroke-linecap="round"');
+      const [fx, fy] = leg[leg.length - 1], d = P.feet[i], tx = fx + d * 20;
+      o.black += `<path d="M${fx - d * 3} ${fy - 3} L${tx} ${fy - 1} L${tx + d * 2} ${fy + 5} L${fx - d * 3} ${fy + 5}Z" fill="${INK.black}" stroke="${INK.black}" stroke-width="2" stroke-linejoin="round"/>`;
+    });
+    for (const arm of [[SOCK.armL, ...P.armL], [SOCK.armR, ...P.armR]]) {
+      o.black += strokeP(poly(arm), INK.black, 6, 'stroke-linejoin="miter" stroke-linecap="round"');
+      const h = arm[arm.length - 1];
+      o.black += `<circle cx="${h[0]}" cy="${h[1]}" r="7" fill="${INK.black}"/>`;
+    }
   }
   // cuerpo: plancha roja
   o.red += `<path d="${body}" fill="${INK.red}"/>`;
-  for (const fd of MAPI_FOLDS) o.red += strokeP(poly(fd), W, 6.5, 'stroke-linejoin="miter" stroke-miterlimit="6" stroke-linecap="butt"');
+  for (const fd of MAPI_FOLDS) o.red += strokeP(poly(fd), W, 6.5, 'stroke-linejoin="round" stroke-linecap="round"');
   // reserva en otras planchas (para que el cuerpo tape lo que hay detrás)
-  if (knockFor) for (const k of knockFor) o[k] += `<path d="${body}" fill="${W}"/>`;
+  if (knockFor) {
+    let clip = '';
+    if (knockClip) { const cid = uid('mk'); o.defs += `<clipPath id="${cid}"><rect x="${knockClip[0]}" y="${knockClip[1]}" width="${knockClip[2]}" height="${knockClip[3]}"/></clipPath>`; clip = `clip-path="url(#${cid})"`; }
+    for (const k of knockFor) o[k] += `<path d="${body}" fill="${W}" ${clip}/>`;
+  }
   const face = mapiFace(expr);
-  // si Mapi se superpone a Capi, los blancos de la cara se reservan también en la plancha azul
   if (faceKnock) for (const k of faceKnock) o[k] += face.red;
   add(o, face);
   // gotas de sudor: tinta azul (la otra plancha)
-  const drops = [[-104, -60, 1.25, -25], [118, -46, 1.0, 25], [-128, -24, 0.85, -40]];
+  const drops = [[-112, -78, 1.25, -25], [124, -64, 1.0, 25], [-136, -40, 0.85, -40]];
   for (let i = 0; i < sweat; i++) o.blue += teardrop(...drops[i]);
   // líneas de velocidad
-  const sp = [[-150, -30, -210], [-142, 2, -230], [-150, 34, -200], [-130, 60, -176]];
+  const sp = [[-178, -48, -236], [-176, -12, -262], [-172, 22, -226], [-150, 54, -196]];
   for (let i = 0; i < speed; i++) { const [x1, yy, x2] = sp[i]; o.black += strokeP(`M${x1} ${yy} L${x2} ${yy}`, INK.black, 5, 'stroke-linecap="round"'); }
-  return wrap(o, `translate(${x} ${y}) rotate(${rot}) scale(${flip ? -s : s} ${s})`);
+  // lean = inclinación de dibujo animado (skew): la base sigue plana y horizontal
+  return wrap(o, `translate(${x} ${y}) rotate(${rot}) skewX(${lean}) scale(${flip ? -s : s} ${s})`);
 }
 
 // =====================================================================
@@ -250,31 +275,40 @@ const CAPI_FOLDS = [ // surcos «peinados»: serpenteos lentos con gancho final,
   `M-52 -36 C-28 -54 -6 -30 20 -44 C34 -52 44 -48 50 -40`,
   `M-160 58 C-136 42 -110 66 -86 50 C-76 44 -66 48 -64 58`,
 ];
+// Cara de Capi: ojos grandes de media luna (r 27), centrada ~40 px más hacia el cuerpo.
+// Cada expresión cambia párpados Y boca.
+const CAPI_E1 = [34, 12], CAPI_E2 = [106, 10], CAPI_MOUTH = [70, 62];
 function capiFace(expr, lookIn) {
-  const look = lookIn || [3, 4];
   const o = L();
-  const E1 = [76, 16], E2 = [138, 14];
-  const wl = 'blue';
+  const [E1, E2] = [CAPI_E1, CAPI_E2], [mx, my] = CAPI_MOUTH;
+  const wl = 'blue', R = 27, PR = 12;
   if (expr === 'neutral') {
-    add(o, eye({ cx: E1[0], cy: E1[1], r: 19, lid: 0.5, look, pr: 8.5, whiteLayer: wl, lidW: 6 }));
-    add(o, eye({ cx: E2[0], cy: E2[1], r: 19, lid: 0.5, look, pr: 8.5, whiteLayer: wl, lidW: 6 }));
-    o.black += strokeP(`M98 52 Q108 58 118 51`, INK.black, 5, 'stroke-linecap="round"');
+    const look = lookIn || [4, 6];
+    add(o, eye({ cx: E1[0], cy: E1[1], r: R, lid: 0.5, tilt: -3, look, pr: PR, whiteLayer: wl, lidW: 8 }));
+    add(o, eye({ cx: E2[0], cy: E2[1], r: R, lid: 0.5, tilt: 3, look, pr: PR, whiteLayer: wl, lidW: 8 }));
+    // boca: línea casi recta con una comisura apenas levantada (sonrisa de «ya, ya»)
+    o.black += strokeP(`M${mx - 16} ${my} Q${mx} ${my + 4} ${mx + 18} ${my - 4}`, INK.black, 6, 'stroke-linecap="round"');
   } else if (expr === 'alarma') {
-    add(o, eye({ cx: E1[0], cy: E1[1] - 4, r: 21, lid: 0, look: [0, 0], pr: 5, whiteLayer: wl }));
-    add(o, eye({ cx: E2[0], cy: E2[1] - 4, r: 21, lid: 0, look: [0, 0], pr: 5, whiteLayer: wl }));
-    o.black += strokeP(`M58 -26 Q74 -36 92 -30 M122 -32 Q140 -38 156 -28`, INK.black, 5, 'stroke-linecap="round"');
-    o.black += `<ellipse cx="108" cy="58" rx="8" ry="11" fill="${INK.black}"/>`;
+    const look = lookIn || [0, 0];
+    add(o, eye({ cx: E1[0], cy: E1[1] - 6, r: R + 2, lid: 0, look, pr: 6, whiteLayer: wl }));
+    add(o, eye({ cx: E2[0], cy: E2[1] - 6, r: R + 2, lid: 0, look, pr: 6, whiteLayer: wl }));
+    o.black += strokeP(`M${E1[0] - 26} -40 Q${E1[0]} -54 ${E1[0] + 24} -44 M${E2[0] - 24} -46 Q${E2[0]} -56 ${E2[0] + 26} -42`, INK.black, 6, 'stroke-linecap="round"');
+    o.black += `<ellipse cx="${mx}" cy="${my + 6}" rx="10" ry="14" fill="${INK.black}"/>`;
   } else if (expr === 'feliz') {
-    add(o, closedEye(E1[0], E1[1] + 6, 15, false, 6));
-    add(o, closedEye(E2[0], E2[1] + 6, 15, false, 6));
-    o.black += `<path d="M94 46 Q108 49 124 45 Q120 64 108 64 Q97 64 94 46Z" fill="${INK.black}"/>`;
-    // rubor: trama roja sobre azul = morado
-    for (const [bx, by] of [[50, 50], [146, 54]]) o.red += halftone({ x0: bx - 22, y0: by - 14, x1: bx + 22, y1: by + 14, step: 5.5, rmax: 3.4, color: INK.red, fn: (x, y) => 1 - smooth(0.3, 1, Math.hypot((x - bx) / 20, (y - by) / 12)) });
+    add(o, closedEye(E1[0], E1[1] + 6, 21, false, 8));
+    add(o, closedEye(E2[0], E2[1] + 6, 21, false, 8));
+    // sonrisa grande abierta en D, con lengua en reserva
+    o.black += `<path d="M${mx - 26} ${my - 8} Q${mx} ${my - 2} ${mx + 26} ${my - 10} Q${mx + 22} ${my + 22} ${mx} ${my + 22} Q${mx - 22} ${my + 22} ${mx - 26} ${my - 8}Z" fill="${INK.black}"/>`;
+    o.blue += `<ellipse cx="${mx}" cy="${my + 14}" rx="11" ry="6" fill="${W}" opacity="0.55"/>`;
+    // rubor en reserva: trama clara (papel) sobre el azul, nada de morado
+    for (const [bx, by] of [[E1[0] - 22, 46], [E2[0] + 22, 44]]) o.blue += halftone({ x0: bx - 22, y0: by - 13, x1: bx + 22, y1: by + 13, step: 6, rmax: 2.6, color: W, fn: (x, y) => 1 - smooth(0.3, 1, Math.hypot((x - bx) / 21, (y - by) / 12)) });
   } else if (expr === 'esceptico') {
-    add(o, eye({ cx: E1[0], cy: E1[1], r: 19, lid: 0.62, tilt: 4, look: lookIn || [-6, 5], pr: 8.5, whiteLayer: wl, lidW: 6 }));
-    add(o, eye({ cx: E2[0], cy: E2[1], r: 19, lid: 0.36, tilt: -6, look: lookIn || [-6, 4], pr: 8.5, whiteLayer: wl, lidW: 6 }));
-    o.black += strokeP(`M122 -20 Q138 -34 156 -24`, INK.black, 5, 'stroke-linecap="round"');
-    o.black += strokeP(`M92 54 L120 50`, INK.black, 5, 'stroke-linecap="round"');
+    const look = lookIn || [-7, 6];
+    add(o, eye({ cx: E1[0], cy: E1[1], r: R, lid: 0.64, tilt: 5, look, pr: PR, whiteLayer: wl, lidW: 8 }));
+    add(o, eye({ cx: E2[0], cy: E2[1], r: R, lid: 0.34, tilt: -7, look, pr: PR, whiteLayer: wl, lidW: 8 }));
+    o.black += strokeP(`M${E2[0] - 24} -32 Q${E2[0]} -52 ${E2[0] + 26} -36`, INK.black, 6, 'stroke-linecap="round"');
+    // boca torcida hacia un lado, con mueca
+    o.black += strokeP(`M${mx - 20} ${my + 2} L${mx + 6} ${my + 2} Q${mx + 18} ${my + 2} ${mx + 24} ${my - 8}`, INK.black, 6, 'stroke-linecap="round" stroke-linejoin="round"');
   }
   return o;
 }
@@ -293,19 +327,18 @@ function mug(x, y, s = 1, steam = true) {
   return b + '</g>';
 }
 const CAPI_POSES = {
-  sit: { arms: [[150, 64, 176, 70]], mug: [196, 52], feet: true },
-  hold: { arms: [[150, 64, 176, 70], [-150, 10, -196, -16]], mug: [196, 52], feet: true },
+  sit: { arms: [[146, 86, 182, 96]], mug: [214, 86], feet: true },
+  hold: { arms: [[146, 86, 182, 96], [-150, 10, -196, -16]], mug: [214, 86], feet: true },
   nomug: { arms: [[150, 64, 182, 58]], mug: null, feet: true },
-  string: { arms: [[150, 64, 176, 70], [176, -30, 222, -88]], mug: [196, 52], feet: true },
   shrug: { arms: [[-164, 30, -206, 4], [168, 30, 210, 4]], mug: null, feet: true },
 };
 function capi({ x = 0, y = 0, s = 1, rot = 0, flip = false, expr = 'neutral', pose = 'sit', look, knockFor = null, shine = true }) {
   const o = L();
   const P = CAPI_POSES[pose];
   // piececitos (asoman bajo el canto)
-  if (P.feet) o.blue += `<ellipse cx="-70" cy="114" rx="34" ry="13" fill="${INK.blue}"/><ellipse cx="66" cy="116" rx="34" ry="13" fill="${INK.blue}"/>`;
+  if (P.feet) o.blue += `<ellipse cx="-74" cy="120" rx="38" ry="15" fill="${INK.blue}"/><ellipse cx="62" cy="122" rx="38" ry="15" fill="${INK.blue}"/>`;
   o.blue += `<path d="${CAPI_BODY}" fill="${INK.blue}"/>`;
-  o.blue += `<path d="M-120 113 C-60 121 40 120 100 113" fill="none" stroke="${W}" stroke-width="5"/>`; // separa pies del cuerpo
+  o.blue += `<path d="M-128 112 C-60 121 40 120 108 112" fill="none" stroke="${W}" stroke-width="6"/>`; // separa pies del cuerpo
   for (const d of CAPI_FOLDS) o.blue += strokeP(d, W, 8.5, 'stroke-linecap="round" stroke-linejoin="round"');
   if (shine) {
     const cid = uid('capiclip');
@@ -315,7 +348,6 @@ function capi({ x = 0, y = 0, s = 1, rot = 0, flip = false, expr = 'neutral', po
   }
   if (knockFor) for (const k of knockFor) o[k] += `<path d="${CAPI_BODY}" fill="${W}"/>`;
   const face = capiFace(expr, look);
-  for (const k of ['blue', 'red', 'black']) if (face[k]) face[k] = `<g transform="translate(108 28) scale(1.22) translate(-108 -28)">${face[k]}</g>`;
   add(o, face);
   for (const a of P.arms) o.blue += stub(...a);
   if (P.mug) o.black += mug(P.mug[0], P.mug[1], 1.2);

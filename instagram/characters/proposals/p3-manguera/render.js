@@ -25,10 +25,10 @@ function hero() {
     <path d="M-196 -76 C-120 -86 120 -86 196 -76 C204 -10 204 50 196 92 C120 102 -120 102 -196 92 C-204 40 -204 -20 -196 -76Z" fill="${C.ink}" transform="translate(6 8)"/>
     <path d="M-196 -76 C-120 -86 120 -86 196 -76 C204 -10 204 50 196 92 C120 102 -120 102 -196 92 C-204 40 -204 -20 -196 -76Z" fill="${C.mustard}" stroke="${C.ink}" stroke-width="4"/>
     <path d="M-180 -62 C-100 -70 100 -70 180 -62 C186 -10 186 40 180 78 C100 86 -100 86 -180 78 C-186 30 -186 -20 -180 -62Z" fill="none" stroke="${C.ink}" stroke-width="2" opacity=".55"/>
-    <text x="4" y="22" text-anchor="middle" font-family="Ultra" font-size="58" fill="${C.ink}">¡REBAJAS!</text>
-    <text x="0" y="18" text-anchor="middle" font-family="Ultra" font-size="58" fill="${C.red}">¡REBAJAS!</text>
+    <text x="4" y="22" text-anchor="middle" font-family="Shrikhand" font-size="58" fill="${C.ink}">¡REBAJAS!</text>
+    <text x="0" y="18" text-anchor="middle" font-family="Shrikhand" font-size="58" fill="${C.red}">¡REBAJAS!</text>
     <g transform="translate(160 100) rotate(12)"><circle r="44" fill="${C.ink}" transform="translate(4 5)"/><circle r="44" fill="${C.red}" stroke="${C.ink}" stroke-width="3.5"/>
-    <text y="11" text-anchor="middle" font-family="Ultra" font-size="25" fill="${C.glove}">−70 %</text></g>
+    <text y="11" text-anchor="middle" font-family="Shrikhand" font-size="20" fill="${C.glove}">−70 %</text></g>
     ${P.ticks(-10, 6, 210, 0)}</g>`;
 
   // Mapi: mid-leap, stretched along an arcing line of action
@@ -52,7 +52,7 @@ function hero() {
     ...capiPos,
     expr: { look: [0.55, -0.75], lid: 0.42, lidRot: 4, brow: [10, 4], browR: [-4, 10], mouth: 'flat', mx: 2 },
     arms: [
-      { x: -116, y: -34, bend: 34, glove: 'fist', back: false, thumb: 1 },
+      { x: -70, y: -40, bend: 10, glove: 'open', back: true },
       { x: 150, y: -52, bend: 30, glove: 'hold', held: `<g transform="translate(36 -2)">${mug({ steam: true })}</g>` },
     ],
     legs: [{ x: -14, y: 40, bend: -6, dir: -1 }, { x: 58, y: 40, bend: 6, dir: 1 }],
@@ -69,7 +69,9 @@ function hero() {
       <circle r="56" fill="${C.glove}" stroke="${C.ink}" stroke-width="3"/>${tk}
       ${taper(0, 0, 2, -18, 4, -40, 3.4)}${taper(0, 0, 8, 2, 30, 6, 3.2)}<circle r="4.5" fill="${C.ink}"/>
       <path d="M-14 -70 Q0 -84 14 -70" fill="${C.blueDk}" stroke="${C.ink}" stroke-width="3"/></g></g>`;
-  const money = P.bill(960, 520, -14, 1.3, 10) + P.bill(880, 640, 16, 1.1, -12) + P.bill(990, 680, -6, 0.9, 6) + P.coin(930, 450, 1.2, 0) + P.coin(1010, 600, 0.9, 0);
+  const shop = `<path d="M560 ${ground} L560 170 L1080 170 L1080 ${ground}Z" fill="#D7BDB6"/>${stroke(`M560 ${ground} L560 170 L1080 170`, 3)}
+    <rect x="610" y="560" width="420" height="420" fill="#E6D6D2" stroke="${C.ink}" stroke-width="3"/>
+    ${stroke('M650 620 L720 560 M690 660 L790 570', 3, '#fff', 'opacity=".7"')}${stroke(`M600 990 L1080 990`, 6)}`;
   const groundSvg = `<rect x="0" y="${ground}" width="${W}" height="${H - ground}" fill="${C.paperDk}" opacity=".45"/>${taper(40, ground, 540, ground + 2, 1040, ground, 2.6)}
     <ellipse cx="300" cy="${ground + 4}" rx="190" ry="16" fill="${C.ink}" opacity=".22"/>
     <ellipse cx="700" cy="${ground + 4}" rx="70" ry="9" fill="${C.ink}" opacity=".16"/>`;
@@ -79,11 +81,11 @@ function hero() {
   const bubC = P.bubble(70, 590, 250, 92, [230, 752], ['Mapi, no.'], { size: 46, rot: 3, tailW: 18 });
   const late = `<text x="540" y="${ground + 96}" text-anchor="middle" font-family="Oswald" font-weight="500" font-size="30" fill="${C.ink}" letter-spacing="3">(CAPI LLEGA TARDE. COMO SIEMPRE.)</text>`;
 
-  const inner = `${paperBg(W, H)}${rays}${groundSvg}
-  <g filter="url(#wobble)">${clock}${sign}${cord}${c}${fx}${m}${money}${bubM}${bubC}</g>
+  const inner = `${paperBg(W, H)}${shop}${groundSvg}
+  <g filter="url(#wobble)">${clock}${sign}${cord}${c}${fx}${m}${bubM}${bubC}</g>
   ${late}
   ${P.wordmark(80, 96, 0.82)}
-  ${filmFx(W, H)}${P.filmGate(W, H)}`;
+  ${filmFx(W, H)}`;
   return { svg: svgDoc(W, H, inner), W, H };
 }
 
@@ -95,7 +97,7 @@ function plaque(x, y, text, col) {
     <text y="7" text-anchor="middle" font-family="Oswald" font-weight="700" font-size="24" letter-spacing="1.5" fill="${C.glove}">${text.toUpperCase()}</text></g>`;
 }
 function rowTitle(x, y, name, sub, col) {
-  return `<text x="${x}" y="${y}" font-family="Ultra" font-size="40" fill="${col}">${name}</text>
+  return `<text x="${x}" y="${y}" font-family="Shrikhand" font-size="40" fill="${col}">${name}</text>
     <text x="${x + name.length * 31 + 18}" y="${y - 4}" font-family="Oswald" font-weight="500" font-size="26" letter-spacing="2" fill="${C.ink}">${sub}</text>
     ${taper(x, y + 16, 520, y + 19, 1010, y + 14, 2)}`;
 }
@@ -119,24 +121,25 @@ function expressions() {
   const Cp = [
     capi({ x: cols[0] - 16, y: cy, s: cs, expr: {},
       arms: [{ x: -112, y: -20, bend: -10, glove: 'open', back: true }, { x: 128, y: -36, bend: 24, glove: 'hold', held: `<g transform="translate(36 -2)">${mug()}</g>` }] }),
-    capi({ x: cols[1] - 16, y: cy, s: cs, sx: 0.95, sy: 1.08, expr: { lid: 0, pupil: 0.8, look: [0.1, -0.2], brow: [-6, 12], mouth: 'grin', glassesDy: -5, mx: -2 },
-      arms: [{ x: -128, y: -230, bend: -30, glove: 'open', thumb: -1 }, { x: 136, y: -262, bend: 26, glove: 'hold', held: `<g transform="translate(36 -2) rotate(-8)">${mug()}</g>` }],
-      legs: [{ x: -24, y: 40, bend: -10, dir: -1 }, { x: 70, y: 40, bend: 10, dir: 1 }] }),
-    capi({ x: cols[2] - 16, y: cy, s: cs, lean: 4, expr: { closed: 'happy', mouth: 'smile', brow: [6, 4] },
+    capi({ x: cols[1] - 16, y: cy, s: cs, sx: 0.93, sy: 1.1, expr: { lid: 0, pupil: 0.55, look: [0, -0.1], brow: [-10, 14], mouth: 'scream', mw: 1.05, glassesDy: -9, mx: -2 },
+      arms: [{ x: -132, y: -200, bend: -30, glove: 'open', thumb: -1 }, { x: 150, y: -210, bend: 30, glove: 'open', aim: -60, thumb: -1 }],
+      legs: [{ x: -24, y: 40, bend: -10, dir: -1 }, { x: 70, y: 40, bend: 10, dir: 1 }],
+      front: P.ticks(cols[1] - 16 + 60 * cs, cy - 130 * cs, 120 * cs, 5, 205, 130) }),
+    capi({ x: cols[2] - 16, y: cy, s: cs, lean: 4, expr: { closed: 'happy', mouth: 'grin', mw: 0.82, mx: -2, brow: [6, 4] },
       arms: [{ x: -110, y: -16, bend: -10, glove: 'open', back: true }, { x: 124, y: -34, bend: 24, glove: 'hold', held: `<g transform="translate(36 -2)">${mug()}</g>` }] }),
-    capi({ x: cols[3] - 16, y: cy, s: cs, lean: -3, expr: { look: [-0.9, -0.1], lid: 0.55, lidR: 0.22, brow: [10, -2], browR: [-12, 14], mouth: 'flat' },
-      arms: [{ x: -112, y: -20, bend: -10, glove: 'fist', back: true }, { x: 92, y: -52, bend: -40, glove: 'point', aim: -112, thumb: 1, sc: 0.95 }] }),
+    capi({ x: cols[3] - 16, y: cy, s: cs, lean: -3, expr: { look: [-0.9, -0.1], lid: 0.6, lidR: 0.2, brow: [12, -4], browR: [-14, 16], mouth: 'smirk', mw: 1.1, mrot: -8 },
+      arms: [{ x: -112, y: -20, bend: -10, glove: 'fist', back: true }, { x: 146, y: 0, bend: 46, glove: 'fist', thumb: 1 }] }),
   ];
-  const labsM = ['Neutral', '¡Alarma!', 'Feliz', '¿En serio?'], labsC = ['Neutral', '¡Euforia!', 'Feliz', '¿En serio?'];
+  const labsM = ['Neutral', '¡Alarma!', 'Feliz', '¿En serio?'], labsC = ['Neutral', '¡Alarma!', 'Feliz', '¿En serio?'];
   const inner = `${paperBg(W, H)}
-    <text x="540" y="128" text-anchor="middle" font-family="Ultra" font-size="52" fill="${C.ink}">Hoja de expresiones</text>
+    <text x="540" y="128" text-anchor="middle" font-family="Shrikhand" font-size="52" fill="${C.ink}">Hoja de expresiones</text>
     ${rowTitle(70, 200, 'Mapi', 'SISTEMA 1 · RÁPIDO', C.red)}
     ${rowTitle(70, 740, 'Capi', 'SISTEMA 2 · LENTO', C.blueDk)}
     <g filter="url(#wobble)">${M.join('')}${Cp.join('')}</g>
     ${labsM.map((l, i) => plaque(cols[i], 640, l, C.redDk)).join('')}
     ${labsC.map((l, i) => plaque(cols[i], 1166, l, C.blueDk)).join('')}
-    <text x="540" y="1250" text-anchor="middle" font-family="Oswald" font-weight="500" font-size="22" letter-spacing="3" fill="${C.ink}" opacity=".8">DINERO IRRACIONAL · PROPUESTA «MANGUERA»</text>
-    ${filmFx(W, H)}${P.filmGate(W, H)}`;
+    <text x="540" y="1250" text-anchor="middle" font-family="Oswald" font-weight="500" font-size="22" letter-spacing="3" fill="${C.ink}" opacity=".8">DINERO IRRACIONAL · PROPUESTA «MANGUERA» · REVISIÓN 2</text>
+    ${filmFx(W, H)}`;
   return { svg: svgDoc(W, H, inner), W, H };
 }
 
@@ -149,10 +152,10 @@ function cover() {
     rays += `<path d="M${cx} ${cy} L${cx + Math.cos(a0) * R} ${cy + Math.sin(a0) * R} L${cx + Math.cos(a1) * R} ${cy + Math.sin(a1) * R}Z" fill="${C.red}" opacity=".13"/>`;
   }
   const title = `
-    <text x="540" y="300" text-anchor="middle" font-family="Ultra" font-size="168" fill="${C.ink}" transform="translate(7 9)">7 sesgos</text>
-    <text x="540" y="300" text-anchor="middle" font-family="Ultra" font-size="168" fill="${C.red}" stroke="${C.ink}" stroke-width="4" paint-order="stroke">7 sesgos</text>
+    <text x="540" y="300" text-anchor="middle" font-family="Shrikhand" font-size="168" fill="${C.ink}" transform="translate(7 9)">7 sesgos</text>
+    <text x="540" y="300" text-anchor="middle" font-family="Shrikhand" font-size="168" fill="${C.red}" stroke="${C.ink}" stroke-width="4" paint-order="stroke">7 sesgos</text>
     <path id="arc1" d="M70 438 Q540 352 1010 438" fill="none"/>
-    <text font-family="Ultra" font-size="56" fill="${C.ink}" letter-spacing="1"><textPath href="#arc1" startOffset="50%" text-anchor="middle">que te vacían la cuenta</textPath></text>
+    <text font-family="Shrikhand" font-size="56" fill="${C.ink}" letter-spacing="1"><textPath href="#arc1" startOffset="50%" text-anchor="middle">que te vacían la cuenta</textPath></text>
     <g transform="translate(540 500) rotate(-2)">
       <path d="M-200 -34 L-262 -34 L-240 0 L-262 34 L-180 34Z" fill="${C.blueDk}" stroke="${C.ink}" stroke-width="3" stroke-linejoin="round"/>
       <path d="M200 -34 L262 -34 L240 0 L262 34 L180 34Z" fill="${C.blueDk}" stroke="${C.ink}" stroke-width="3" stroke-linejoin="round"/>
@@ -172,7 +175,7 @@ function cover() {
   // Capi (flipped, faces Mapi) reads the endless ticket.
   const rec = P.receipt([[604, 850], [592, 940], [612, 1030], [580, 1100], [500, 1140], [430, 1160], [404, 1196], [436, 1228]], 56);
   const recTop = `<g transform="translate(606 838) rotate(-3)"><rect x="-46" y="-70" width="92" height="96" fill="${C.ink}" transform="translate(4 5)"/><rect x="-46" y="-70" width="92" height="96" fill="${C.glove}" stroke="${C.ink}" stroke-width="3.2"/>
-    <text x="0" y="-44" text-anchor="middle" font-family="Oswald" font-weight="700" font-size="17" fill="${C.ink}" letter-spacing="2">TICKET</text>
+    <text x="0" y="-44" text-anchor="middle" font-family="Oswald" font-weight="700" font-size="17" fill="${C.ink}" letter-spacing="2">RECIBO</text>
     ${[-26, -12, 2, 16].map((y, i) => stroke(`M-32 ${y} L${i % 2 ? 6 : 14} ${y} M22 ${y} L32 ${y}`, 3, C.ink, 'opacity=".42"')).join('')}</g>`;
   const c = capi({ x: 820, y: 1100, s: 1.22, flip: true, mid: rec + recTop,
     expr: { look: [0.85, 0.2], lid: 0.55, lidR: 0.3, brow: [10, -2], browR: [-12, 14], mouth: 'flat' },
@@ -180,11 +183,11 @@ function cover() {
   });
 
   const groundSvg = `<rect x="0" y="${ground}" width="${W}" height="${H - ground}" fill="${C.paperDk}" opacity=".45"/>${taper(40, ground, 540, ground + 2, 1040, ground, 2.6)}`;
-  const inner = `${paperBg(W, H)}${rays}${groundSvg}
+  const inner = `${paperBg(W, H)}${groundSvg}
     ${title}<g filter="url(#wobble)">${c}${m}${moths}</g>
     ${P.wordmark(84, 1254, 0.72, { fill: C.glove })}
     <text x="1000" y="1268" text-anchor="end" font-family="Oswald" font-weight="700" font-size="28" letter-spacing="3" fill="${C.ink}">DESLIZA →</text>
-    ${filmFx(W, H)}${P.filmGate(W, H)}`;
+    ${filmFx(W, H)}`;
   return { svg: svgDoc(W, H, inner), W, H, file: 'cover-mock' };
 }
 
@@ -197,15 +200,15 @@ function avatar() {
     const a0 = (i * 22.5) * Math.PI / 180, a1 = (i * 22.5 + 11.25) * Math.PI / 180;
     rays += `<path d="M${cx} ${cy + 40} L${cx + Math.cos(a0) * 400} ${cy + 40 + Math.sin(a0) * 400} L${cx + Math.cos(a1) * 400} ${cy + 40 + Math.sin(a1) * 400}Z" fill="${C.red}" opacity=".14"/>`;
   }
-  const c = capi({ x: 178, y: 274, s: 0.96, expr: { look: [-0.55, 0.55], lid: 0.45, mouth: 'smile', brow: [6, 2] },
-    arms: [{ x: -150, y: -10, bend: 0, glove: 'open', back: true }, { x: 140, y: 30, bend: 10, glove: 'open', back: true }],
+  const c = capi({ x: 180, y: 262, s: 0.86, expr: { look: [-0.55, 0.55], lid: 0.45, mouth: 'smile', brow: [6, 2] },
+    arms: [{ x: -60, y: -60, bend: 0, glove: 'fist', back: true }, { x: 60, y: -60, bend: 0, glove: 'fist', back: true }],
     legs: [] });
-  const m = mapi({ x: 102, y: 304, s: 0.84, lean: 4, bend: 6, expr: { look: [0.2, -0.15], mouth: 'grin', brow: [-6, 6], pupil: 0.95 },
-    arms: [{ x: -90, y: 40, bend: -20, glove: 'open', back: true }, { x: 44, y: -262, bend: 22, glove: 'open', aim: -84, thumb: -1, sc: 1.1 }],
-    legs: [], sweat: [[-70, -200, 1.2, -30]], front: P.ticks(146, 60, 24, 3, 200, 140) });
+  const m = mapi({ x: 116, y: 294, s: 0.76, lean: 4, bend: 6, expr: { look: [0.2, -0.15], mouth: 'grin', brow: [-6, 6], pupil: 0.95 },
+    arms: [{ x: -104, y: -176, bend: -22, glove: 'open', aim: -100, thumb: 1, back: true }],
+    legs: [], sweat: [[-84, -196, 1.05, -30]] });
   const cid = 'avclip';
   const inner = `<rect width="${W}" height="${H}" fill="${C.ink}"/><clipPath id="${cid}"><circle cx="${cx}" cy="${cy}" r="${R}"/></clipPath>
-    <g clip-path="url(#${cid})">${paperBg(W, H)}${rays}
+    <g clip-path="url(#${cid})">${paperBg(W, H)}
       <g filter="url(#wobble)">${c}${m}</g>
       <rect width="${W}" height="${H}" filter="url(#grain)" opacity=".3" style="mix-blend-mode:multiply"/>
     </g>

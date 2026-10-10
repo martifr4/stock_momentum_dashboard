@@ -112,7 +112,7 @@ function wordmark(x, y, sc = 1, o = {}) {
     <path d="M360 -24 L380 -6 L368 0 L380 6 L360 24Z" fill="${C.redDk}" stroke="${C.ink}" stroke-width="2.6" stroke-linejoin="round"/>
     <rect x="3" y="-25" width="360" height="54" rx="10" fill="${C.ink}"/>
     <rect x="0" y="-28" width="360" height="54" rx="10" fill="${fill}" stroke="${C.ink}" stroke-width="3"/>
-    <text x="180" y="10" text-anchor="middle" font-family="Ultra" font-size="27" fill="${C.ink}" letter-spacing="1">Dinero Irracional</text></g>`;
+    <text x="180" y="10" text-anchor="middle" font-family="Shrikhand" font-size="27" fill="${C.ink}" letter-spacing="1">Dinero Irracional</text></g>`;
 }
 
 // Moth — the empty-wallet gag.

@@ -33,17 +33,17 @@ function expressionsScene() {
   ly.black += rule(64, 206, Wd - 64, 206, 3);
   const cx = [148, 408, 668, 928];
   // fila Mapi
-  const yM = 418;
+  const yM = 408;
   ly.red += text(64, 268, 'Mapi', { size: 64, fill: INK.red });
   ly.black += text(232, 266, 'SISTEMA 1 · RÁPIDO, AUTOMÁTICO, EMOCIONAL', { size: 20, font: FONT_MONO, weight: 500, ls: 0.04, stretch: '100%' });
   const mExp = [
-    { expr: 'neutral', pose: 'stand', sweat: 1, label: 'Neutral' },
+    { expr: 'neutral', pose: 'stand', sweat: 0, label: 'Neutral' },
     { expr: 'euforia', pose: 'cheer', sweat: 2, label: '¡Euforia!' },
-    { expr: 'feliz', pose: 'stand', sweat: 0, label: 'Feliz' },
+    { expr: 'feliz', pose: 'happy', sweat: 0, label: 'Feliz' },
     { expr: 'esceptico', pose: 'hips', sweat: 0, label: '¿En serio?' },
   ];
   mExp.forEach((m, i) => {
-    ly.black += shadowEllipse(cx[i], yM + 98, 100, 13, INK.black, 7, 2.6);
+    ly.black += shadowEllipse(cx[i], yM + 104, 100, 13, INK.black, 7, 2.6);
     add(ly, mapi({ x: cx[i], y: yM, s: 0.8, expr: m.expr, pose: m.pose, sweat: m.sweat }));
     if (m.expr === 'euforia') ly.black += burst(cx[i], yM - 98, 0.9);
     ly.black += text(cx[i], yM + 160, m.label, { size: 26, font: FONT_MONO, weight: 500, anchor: 'middle', stretch: '100%' });
@@ -74,7 +74,7 @@ function expressionsScene() {
 }
 
 function G(c, lx, ly) { // local → global para un personaje {x,y,s,rot}
-  const a = (c.rot || 0) * Math.PI / 180, X = lx * c.s, Y = ly * c.s;
+  const a = (c.rot || 0) * Math.PI / 180, Y = ly * c.s, X = lx * c.s * (c.flip ? -1 : 1) + Math.tan((c.lean || 0) * Math.PI / 180) * Y;
   return [c.x + X * Math.cos(a) - Y * Math.sin(a), c.y + X * Math.sin(a) + Y * Math.cos(a)];
 }
 function priceTag(x, y, rot, label, s = 1) { // etiqueta en plancha roja; texto en reserva
@@ -90,20 +90,20 @@ function heroScene() {
   const Wd = 1080, H = 1350;
   // cabecera
   ly.black += text(64, 92, 'DINERO IRRACIONAL', { size: 24, font: FONT_MONO, weight: 500, ls: 0.12, stretch: '100%' });
-  ly.black += text(Wd - 64, 92, 'Nº 01', { size: 24, font: FONT_MONO, weight: 500, ls: 0.12, anchor: 'end', stretch: '100%' });
+  ly.black += text(Wd - 64, 92, 'N.º 01', { size: 24, font: FONT_MONO, weight: 500, ls: 0.12, anchor: 'end', stretch: '100%' });
   ly.black += `<line x1="64" y1="114" x2="${Wd - 64}" y2="114" stroke="${INK.black}" stroke-width="3"/>`;
   // la etiqueta que Mapi persigue
   ly.red += priceTag(842, 300, 12, '−70 %', 0.92);
   ly.black += strokeP('M955 262 C990 220 1010 190 1040 170', INK.black, 3.5, 'stroke-linecap="round"');
   // personajes
   const C = { x: 350, y: 1000, s: 1.42, rot: 0 };
-  const M = { x: 560, y: 560, s: 1.42, rot: -18 };
-  ly.black += shadowEllipse(C.x + 10, C.y + 172, 310, 28, INK.black, 8, 3.4);
+  const M = { x: 560, y: 570, s: 1.36, rot: -6, lean: -16 };
+  ly.black += shadowEllipse(C.x + 10, C.y + 202, 320, 22, INK.black, 8, 3.4);
   add(ly, capi({ ...C, expr: 'neutral', pose: 'sit', look: [5, 3] }));
   add(ly, mapi({ ...M, expr: 'euforia', pose: 'lunge', sweat: 3, speed: 4 }));
   // el hilo: de la mano de Capi al tobillo de Mapi
   // gag: Capi ni se levanta; ha atado a Mapi al asa de la taza
-  const h = G(C, 238, 52), a = G(M, -90, 90);
+  const h = G(C, 256, 86), a = G(M, -100, 102);
   ly.black += `<circle cx="${h[0]}" cy="${h[1]}" r="6" fill="${INK.black}"/>`;
   ly.black += strokeP(`M${h[0]} ${h[1]} C${h[0] + 30} ${h[1] - 120} ${a[0] + 120} ${a[1] + 60} ${a[0]} ${a[1]}`, INK.black, 3.5, 'stroke-linecap="round"');
   ly.black += `<g transform="translate(${a[0]} ${a[1]}) rotate(-30)" fill="none" stroke="${INK.black}" stroke-width="3.5" stroke-linecap="round"><path d="M0 0 C-14 -18 -26 -4 0 0 C14 -18 26 -4 0 0 M0 0 L-8 18 M0 0 L9 16"/></g>`;
@@ -129,23 +129,21 @@ function coverScene() {
   ly.black += text(Wd - 64, 92, 'SESGOS · 01', { size: 24, font: FONT_MONO, weight: 500, ls: 0.12, anchor: 'end', stretch: '100%' });
   ly.black += `<line x1="64" y1="114" x2="${Wd - 64}" y2="114" stroke="${INK.black}" stroke-width="3"/>`;
   // el 7 gigante en plancha roja
-  ly.red += text(26, 934, '7', { size: 820, fill: INK.red, ls: -0.04, stretch: '75%' });
+  ly.red += text(26, 960, '7', { size: 820, fill: INK.red, ls: -0.04, stretch: '75%' });
   // titular
   const lines = ['sesgos que', 'te vacían', 'la cuenta', 'cada mes'];
-  lines.forEach((t, i) => { ly.black += text(450, 478 + i * 112, t, { size: 126, ls: -0.015 }); });
-  // Mapi en lo alto del 7, tirando monedas
-  const M = { x: 196, y: 286, s: 0.9, rot: 5 };
+  lines.forEach((t, i) => { ly.black += text(450, 500 + i * 112, t, { size: 126, ls: -0.015 }); });
+  // Mapi en lo alto del 7, tirando monedas… que salen volando del encuadre
+  const M = { x: 196, y: 306, s: 0.84, rot: 0, lean: 6 };
   add(ly, mapi({ ...M, expr: 'euforia', pose: 'cheer', sweat: 2 }));
-  ly.black += `<g transform="translate(${M.x + 6} ${M.y - 100}) rotate(5)" stroke="${INK.black}" stroke-width="5" stroke-linecap="round"><path d="M0 -10 L0 -30 M-20 -2 L-36 -14 M20 -2 L36 -14"/></g>`;
-  [[372, 214, 26, -10], [86, 176, 22, 25], [420, 300, 22, 18], [330, 150, 18, 30]].forEach((c) => (ly.blue += coin(...c)));
-  // Capi abajo, con la taza (y una moneda que cae dentro: plof)
-  const C = { x: 790, y: 1136, s: 1.3, rot: 0 };
-  ly.black += shadowEllipse(C.x - 20, C.y + 150, 300, 24, INK.black, 8, 3.2);
-  add(ly, capi({ ...C, flip: true, expr: 'esceptico', pose: 'sit', look: [7, 1] }));
-  ly.blue += text(470, 950, 'Mapi…', { size: 74, fill: INK.blue, anchor: 'start', rot: -4 });
-  // monedas cayendo
-  [[250, 990, 24, 15], [342, 1010, 23, -25], [420, 1050, 22, 40], [478, 1106, 21, 10]].forEach((c) => (ly.blue += coin(...c)));
-  ly.black += strokeP('M150 960 C200 930 230 960 250 990', INK.black, 3, 'stroke-dasharray="2 9" stroke-linecap="round"');
+  ly.black += `<g transform="translate(${M.x + 6} ${M.y - 120})" stroke="${INK.black}" stroke-width="5" stroke-linecap="round"><path d="M0 -6 L0 -26 M-22 2 L-38 -10 M22 2 L38 -10"/></g>`;
+  ly.black += strokeP('M320 260 C460 150 760 130 1090 256', INK.black, 3, 'stroke-dasharray="2 10" stroke-linecap="round"');
+  [[400, 200, 20, -10], [520, 164, 23, 20], [660, 156, 25, 35], [800, 174, 26, 50], [940, 212, 27, 70], [1072, 264, 28, 85]].forEach((c) => (ly.blue += coin(...c)));
+  // Capi abajo: lo ve todo, con la taza
+  const C = { x: 790, y: 1124, s: 1.3, rot: 0 };
+  ly.black += shadowEllipse(C.x - 20, C.y + 176, 300, 20, INK.black, 8, 3.2);
+  add(ly, capi({ ...C, flip: true, expr: 'esceptico', pose: 'sit', look: [-8, -4] }));
+  ly.blue += text(470, 966, 'Mapi…', { size: 74, fill: INK.blue, anchor: 'start', rot: -4 });
   ly.black += text(64, 1292, 'Desliza →', { size: 30, font: FONT_MONO, weight: 500, stretch: '100%' });
   return riso(Wd, H, { layers: ly, paper: PAPERS.lila });
 }
