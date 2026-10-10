@@ -29,3 +29,39 @@
 - **Slide 8:** las gafas cubren casi toda la cara de Pausa y el libro tapa la boca: la expresión es casi solo de ojos.
 - **Pausa `llega` (slide 5):** el «squash» y la zancada se leen poco, porque está cortada por el encuadre. El sudor rojo y la salpicadura hacen casi todo el trabajo.
 - **Cotas de texto:** la medición de texto se hace en Chromium con las fuentes reales. Si Google Fonts cambia la versión de Bricolage, conviene revisar los cortes de línea.
+
+## Ronda 2 — cambios (crítica 48/70)
+**Bloqueantes**
+- **Slide 2:** fuera el brazo largo y recto que, con la etiqueta y el medidor de barras, parecía un gráfico de bolsa. Ahora el brazo es corto y doblado (`limbs.armR`) y agarra la etiqueta «−70 %». Sin rotación del cuerpo: `rot: 0`, `lean: −10`, base horizontal.
+- **Slide 1:** titular a 168 px en dos líneas. Subtítulo a 66 px en Bricolage 600 con «tu dinero.» en 800 (la línea del dinero). Pausa a s = 0,7.
+- **Papel lila en la slide 1: es intencionado** (decisión del coordinador). Así el post fijado destaca en la cuadrícula del perfil; las slides 2–9 van en «niebla».
+
+**Corregido**
+- **Slide 4:** fuera los tres pictogramas. Más sitio para las personajes, en el mismo plano. Pausa a s = 1,25 y Chispa a 0,62 × su ancho. Pausa asiente con arcos de movimiento sobre la cúpula y cara satisfecha (expresión `brindis`: media asta + sonrisa en D + rubor de reserva).
+- **Slide 5:**
+  - Ticket nuevo: tira de papel en reserva plegada en dos tramos rectos, con renglones cortos (concepto + importe), sombra de semitono, final rasgado en zigzag y «TOTAL 189,99 €».
+  - La salpicadura de la taza son ahora gotas que salen en arco.
+  - El final del ticket, la taza y el muñón de Pausa quedan separados.
+  - El remate «Y cuando llega…» sube para quedar más cerca del titular.
+- **Pausa (librería):**
+  - Cara recentrada 30 px hacia el centro del cuerpo: ojos (4, 12) y (76, 10), boca (40, 62). Se acorta el surco que habría cruzado el ojo.
+  - Afecta a todas las slides; **la biblia (§6) debe actualizar estas coordenadas** (no se ha tocado, está fuera del alcance de esta tarea).
+- **Slide 9:**
+  - El brazo del brindis es una cápsula aparte que nace en el borde del cuerpo, con su hueco de reserva de 6 px (ya no parece una tetera).
+  - Titular cortado como «¿Quién manda más / en tu cabeza?».
+  - Chispa pisa el filete del pie.
+  - Para que no choque con Chispa, el texto «Envíaselo…» sube bajo «Comenta con un color.» (desviación de la maqueta del brief).
+- **Slide 8:** Chispa tiene bracitos de alambre desde sus enchufes hasta las manos agarradas a la cúpula. Se quita la taza huérfana.
+- **Slide 6:** Pausa y su taza se levantan del filete y se apartan de la tira de progreso.
+
+**Extras**
+- **Slide 6:** carteles apretados alrededor de Chispa y pisándose. «QUEDAN 2» casi la toca y Chispa va delante con un hueco de reserva (`halo`). Chispa crece un ~18 % (s = 1,08).
+- **Slide 9:** fuera el «·» suelto entre los dos botones de voto, a petición de la crítica. Es una desviación consciente del literal de copy.md («🔴 Chispa · 🔵 Pausa»): la separación ya la hacen la distancia y los puntos de color.
+- **Slides 2–3:**
+  - Etiquetas de la carta a 30 px.
+  - El medidor pasa a ser un velocímetro de 5 sectores con aguja, sin texto: Chispa a tope, Pausa en el primer sector.
+
+**Puntos débiles que quedan**
+- **Slide 5:** «TOTAL 189,99 €» se lee en vertical, porque el ticket está tumbado en el suelo. A tamaño de feed se reconoce como ticket, pero la cifra es pequeña.
+- **Slide 8:** el bracito izquierdo de Chispa baja casi en vertical y puede leerse como una pata.
+- **Slide 4:** las marcas «( )» del asentimiento siguen siendo una convención de cómic; si no se leen, quitarlas y dejar que lo diga la cara.

@@ -88,7 +88,7 @@ Se quieren y se necesitan. No son enemigas ni «emoción contra razón»: son un
 - **Surcos (reserva, 8,5 px):** «peinados», serpenteos lentos todos en la misma dirección, con gancho final (`CAPI_FOLDS`).
 - **Brillo:** semitono de reserva arriba a la izquierda, recortado al cuerpo.
 - **Brazos:** muñones-cápsula de 36 px en tinta azul, separados del cuerpo por un hueco de reserva de 6 px (`stub`).
-- **Cara:** centrada hacia el cuerpo. Ojos de media luna grandes (r 27, pupila 12, caída), **párpado a media asta** con línea negra de 8 px. Ojos en (34, 12) y (106, 10); boca en (70, 62). Cada expresión cambia párpados **y** boca.
+- **Cara:** centrada hacia el cuerpo. Ojos de media luna grandes (r 27, pupila 12, caída), **párpado a media asta** con línea negra de 8 px. Ojos en (4, 12) y (76, 10); boca en (40, 62) (recentrados en la ronda 2 del post 00, ver `characters/riso/riso.js`). Cada expresión cambia párpados **y** boca.
 - **Taza:** tinta negra con banda en reserva y vapor de línea fina (3,5 px), a la altura del vientre, separada de la boca.
 - **Rubor:** trama clara de reserva sobre el azul. **Nunca morado/ciruela.**
 

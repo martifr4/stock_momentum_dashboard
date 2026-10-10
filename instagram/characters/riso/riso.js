@@ -272,14 +272,15 @@ function burst(x, y, s = 1, color = INK.black) {
 // =====================================================================
 const PAUSA_BODY = `M-176 70 C-196 8 -172 -72 -112 -98 C-96 -134 -42 -146 -10 -124 C12 -150 74 -152 102 -116 C152 -110 192 -62 186 2 C182 62 160 106 100 113 C40 120 -60 121 -120 113 C-160 108 -173 94 -176 70Z`;
 const PAUSA_FOLDS = [
-  `M-158 12 C-134 -10 -108 16 -82 0 C-58 -14 -44 8 -18 -6 C-4 -14 8 -12 16 -4`,
+  `M-158 12 C-134 -10 -108 16 -82 0 C-62 -12 -50 4 -36 -2`,
   `M-138 -50 C-122 -82 -90 -96 -64 -86 C-50 -80 -50 -66 -62 -62`,
   `M-26 -104 C-10 -118 14 -118 24 -104`,
   `M8 -78 C26 -96 52 -84 70 -98 C88 -110 116 -98 128 -76 C132 -66 126 -58 116 -60`,
   `M-52 -36 C-28 -54 -6 -30 20 -44 C34 -52 44 -48 50 -40`,
   `M-160 58 C-136 42 -110 66 -86 50 C-76 44 -66 48 -64 58`,
 ];
-const PAUSA_E1 = [34, 12], PAUSA_E2 = [106, 10], PAUSA_MOUTH = [70, 62];
+// Ronda 2 del post 00: cara 30 px más hacia el centro del cuerpo (antes ojos 34/106, boca 70).
+const PAUSA_E1 = [4, 12], PAUSA_E2 = [76, 10], PAUSA_MOUTH = [40, 62];
 function pausaBlush() {
   let b = '';
   for (const [bx, by] of [[PAUSA_E1[0] - 22, 46], [PAUSA_E2[0] + 22, 44]]) b += halftone({ x0: bx - 22, y0: by - 13, x1: bx + 22, y1: by + 13, step: 6, rmax: 2.6, color: W, fn: (x, y) => 1 - smooth(0.3, 1, Math.hypot((x - bx) / 21, (y - by) / 12)) });
@@ -345,7 +346,11 @@ function mug(x, y, s = 1, steam = 'vapor') {
   b += `<path d="M22 -14 C40 -14 40 12 21 12" fill="none" stroke="${INK.black}" stroke-width="7"/>`;
   b += `<rect x="-22" y="-12" width="44" height="6" fill="${W}"/>`;
   if (steam === 'vapor') b += strokeP(`M-8 -36 C-16 -46 0 -52 -8 -64 M8 -38 C0 -50 16 -56 8 -70`, INK.black, 3.5, 'stroke-linecap="round"');
-  if (steam === 'salpica') b += teardrop(-14, -42, 0.9, -30, INK.black) + teardrop(10, -52, 0.75, 25, INK.black);
+  if (steam === 'salpica') { // gotas que salen de la taza en arco hacia delante (la punta mira atrás)
+    const arc = [[8, -40, 1.0, 70], [30, -56, 0.85, 95], [54, -58, 0.7, 115], [76, -46, 0.55, 140]];
+    for (const [dx, dy, sc, r] of arc) b += teardrop(dx, dy, sc, r, INK.black);
+    b += `<path d="M-14 -30 Q0 -40 12 -34" fill="none" stroke="${INK.black}" stroke-width="5" stroke-linecap="round"/>`;
+  }
   return b + '</g>';
 }
 // Libro abierto genérico (páginas en reserva con renglones de semitono, sin título). (x,y) = centro del lomo abajo.
@@ -382,7 +387,7 @@ const PAUSA_POSES = {
   // lee: dos muñones hacia delante sujetando un libro; sin taza en mano
   lee: { arms: [[-36, 104, -54, 124], [150, 100, 140, 124]], mug: null, feet: true, book: [52, 156], bookS: 0.86, glasses: true },
   // brindis: muñón derecho a la altura de la cúpula con la taza arriba
-  brindis: { arms: [[160, -10, 200, -84]], mug: [214, -118], feet: true },
+  brindis: { arms: [[204, -6, 226, -74]], mug: [234, -112], feet: true },
 };
 function pausa({ x = 0, y = 0, s = 1, rot = 0, flip = false, expr = 'neutral', pose = 'sit', look, knockFor = null, shine = true, squash = 1, halo = 0 }) {
   const o = L();
@@ -581,20 +586,25 @@ function fichaCard({ ink = 'red', nombre, numero, rows, frase, meter = 5, rot = 
   o[ink] += g(`<g transform="${lateT}">${plate}</g>${tr}`);
   if (under) add(o, wrapRot(under, rot, cx, cy));
   if (figure) add(o, wrapRot(figure, rot, cx, cy));
-  // medidor de velocidad: 5 segmentos en cuña, sin texto
+  // medidor de velocidad: velocímetro de 5 sectores con aguja, sin texto.
+  // meter = sectores encendidos (negro lleno); el resto en semitono. La aguja apunta al último encendido.
   let m = '';
+  const gx = ix1 - 92, gy = wy1 - 26, R0 = 40, R1 = 64;
+  const pt = (a, rr) => [gx + rr * Math.cos(a), gy - rr * Math.sin(a)];
   for (let i = 0; i < 5; i++) {
-    const x = ix1 - 30 - (4 - i) * 26, h = 16 + i * 9, yb = wy1 - 22;
-    const d = `M${x - 16} ${yb} L${x + 2} ${yb} L${x + 10} ${yb - h} L${x - 8} ${yb - h}Z`;
+    const a0 = Math.PI - (i * Math.PI) / 5 - 0.05, a1 = Math.PI - ((i + 1) * Math.PI) / 5 + 0.05;
+    const [p0, p1, p2, p3] = [pt(a0, R1), pt(a1, R1), pt(a1, R0), pt(a0, R0)];
+    const d = `M${f(p0[0])} ${f(p0[1])} A${R1} ${R1} 0 0 1 ${f(p1[0])} ${f(p1[1])} L${f(p2[0])} ${f(p2[1])} A${R0} ${R0} 0 0 0 ${f(p3[0])} ${f(p3[1])}Z`;
     if (i < meter) m += `<path d="${d}" fill="${INK.black}"/>`;
     else {
       const cid = uid('mt');
       o.defs += `<clipPath id="${cid}"><path d="${d}"/></clipPath>`;
-      m += halftone({ x0: x - 18, y0: yb - h - 2, x1: x + 12, y1: yb + 2, step: 4.5, rmax: 1.5, color: INK.black, clip: cid, fn: () => 1 });
+      m += halftone({ x0: gx - R1 - 2, y0: gy - R1 - 2, x1: gx + R1 + 2, y1: gy + 2, step: 4.5, rmax: 1.5, color: INK.black, clip: cid, fn: () => 1 });
     }
   }
-  // reserva detrás del medidor para que no se empaste con la trama
-  o[ink] += g(`<rect x="${ix1 - 162}" y="${wy1 - 80}" width="148" height="66" rx="6" fill="${W}"/>`);
+  const an = Math.PI - ((Math.max(1, meter) - 0.5) * Math.PI) / 5, tip = pt(an, R1 - 4);
+  m += `<path d="M${gx} ${gy} L${f(tip[0])} ${f(tip[1])}" stroke="${INK.black}" stroke-width="6" stroke-linecap="round"/><circle cx="${gx}" cy="${gy}" r="9" fill="${INK.black}"/>`;
+  o[ink] += g(`<path d="M${gx - R1 - 14} ${gy + 12} V${gy} A${R1 + 14} ${R1 + 14} 0 0 1 ${gx + R1 + 14} ${gy} V${gy + 12}Z" fill="${W}"/>`);
   o.black += g(m);
   // filas de datos
   const fraseH = 116, rowsTop = wy1 + 4, rowsBot = C.y1 - C.frame - fraseH - 6;
@@ -609,13 +619,13 @@ function fichaCard({ ink = 'red', nombre, numero, rows, frase, meter = 5, rot = 
     const h = nat[i] + extra;
     if (i > 0) blk += `<rect x="${ix0 + 18}" y="${y - 1}" width="${ix1 - ix0 - 36}" height="2" fill="${INK.black}"/>`;
     const base = y + (h - r.lines.length * lh) / 2 + valueSize * 0.8;
-    blk += text(ix0 + 18, base - 3, r.label, { size: 26, font: FONT_MONO, weight: 500, ls: 0.04, stretch: '100%' });
+    blk += text(ix0 + 18, base - 3, r.label, { size: 30, font: FONT_MONO, weight: 500, ls: 0.04, stretch: '100%' });
     add(tx, richText({ x: ix0 + 18 + 230, y: base, lines: r.lines, size: valueSize, lh: 1.12 }));
     y += h;
   });
   blk += `<rect x="${ix0 + 18}" y="${rowsBot + 5}" width="${ix1 - ix0 - 36}" height="2" fill="${INK.black}"/>`;
   const fb = C.y1 - C.frame - 40;
-  blk += text(ix0 + 18, fb - 6, 'Frase:', { size: 26, font: FONT_MONO, weight: 500, ls: 0.04, stretch: '100%' });
+  blk += text(ix0 + 18, fb - 6, 'Frase:', { size: 30, font: FONT_MONO, weight: 500, ls: 0.04, stretch: '100%' });
   add(tx, richText({ x: ix0 + 18 + 230, y: fb, lines: [frase], size: 52 }));
   o.black += g(blk);
   for (const k of ['black', 'red', 'blue']) if (tx[k]) o[k] += g(tx[k]);

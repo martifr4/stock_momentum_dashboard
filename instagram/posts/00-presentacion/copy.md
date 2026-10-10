@@ -71,7 +71,7 @@
 
 **9 · Tu turno**
 > ¿Quién manda más en tu cabeza?
-> 🔴 Chispa · 🔵 Pausa
+> 🔴 Chispa   🔵 Pausa
 > **Comenta con un color.**
 > Envíaselo a la Chispa de tu grupo. Y síguenos para que tu Pausa llegue a tiempo.
 

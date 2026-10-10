@@ -44,18 +44,19 @@ const S = {};
 S[1] = async (M) => {
   const ly = L();
   add(ly, pageChrome({ n: 1, ink: 'red' }));
-  add(ly, richText({ x: X0, y: 262, lines: [[h('En tu cabeza')], [h('viven dos.')]], size: 128, lh: 0.98, ls: -0.015 }));
-  // dos líneas equilibradas (corte manual; el texto es literal)
-  add(ly, richText({ x: X0 + 2, y: 466, lines: [[h('Y las dos deciden qué haces')], [h('con tu dinero.')]], size: 56, lh: 1.04, ls: -0.01 }));
-  // Pausa al fondo, pequeña, ni se inmuta
-  const P = { x: 846, y: 1010, s: 0.5 };
-  ly.black += shadowEllipse(P.x + 8, P.y + 70, 110, 10, INK.black, 6, 2.2);
+  // titular a todo el ancho, dos líneas
+  add(ly, richText({ x: X0 - 4, y: 300, lines: [[h('En tu cabeza')], [h('viven dos.')]], size: 168, lh: 0.94, ls: -0.02 }));
+  // la línea del dinero: grande, «tu dinero» en peso fuerte
+  add(ly, richText({ x: X0, y: 528, lines: [[r('Y las dos deciden qué haces')], [r('con '), h('tu dinero.')]], size: 66, lh: 1.08, ls: -0.01 }));
+  // Pausa al fondo, ni se inmuta
+  const P = { x: 820, y: 1086, s: 0.7 };
+  ly.black += shadowEllipse(P.x + 8, P.y + 98, 150, 12, INK.black, 7, 2.4);
   add(ly, pausa({ ...P, expr: 'neutral', pose: 'sit', look: [-6, 4] }));
   // Chispa en primer plano, saltando hacia el lector
-  const C = { x: 400, y: 896, s: 1.7 };
-  ly.black += liftedShadow(C.x + 6, C.y + 127 * C.s + 60, 150, 18);
+  const C = { x: 352, y: 922, s: 1.62 };
+  ly.black += liftedShadow(C.x + 6, C.y + 127 * C.s + 56, 145, 17);
   add(ly, chispa({ ...C, expr: 'euforia', pose: 'cheer', sweat: 2, look: [1, -1] }));
-  ly.black += burst(C.x + 8, C.y - 130 * C.s - 14, 1.25);
+  ly.black += burst(C.x + 8, C.y - 130 * C.s - 12, 1.2);
   return riso(1080, 1350, { layers: ly, paper: PAPERS.lila });
 };
 
@@ -74,13 +75,14 @@ S[2] = async (M) => {
     ['Trabajo:', [r('decidir sin preguntar.')]],
     ['Le pierde:', [r('«Solo hoy», «Últimas unidades», el botón de «Comprar ya».')]],
   ], 36);
-  // figura: Chispa del hero; el pie trasero y las líneas de velocidad rompen el marco izquierdo,
-  // la mano delantera sube hasta la banda.
+  // figura: Chispa se lanza (sin rotación: solo lean, base horizontal). El pie trasero y las
+  // líneas de velocidad rompen el marco izquierdo; la mano delantera, corta y doblada, agarra la etiqueta.
   const fig = L();
-  const C = { x: 318, y: 588, s: 1.42, rot: -6, lean: -16 };
+  const C = { x: 330, y: 600, s: 1.36, rot: 0, lean: -10 };
+  const hand = G(C, 176, -18);
+  fig.red += priceTag(hand[0] + 70, hand[1] - 8, 10, '−70 %', 0.42);
   add(fig, chispa({ ...C, expr: 'euforia', pose: 'lunge', sweat: 3, speed: 4, halo: 7,
-    limbs: { armR: [[176, -40], [250, -150]] } }));
-  fig.red += priceTag(906, 476, 12, '−70 %', 0.42);
+    limbs: { armR: [[150, 18], [176, -18]] } }));
   const card = fichaCard({ ink: 'red', nombre: 'CHISPA', numero: 'SISTEMA 1 · 01', rows, frase: [h('«¡Ya, ya, ya!»', 'red')], meter: 5, rot: -1.5, figure: fig });
   add(ly, card);
   return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
@@ -105,23 +107,10 @@ S[3] = async (M) => {
   return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
 };
 
-// pictogramas (tinta negra, formas planas)
-function pictoFreno(x, y) { // pedal de freno visto de lado: pastilla con estrías, palanca y pivote
-  return `<g transform="translate(${x} ${y})"><path d="M-30 40 H34" stroke="${INK.black}" stroke-width="6" stroke-linecap="round"/>` +
-    `<path d="M14 34 L-4 -10" stroke="${INK.black}" stroke-width="10" stroke-linecap="round"/><circle cx="14" cy="34" r="9" fill="${INK.black}"/>` +
-    `<g transform="translate(-10 -22) rotate(-28)"><rect x="-34" y="-17" width="68" height="34" rx="8" fill="${INK.black}"/>` +
-    `<path d="M-22 -6 H22 M-22 6 H22" stroke="${W}" stroke-width="4.5" stroke-linecap="round"/></g></g>`;
-}
-function pictoBalon(x, y) {
-  let s = `<g transform="translate(${x} ${y})"><circle r="42" fill="${INK.black}"/>`;
-  const pent = (cx, cy, rr, rot) => 'M' + [0, 1, 2, 3, 4].map((i) => { const a = ((rot + i * 72 - 90) * Math.PI) / 180; return `${f(cx + rr * Math.cos(a))} ${f(cy + rr * Math.sin(a))}`; }).join(' L') + 'Z';
-  s += `<path d="${pent(0, 0, 14, 0)}" fill="${W}"/>`;
-  for (let i = 0; i < 5; i++) { const a = ((i * 72 - 90) * Math.PI) / 180; s += `<path d="M${f(14 * Math.cos(a))} ${f(14 * Math.sin(a))} L${f(34 * Math.cos(a))} ${f(34 * Math.sin(a))}" stroke="${W}" stroke-width="5"/>`; }
-  return s + '</g>';
-}
-function pictoCara(x, y) {
-  return `<g transform="translate(${x} ${y})"><circle r="42" fill="${INK.black}"/><circle cx="-14" cy="-8" r="6" fill="${W}"/><circle cx="14" cy="-8" r="6" fill="${W}"/>` +
-    `<path d="M-17 12 Q0 26 17 12" fill="none" stroke="${W}" stroke-width="6" stroke-linecap="round"/></g>`;
+// marcas de asentimiento: arcos de movimiento sobre la cúpula (la cabeza sube y baja)
+function nodArcs(x, y, s = 1) {
+  return `<g transform="translate(${x} ${y}) scale(${s})" fill="none" stroke="${INK.black}" stroke-width="5" stroke-linecap="round">` +
+    `<path d="M-40 0 Q-46 -18 -40 -36"/><path d="M-58 4 Q-66 -18 -58 -40"/><path d="M40 0 Q46 -18 40 -36"/><path d="M58 4 Q66 -18 58 -40"/></g>`;
 }
 
 S[4] = async (M) => {
@@ -131,56 +120,75 @@ S[4] = async (M) => {
   add(ly, richText({ x: X0, y: 296, lines: [[h('Chispa', 'red'), h(' no es')], [h('la mala.')]], size: 104, lh: 0.96, ls: -0.01 }));
   const p1 = await M.wrap([r('Gracias a ella frenas antes de pensar, esquivas un balón y reconoces una cara en un segundo.')], CW, 40);
   add(ly, richText({ x: X0, y: 466, lines: p1, size: 40, lh: 1.2 }));
-  // tira de pictogramas
-  ly.black += pictoFreno(X0 + 46, 640) + pictoBalon(X0 + 186, 640) + pictoCara(X0 + 326, 640);
-  const p2 = await M.wrap([r('Sin Chispa, tardarías media hora en cruzar la calle.')], 540, 40);
-  add(ly, richText({ x: X0, y: 778, lines: p2, size: 40, lh: 1.2 }));
-  // Pausa abajo a la izquierda, asintiendo mirando a Chispa
-  const P = { x: 262, y: 1104, s: 0.7 };
-  ly.black += shadowEllipse(P.x + 10, P.y + 92, 160, 12, INK.black, 7, 2.6);
-  add(ly, pausa({ ...P, expr: 'neutral', pose: 'sit', look: [9, -7] }));
-  ly.black += nodMarks(P.x - 150, P.y - 112, 1.1);
-  // Chispa a la derecha, en jarras, echada hacia atrás
-  const C = { x: 776, y: 986, s: 1.18, lean: 8 };
-  ly.black += shadowEllipse(C.x - 6, C.y + 156, 160, 14, INK.black, 7, 2.8);
+  const p2 = await M.wrap([r('Sin Chispa, tardarías media hora en cruzar la calle.')], CW, 40);
+  add(ly, richText({ x: X0, y: 600, lines: p2, size: 40, lh: 1.2 }));
+  // mismo plano: Chispa ≈ 0,6 × el ancho de Pausa
+  const GROUND = 1200;
+  const P = { x: 312, y: GROUND - 135 * 1.25, s: 1.25 };
+  ly.black += shadowEllipse(P.x + 10, GROUND - 6, 260, 15, INK.black, 8, 3);
+  add(ly, pausa({ ...P, expr: 'brindis', pose: 'sit', look: [10, -3] }));
+  ly.black += nodArcs(P.x - 6, P.y - 150 * P.s - 14, 1);
+  const cs = 0.62 * (380 * P.s) / 235;
+  const C = { x: 826, y: GROUND - 127 * cs, s: cs, lean: 8 };
+  ly.black += shadowEllipse(C.x - 6, GROUND - 6, 150, 13, INK.black, 7, 2.8);
   add(ly, chispa({ ...C, expr: 'orgullosa', pose: 'hips', sweatIdx: [1] }));
   return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
 };
 
-// ticket larguísimo: cinta de papel (trama muy clara) con renglones negros perpendiculares
-function ticket(pts, w = 40) {
-  // Catmull-Rom → muestras
-  const samp = [];
+// Ticket larguísimo: tira de papel en reserva plegada en tramos rectos (pliegues de papel, no tubo),
+// con renglones cortos de texto ilegible, sombra de semitono, final rasgado en zigzag y el total.
+function ticket(pts, w = 92) {
+  const o = L();
+  const segs = [];
   for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(pts.length - 1, i + 2)];
-    for (let t = 0; t < 1; t += 0.02) {
-      const t2 = t * t, t3 = t2 * t;
-      samp.push([0, 1].map((k) => 0.5 * (2 * p1[k] + (-p0[k] + p2[k]) * t + (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * t2 + (-p0[k] + 3 * p1[k] - 3 * p2[k] + p3[k]) * t3)));
-    }
+    const [a, b2] = [pts[i], pts[i + 1]];
+    let tx = b2[0] - a[0], ty = b2[1] - a[1]; const len = Math.hypot(tx, ty); tx /= len; ty /= len;
+    segs.push({ a, b: b2, tx, ty, nx: -ty, ny: tx, len });
   }
-  samp.push(pts[pts.length - 1]);
-  // reparto por longitud
-  const even = [samp[0]]; let acc = 0;
-  for (let i = 1; i < samp.length; i++) { acc += Math.hypot(samp[i][0] - samp[i - 1][0], samp[i][1] - samp[i - 1][1]); if (acc >= 9) { even.push(samp[i]); acc = 0; } }
-  const left = [], right = [], bars = [];
-  even.forEach((p, i) => {
-    const q = even[Math.min(even.length - 1, i + 1)], o = even[Math.max(0, i - 1)];
-    let tx = q[0] - o[0], ty = q[1] - o[1]; const l = Math.hypot(tx, ty) || 1; tx /= l; ty /= l;
-    const nx = -ty, ny = tx;
-    left.push([p[0] + nx * w / 2, p[1] + ny * w / 2]); right.push([p[0] - nx * w / 2, p[1] - ny * w / 2]);
-    const last = i >= even.length - 3;
-    if (i > 1 && i < even.length - 1 && (i % 3 === 0 || last)) {
-      const len = last ? w - 10 : (0.3 + 0.45 * Math.abs(Math.sin(i * 1.9))) * (w - 12);
-      const sx = p[0] + nx * (w / 2 - 6), sy = p[1] + ny * (w / 2 - 6);
-      bars.push(`<path d="M${f(sx)} ${f(sy)} L${f(sx - nx * len)} ${f(sy - ny * len)}" stroke="${INK.black}" stroke-width="${last ? 7 : 3.5}" stroke-linecap="round"/>`);
+  const hw = w / 2;
+  const quad = (sg) => [[sg.a[0] + sg.nx * hw, sg.a[1] + sg.ny * hw], [sg.b[0] + sg.nx * hw, sg.b[1] + sg.ny * hw], [sg.b[0] - sg.nx * hw, sg.b[1] - sg.ny * hw], [sg.a[0] - sg.nx * hw, sg.a[1] - sg.ny * hw]];
+  let shadow = '', paper = '', ink = '';
+  segs.forEach((sg, i) => {
+    const last = i === segs.length - 1;
+    const q = quad(sg);
+    let d = 'M' + q.map((p) => `${f(p[0])} ${f(p[1])}`).join(' L') + 'Z';
+    if (last) { // final rasgado en zigzag
+      const [p0, p1, p2, p3] = q, n = 8;
+      let z = `M${f(p3[0])} ${f(p3[1])} L${f(p0[0])} ${f(p0[1])} L${f(p1[0])} ${f(p1[1])}`;
+      for (let k = 1; k <= n; k++) { const t = k / n, bx = p1[0] + (p2[0] - p1[0]) * t, by = p1[1] + (p2[1] - p1[1]) * t, off = k % 2 ? -10 : 0; z += ` L${f(bx + sg.tx * off)} ${f(by + sg.ty * off)}`; }
+      d = z + 'Z';
+    }
+    shadow += `<path d="${d}" transform="translate(8 10)"/>`;
+    paper += `<path d="${d}" fill="${W}"/>`;
+    if (sg.back) { // reverso del pliegue: trama clara (opcional por tramo)
+      const cid = R.uid('tkc'); o.defs += `<clipPath id="${cid}"><path d="${d}"/></clipPath>`;
+      ink += halftone({ x0: Math.min(...q.map((p) => p[0])) - 2, y0: Math.min(...q.map((p) => p[1])) - 2, x1: Math.max(...q.map((p) => p[0])) + 2, y1: Math.max(...q.map((p) => p[1])) + 2, step: 6, rmax: 1.4, color: INK.black, clip: cid, fn: () => 1 });
+    } else { // renglones: concepto (izq.) + importe (dcha.)
+      const nL = Math.floor((sg.len - (last ? 120 : 26)) / 16);
+      for (let k = 0; k < nL; k++) {
+        const t = 16 + k * 16, cx = sg.a[0] + sg.tx * t, cy = sg.a[1] + sg.ty * t;
+        const in1 = hw - 12, l1 = 22 + ((k * 37) % 26), l2 = 12 + ((k * 13) % 8);
+        const s1 = [cx + sg.nx * in1, cy + sg.ny * in1], e1 = [s1[0] - sg.nx * l1, s1[1] - sg.ny * l1];
+        const s2 = [cx - sg.nx * in1, cy - sg.ny * in1], e2 = [s2[0] + sg.nx * l2, s2[1] + sg.ny * l2];
+        ink += `<path d="M${f(s1[0])} ${f(s1[1])} L${f(e1[0])} ${f(e1[1])} M${f(s2[0])} ${f(s2[1])} L${f(e2[0])} ${f(e2[1])}" stroke="${INK.black}" stroke-width="3" stroke-linecap="round"/>`;
+      }
     }
   });
-  const outline = 'M' + left.map((p) => `${f(p[0])} ${f(p[1])}`).join(' L') + ' L' + right.reverse().map((p) => `${f(p[0])} ${f(p[1])}`).join(' L') + 'Z';
-  const id = R.uid('tk');
-  const defs = `<clipPath id="${id}"><path d="${outline}"/></clipPath>`;
-  const xs = left.concat(right).map((p) => p[0]), ys = left.concat(right).map((p) => p[1]);
-  const tint = `<path d="${outline}" fill="#ffffff"/>` + halftone({ x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys), step: 7, rmax: 1.0, color: INK.black, clip: id, fn: () => 1 });
-  return { defs, black: tint + bars.join(''), outline };
+  // total, cerca del final, escrito a lo ancho de la tira
+  const sg = segs[segs.length - 1];
+  const t = sg.len - 62, cx = sg.a[0] + sg.tx * t, cy = sg.a[1] + sg.ty * t;
+  const ang = (Math.atan2(sg.ty, sg.tx) * 180) / Math.PI - 90;
+  ink += `<g transform="translate(${f(cx)} ${f(cy)}) rotate(${f(ang)})"><path d="M-38 -30 H38" stroke="${INK.black}" stroke-width="2.5" stroke-dasharray="4 4"/>` +
+    text(0, -6, 'TOTAL', { size: 22, font: FONT_MONO, weight: 500, anchor: 'middle', stretch: '100%', ls: 0.08 }) +
+    text(0, 22, '189,99 €', { size: 24, font: FONT_MONO, weight: 500, anchor: 'middle', stretch: '100%' }) + '</g>';
+  // sombra en semitono bajo la tira
+  const shId = R.uid('tsh');
+  o.defs += `<clipPath id="${shId}">${shadow}</clipPath>`;
+  const all = segs.flatMap((sg2) => [sg2.a, sg2.b]);
+  const sx0 = Math.min(...all.map((p) => p[0])) - 60, sx1 = Math.max(...all.map((p) => p[0])) + 60, sy0 = Math.min(...all.map((p) => p[1])) - 60, sy1 = Math.max(...all.map((p) => p[1])) + 60;
+  o.black += halftone({ x0: sx0, y0: sy0, x1: sx1, y1: sy1, step: 6, rmax: 1.9, color: INK.black, clip: shId, fn: () => 1 }) + paper + ink;
+  o.blue += paper; o.red += paper;
+  return o;
 }
 
 S[5] = async (M) => {
@@ -188,23 +196,21 @@ S[5] = async (M) => {
   add(ly, pageChrome({ n: 5, ink: 'red' }));
   add(ly, richText({ x: X0, y: 206, lines: [[r('El problema es otro:')]], size: 40 }));
   add(ly, richText({ x: X0, y: 304, lines: [[h('Chispa', 'red'), h(' decide primero.')], [h('Pausa', 'blue'), h(' llega tarde.')]], size: 92, lh: 1.0, ls: -0.01 }));
-  add(ly, richText({ x: X0, y: 540, lines: [[r('Y cuando llega… Chispa ya ha pagado.')]], size: 40 }));
-  // Chispa con la compra
-  const C = { x: 300, y: 790, s: 1.34 };
+  add(ly, richText({ x: X0, y: 492, lines: [[r('Y cuando llega… Chispa ya ha pagado.')]], size: 40 }));
+  const C = { x: 290, y: 790, s: 1.34 };
   ly.black += shadowEllipse(C.x - 4, C.y + 180, 175, 14, INK.black, 7, 2.6);
-  add(ly, chispa({ ...C, expr: 'feliz', pose: 'compra' }));
-  // ticket desde su mano derecha, al suelo y serpenteando hasta los pies de Pausa
+  // ticket: cuelga de la mano, se pliega en el suelo y se estira hacia Pausa (sin llegar a tocarla)
   const hnd = G(C, 158, 74);
-  const tk = ticket([[hnd[0] + 4, hnd[1] + 6], [hnd[0] + 40, hnd[1] + 90], [500, 1040], [440, 1150], [560, 1196], [680, 1150], [790, 1186]], 46);
-  ly.defs += tk.defs; ly.black += tk.black;
-  ly.blue += `<path d="${tk.outline}" fill="${W}"/>`;
+  add(ly, ticket([[hnd[0] - 2, hnd[1] - 8], [hnd[0] + 18, 1120], [736, 1160]], 100));
+  add(ly, chispa({ ...C, expr: 'feliz', pose: 'compra' }));
   // Pausa entrando por la derecha, cortada, sin aliento; su plancha azul aún no ha llegado
-  const P = { x: 990, y: 1066, s: 0.8, rot: -6, flip: true };
-  ly.black += shadowEllipse(990, 1180, 150, 12, INK.black, 7, 2.6);
+  const P = { x: 1020, y: 1060, s: 0.8, rot: -6, flip: true };
+  ly.black += shadowEllipse(1010, 1180, 150, 12, INK.black, 7, 2.6);
   const pz = pausa({ ...P, expr: 'jadeo', pose: 'llega' });
   shiftPlate(pz, 'blue', 12, 7);
   add(ly, clipLayers(pz, 0, 0, 1080, 1350));
-  ly.red += pausaSweat(G(P, 30, -150)[0], G(P, 30, -150)[1], 1.0);
+  const sw = G(P, 10, -150);
+  ly.red += pausaSweat(sw[0], sw[1], 1.0);
   return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
 };
 
@@ -223,22 +229,21 @@ S[6] = async (M) => {
   const l1 = await M.wrap([h('Todo eso está diseñado para hablar con '), h('Chispa', 'red'), h('…')], CW, 76);
   const l2 = await M.wrap([h('antes de que '), h('Pausa', 'blue'), h(' se entere.')], CW, 76);
   add(ly, richText({ x: X0, y: 292, lines: [...l1, ...l2], size: 76, lh: 1.0, ls: -0.01 }));
-  // el mundo comercial, en la plancha roja
-  ly.red += priceTag(150, 668, -12, '−70 %', 0.56);
-  ly.red += sign(540, 620, -3, 'SOLO HOY', { w: 290, h: 84, size: 48 });
-  ly.red += priceTag(946, 676, 13, '−50 %', 0.5);
-  ly.red += sign(902, 890, 8, 'QUEDAN 2', { w: 300, h: 92, size: 54 });
-  ly.red += sign(236, 1160, 4, 'OFERTA FLASH', { w: 380, h: 92, size: 54 });
-  ly.black += countdown(160, 930, -7, 0.82);
-  // Chispa hipnotizada en el centro
-  const C = { x: 536, y: 870, s: 1.0 };
-  ly.black += shadowEllipse(C.x - 2, C.y + 138, 135, 12, INK.black, 7, 2.6);
-  add(ly, chispa({ ...C, expr: 'alarma', pose: 'tiesa', sweat: 3 }));
-  // Pausa dormida en la esquina, cortada por el filete del pie
-  const P = { x: 860, y: 1176, s: 0.5 };
-  const pz = pausa({ ...P, expr: 'dormida', pose: 'duerme', squash: 0.95 });
-  add(ly, clipLayers(pz, 0, 0, 1080, 1234));
-  ly.blue += text(940, 1068, 'z z z', { size: 44, fill: INK.blue, rot: -8 });
+  // el mundo comercial (plancha roja) apretado alrededor de Chispa; se pisan y Chispa va delante con hueco de reserva
+  ly.red += priceTag(318, 728, -12, '−70 %', 0.6);
+  ly.red += sign(560, 676, -3, 'SOLO HOY', { w: 300, h: 88, size: 50 });
+  ly.red += priceTag(812, 716, 13, '−50 %', 0.56);
+  ly.red += sign(300, 1070, 5, 'OFERTA FLASH', { w: 390, h: 94, size: 56 });
+  ly.black += countdown(236, 914, -8, 0.84);
+  const C = { x: 548, y: 880, s: 1.08 };
+  ly.black += shadowEllipse(C.x - 2, C.y + 150, 140, 12, INK.black, 7, 2.6);
+  ly.red += sign(800, 886, 8, 'QUEDAN 2', { w: 300, h: 94, size: 56 });
+  add(ly, chispa({ ...C, expr: 'alarma', pose: 'tiesa', sweat: 3, halo: 9 }));
+  // Pausa dormida en la esquina, por encima del filete y lejos de la tira de progreso
+  const P = { x: 846, y: 1128, s: 0.5 };
+  ly.black += shadowEllipse(P.x + 20, 1196, 130, 9, INK.black, 6, 2.2);
+  add(ly, pausa({ ...P, expr: 'dormida', pose: 'duerme', squash: 0.95 }));
+  ly.blue += text(926, 1030, 'z z z', { size: 44, fill: INK.blue, rot: -8 });
   return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
 };
 
@@ -278,43 +283,45 @@ S[8] = async (M) => {
   ly.black += `<rect x="${X0}" y="${y3}" width="72" height="2" fill="${INK.black}"/>`;
   add(ly, richText({ x: X0, y: y3 + 44, lines: [[{ t: 'Aquí todo va con fuentes. Sin humo.', st: 'monoI', ink: 'black' }]], size: 30 }));
   // Chispa asomada por detrás (Pausa reserva su silueta en la plancha roja)
-  const P = { x: 500, y: 1040, s: 1.06 };
-  const C = { x: 610, y: 858, s: 0.84 };
+  const P = { x: 500, y: 1018, s: 1.16 };
+  const C = { x: 620, y: 818, s: 0.9 };
   add(ly, chispa({ ...C, expr: 'neutral', pose: 'none', look: [-6, 6] }));
-  ly.black += shadowEllipse(P.x + 20, P.y + 134, 270, 16, INK.black, 8, 3);
+  ly.black += shadowEllipse(P.x + 20, P.y + 150, 290, 16, INK.black, 8, 3);
   add(ly, pausa({ ...P, expr: 'neutral', pose: 'lee', look: [4, 10], knockFor: ['red'] }));
-  // manos-punto de Chispa agarradas al borde de la cúpula de Pausa (encima)
-  for (const [lx, ly2] of [[52, -146], [128, -108]]) { const g = G(P, lx, ly2); ly.black += `<circle cx="${f(g[0])}" cy="${f(g[1])}" r="8" fill="${INK.black}"/>`; }
-  // taza en el suelo, sin vapor («sin humo»)
-  ly.black += mug(862, 1146, 1.1, false);
+  // bracitos de alambre de Chispa (desde sus enchufes) hasta las manos agarradas a la cúpula de Pausa
+  const arms = [[[-106, 36], [-140, 60]], [[106, 34], [134, 66]]];
+  const handsAt = [G(P, -6, -142), G(P, 150, -100)];
+  arms.forEach(([sk, el], i) => {
+    const a = G(C, ...sk), e = G(C, ...el), hd = handsAt[i];
+    ly.black += strokeP(`M${f(a[0])} ${f(a[1])} L${f(e[0])} ${f(e[1])} L${f(hd[0])} ${f(hd[1])}`, INK.black, 5.5, 'stroke-linejoin="miter" stroke-linecap="round"');
+    ly.black += `<circle cx="${f(hd[0])}" cy="${f(hd[1])}" r="7.5" fill="${INK.black}"/>`;
+  });
   return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
 };
 
 S[9] = async (M) => {
   const ly = L();
   add(ly, pageChrome({ n: 9, ink: 'plum', signoff: 'Dinero Irracional' }));
-  const t = await M.wrap([h('¿Quién manda más en tu cabeza?')], CW, 104);
-  add(ly, richText({ x: X0, y: 250, lines: t, size: 104, lh: 0.96, ls: -0.01 }));
+  add(ly, richText({ x: X0, y: 250, lines: [[h('¿Quién manda más')], [h('en tu cabeza?')]], size: 104, lh: 0.96, ls: -0.01 }));
   // botones de voto: punto de tinta + nombre, encima de cada personaje
-  const vy = 470;
+  const vy = 476;
   const wC = await M.width([h('Chispa')], 72), wP = await M.width([h('Pausa')], 72);
-  const cxC = 330, cxP = 770;
+  const cxC = 260, cxP = 720;
   ly.red += `<circle cx="${f(cxC - (wC + 58) / 2 + 22)}" cy="${vy - 24}" r="22" fill="${INK.red}"/>`;
   add(ly, richText({ x: cxC - (wC + 58) / 2 + 58, y: vy, lines: [[h('Chispa', 'red')]], size: 72 }));
   ly.blue += `<circle cx="${f(cxP - (wP + 58) / 2 + 22)}" cy="${vy - 24}" r="22" fill="${INK.blue}"/>`;
   add(ly, richText({ x: cxP - (wP + 58) / 2 + 58, y: vy, lines: [[h('Pausa', 'blue')]], size: 72 }));
-  add(ly, richText({ x: 540, y: vy, lines: [[h('·')]], size: 72, anchor: 'middle' }));
-  add(ly, richText({ x: 540, y: 566, lines: [[h('Comenta con un color.')]], size: 60, anchor: 'middle' }));
-  // las dos al lector
-  const C = { x: 330, y: 800, s: 0.95 };
-  ly.black += liftedShadow(C.x + 4, C.y + 127 * C.s + 50, 110, 13);
-  add(ly, chispa({ ...C, expr: 'euforia', pose: 'cheer', sweat: 2, look: [0, -1] }));
-  ly.black += burst(C.x + 6, C.y - 130 * C.s - 10, 0.9);
-  const P = { x: 742, y: 948, s: 0.85 };
-  ly.black += shadowEllipse(P.x + 10, P.y + 112, 190, 13, INK.black, 7, 2.8);
-  add(ly, pausa({ ...P, expr: 'brindis', pose: 'brindis', look: [0, 6] }));
+  add(ly, richText({ x: 540, y: 572, lines: [[h('Comenta con un color.')]], size: 60, anchor: 'middle' }));
   const p = await M.wrap([r('Envíaselo a la Chispa de tu grupo. Y síguenos para que tu Pausa llegue a tiempo.')], CW, 36);
-  add(ly, richText({ x: X0, y: 1210 - (p.length - 1) * 43 - 8, lines: p, size: 36, lh: 1.2 }));
+  add(ly, richText({ x: X0, y: 650, lines: p, size: 36, lh: 1.2 }));
+  // las dos al lector; Chispa pisa el filete del pie
+  const P = { x: 700, y: 1200 - 135 * 1.25, s: 1.25 };
+  ly.black += shadowEllipse(P.x + 10, 1196, 260, 14, INK.black, 7, 2.8);
+  add(ly, pausa({ ...P, expr: 'brindis', pose: 'brindis', look: [0, 6] }));
+  const cs = 1.2;
+  const C = { x: 250, y: 1236 - 122 * cs - 2, s: cs };
+  add(ly, chispa({ ...C, expr: 'euforia', pose: 'cheer', sweat: 2, look: [0, -1] }));
+  ly.black += burst(C.x + 6, C.y - 130 * C.s - 10, 1);
   return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
 };
 
