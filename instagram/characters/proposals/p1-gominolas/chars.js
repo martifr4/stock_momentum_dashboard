@@ -91,7 +91,8 @@ const CAPI_LEFT = [
   { d: smooth([cc[3], [-64, -176], [-80, -162], [-86, -142], [-80, -122], [-90, -102], [-82, -82], [-90, -62], [-84, -42]]), end: [-84, -42] },
 ];
 const mirrorPts = (s) => ({ d: s.d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g, (m, x, y) => `${f1(-x)} ${y}`), end: [-s.end[0], s.end[1]] });
-const CAPI_SULCI = [...CAPI_LEFT, ...CAPI_LEFT.map(mirrorPts), notch(cc[0], [0, -100], 14), notch(cc[1], [0, -100], 14)];
+const CAPI_SULCI = [...CAPI_LEFT, ...CAPI_LEFT.map(mirrorPts), notch(cc[0], [0, -100], 14), notch(cc[1], [0, -100], 14),
+  { d: smooth([[0, -205], [-6, -192], [4, -180], [-2, -166]]), end: [-2, -166] }];
 
 function sulcusPaths(list, w = IN) {
   return list.map(s => {
@@ -264,11 +265,11 @@ function mug(x, y, s = 1) {
 // ---------- POSES ----------
 // Mapi por defecto: inclinado y con un pie en el aire (nunca quieto).
 const MAPI_POSES = {
-  stand: { arms: [[-100, -78, -128, -44], [100, -84, 128, -54]], legs: [[-34, -4, -40, 18], [30, -8, 74, -22]], r: -7 },
-  panic: { arms: [[-100, -96, -146, -66], [100, -96, 146, -66]], legs: [[-34, -4, -46, 18], [34, -4, 46, 18]], r: 0, rigid: true },
+  stand: { arms: [[-100, -78, -128, -44], [100, -84, 128, -54]], legs: [[-34, -4, -40, 18], [26, -4, 86, 4]], r: -7 },
+  panic: { arms: [[-100, -96, -138, -52], [100, -96, 138, -52]], legs: [[-34, -4, -46, 18], [34, -4, 46, 18]], r: 0, rigid: true },
   run: { arms: [[-100, -82, -140, -60], [100, -90, 134, -118]], legs: [[-30, -4, -66, 4], [30, -4, 40, 22]], r: -8 },
-  cheer: { arms: [[-100, -100, -128, -150], [100, -104, 124, -156]], legs: [[-34, -4, -40, 18], [30, -8, 72, -24]], r: -5 },
-  hips: { arms: [[-100, -72, -120, -90], [100, -72, 120, -90]], legs: [[-34, -4, -40, 18], [30, -8, 74, -22]], r: -6 },
+  cheer: { arms: [[-100, -100, -128, -150], [100, -104, 124, -156]], legs: [[-34, -4, -40, 18], [26, -4, 84, 2]], r: -5 },
+  hips: { arms: [[-100, -72, -120, -90], [100, -72, 120, -90]], legs: [[-34, -4, -40, 18], [26, -4, 86, 4]], r: -6 },
 };
 const CAPI_POSES = {
   stand: { arms: [[-160, -66, -182, -32], [160, -66, 182, -32]] },
@@ -305,7 +306,7 @@ function mapi(o = {}) {
   g.push(mapiFace(o.expr || 'neutral'));
   if (pose.rigid) {
     g.push(`<g stroke="${P.ink}" stroke-width="4" stroke-linecap="round" fill="none">
-      <path d="M -160 -96 q -6 6 0 12 M -170 -78 q -6 6 0 12 M 160 -96 q 6 6 0 12 M 170 -78 q 6 6 0 12"/></g>`);
+      <path d="M -150 -104 q -6 6 0 12 M -160 -86 q -6 6 0 12 M 150 -104 q 6 6 0 12 M 160 -86 q 6 6 0 12"/></g>`);
   }
   if (o.beforeArms) g.push(o.beforeArms);
   if (!o.noArms) g.push(limbs(pose.arms, 18));

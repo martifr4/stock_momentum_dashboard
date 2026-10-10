@@ -221,14 +221,17 @@ const MAPI_POSES = {
     legL: [[-46, 94], [-40, 122]], legR: [[40, 94], [36, 122]], feet: [-1, 1],
     armL: [[-136, 10], [-120, -26]], armR: [[132, 8], [118, -28]],
   },
+  armsUp: { // solo brazos (avatar)
+    armL: [[-134, 10], [-130, -30]], armR: [[132, 6], [140, -34]],
+  },
   none: null,
 };
-function mapi({ x = 0, y = 0, s = 1, rot = 0, lean = 0, flip = false, expr = 'neutral', pose = 'stand', sweat = 0, speed = 0, knockFor = null, knockClip = null, faceKnock = null }) {
+function mapi({ x = 0, y = 0, s = 1, rot = 0, lean = 0, flip = false, expr = 'neutral', pose = 'stand', sweat = 0, sweatIdx = null, speed = 0, knockFor = null, knockClip = null, faceKnock = null }) {
   const o = L();
   const P = MAPI_POSES[pose];
   const body = MAPI_BODY_D;
   if (P) {
-    const legs = [[SOCK.legL, ...P.legL], [SOCK.legR, ...P.legR]];
+    const legs = P.legL ? [[SOCK.legL, ...P.legL], [SOCK.legR, ...P.legR]] : [];
     legs.forEach((leg, i) => {
       o.black += strokeP(poly(leg), INK.black, 6, 'stroke-linejoin="miter" stroke-linecap="round"');
       const [fx, fy] = leg[leg.length - 1], d = P.feet[i], tx = fx + d * 20;
@@ -254,7 +257,7 @@ function mapi({ x = 0, y = 0, s = 1, rot = 0, lean = 0, flip = false, expr = 'ne
   add(o, face);
   // gotas de sudor: tinta azul (la otra plancha)
   const drops = [[-112, -78, 1.25, -25], [124, -64, 1.0, 25], [-136, -40, 0.85, -40]];
-  for (let i = 0; i < sweat; i++) o.blue += teardrop(...drops[i]);
+  for (const i of sweatIdx || [...Array(sweat).keys()]) o.blue += teardrop(...drops[i]);
   // líneas de velocidad
   const sp = [[-178, -48, -236], [-176, -12, -262], [-172, 22, -226], [-150, 54, -196]];
   for (let i = 0; i < speed; i++) { const [x1, yy, x2] = sp[i]; o.black += strokeP(`M${x1} ${yy} L${x2} ${yy}`, INK.black, 5, 'stroke-linecap="round"'); }

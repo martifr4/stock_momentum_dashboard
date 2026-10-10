@@ -149,13 +149,14 @@ function coverScene() {
 }
 
 function avatarScene() {
-  // Dos planchas, un cerebro: Mapi encajado en la cima de Capi; donde se pisan, morado.
+  // Encuadre cerrado en las dos caras. Mapi delante (reservado en la plancha azul salvo su nuca,
+  // que se sobreimprime en ciruela sobre Capi): el «cerebro completo» sin ensuciar ninguna cara.
   const ly = L();
   const S = 640;
-  ly.black += shadowEllipse(300, 530, 230, 22, INK.black, 8, 3.4);
-  add(ly, capi({ x: 272, y: 394, s: 1.08, expr: 'neutral', look: [4, -1] }));
-  add(ly, mapi({ x: 446, y: 236, s: 1.04, rot: 16, expr: 'euforia', pose: 'none', sweat: 2, faceKnock: ['blue'] }));
-  return riso(S, S, { layers: ly, paper: PAPERS.niebla, grain: 0.6 });
+  add(ly, capi({ x: 305, y: 421, s: 1.05, expr: 'neutral', look: [-4, 4] }));
+  add(ly, mapi({ x: 234, y: 238, s: 1.34, expr: 'euforia', pose: 'armsUp', sweatIdx: [1],
+    knockFor: ['blue'], knockClip: [-62, -200, 400, 400] }));
+  return riso(S, S, { layers: ly, paper: PAPERS.niebla, grain: 0.4 });
 }
 
 async function run(which) {
@@ -169,7 +170,8 @@ async function run(which) {
   if (which === 'cover' || which === 'all') jobs.push({ name: 'cover-mock', svg: coverScene(), w: 1080, h: 1350 });
   if (which === 'avatar' || which === 'all') {
     jobs.push({ name: 'avatar', svg: avatarScene(), w: 640, h: 640, outW: 320 });
-    jobs.push({ name: 'avatar150', svg: avatarScene(), w: 640, h: 640, outW: 150, dir: SCRATCH });
+    jobs.push({ name: 'avatar150' + (process.env.V || ''), svg: avatarScene(), w: 640, h: 640, outW: 150, dir: SCRATCH });
+    jobs.push({ name: 'avatar60' + (process.env.V || ''), svg: avatarScene(), w: 640, h: 640, outW: 60, dir: SCRATCH });
   }
   if (which === 'expressions' || which === 'all') jobs.push({ name: 'expressions', svg: expressionsScene(), w: 1080, h: 1350 });
   await render(jobs);
