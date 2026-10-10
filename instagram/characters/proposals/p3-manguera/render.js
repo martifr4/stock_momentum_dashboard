@@ -1,7 +1,7 @@
 // «Manguera» — scenes + render. Usage: node render.js [hero|expressions|cover|avatar|all]
 // Writes <name>.svg (self-contained, fonts via Google Fonts @import) and <name>.png next to this file.
 const path = require('path');
-const { C, mapi, capi, defs, paperBg, filmFx, FONTS, stroke, taper, sweat, steam, mug } = require('./chars.js');
+const { C, mapi, capi, defs, paperBg, filmFx, FONTS, stroke, taper, sweat, steam, mug, r1 } = require('./chars.js');
 const P = require('./props.js');
 const { render, done, writeSvg } = require('./render-lib.js');
 const OUT = __dirname;
@@ -38,10 +38,10 @@ function hero() {
     expr: { look: [0.6, -0.5], mouth: 'grin', brow: [-8, 8], pupil: 0.92 },
     arms: [
       { x: -150, y: -70, bend: 30, glove: 'open', back: true, thumb: 1 },
-      { x: 178, y: -236, bend: 36, glove: 'open', thumb: -1 },
+      { x: 150, y: -226, bend: 36, glove: 'open', thumb: -1 },
     ],
     legs: [{ x: -34, y: 96, bend: -34, rot: 34, dir: -1 }, { x: 80, y: 36, bend: 40, rot: -20, dir: 1 }],
-    sweat: [[-84, -196, 1.1, -30], [-104, -150, 0.85, -50]],
+    sweat: [[-100, -120, 1.1, -60], [-112, -60, 0.85, -80]],
   });
   const capiPos = { x: 300, y: 1108, s: 1.5 };
   const A = [capiPos.x - 44 * 1.5, capiPos.y - 200 * 1.5]; // top-back of Capi
@@ -58,6 +58,17 @@ function hero() {
     legs: [{ x: -14, y: 40, bend: -6, dir: -1 }, { x: 58, y: 40, bend: 6, dir: 1 }],
   });
 
+  // street clock: «Capi llega tarde» — always five past the hour
+  let tk = '';
+  for (let i = 0; i < 12; i++) { const a = i * 30 * Math.PI / 180; tk += stroke(`M${r1(Math.cos(a) * 50)} ${r1(Math.sin(a) * 50)} L${r1(Math.cos(a) * (i % 3 ? 44 : 38))} ${r1(Math.sin(a) * (i % 3 ? 44 : 38))}`, i % 3 ? 2 : 3.4); }
+  const clock = `<g>
+    <path d="M182 ${ground} L186 398 L202 398 L206 ${ground}Z" fill="${C.paperDk}" stroke="${C.ink}" stroke-width="3"/>
+    <path d="M168 ${ground} C170 ${ground - 30} 180 ${ground - 46} 186 ${ground - 60} L202 ${ground - 60} C208 ${ground - 46} 218 ${ground - 30} 220 ${ground}Z" fill="${C.paperDk}" stroke="${C.ink}" stroke-width="3"/>
+    ${stroke('M186 470 L202 470 M186 480 L202 480', 2)}
+    <g transform="translate(194 336)"><circle r="68" fill="${C.ink}" transform="translate(5 6)"/><circle r="68" fill="${C.blueDk}" stroke="${C.ink}" stroke-width="4"/>
+      <circle r="56" fill="${C.glove}" stroke="${C.ink}" stroke-width="3"/>${tk}
+      ${taper(0, 0, 2, -18, 4, -40, 3.4)}${taper(0, 0, 8, 2, 30, 6, 3.2)}<circle r="4.5" fill="${C.ink}"/>
+      <path d="M-14 -70 Q0 -84 14 -70" fill="${C.blueDk}" stroke="${C.ink}" stroke-width="3"/></g></g>`;
   const money = P.bill(960, 520, -14, 1.3, 10) + P.bill(880, 640, 16, 1.1, -12) + P.bill(990, 680, -6, 0.9, 6) + P.coin(930, 450, 1.2, 0) + P.coin(1010, 600, 0.9, 0);
   const groundSvg = `<rect x="0" y="${ground}" width="${W}" height="${H - ground}" fill="${C.paperDk}" opacity=".45"/>${taper(40, ground, 540, ground + 2, 1040, ground, 2.6)}
     <ellipse cx="300" cy="${ground + 4}" rx="190" ry="16" fill="${C.ink}" opacity=".22"/>
@@ -69,7 +80,7 @@ function hero() {
   const late = `<text x="540" y="${ground + 96}" text-anchor="middle" font-family="Oswald" font-weight="500" font-size="30" fill="${C.ink}" letter-spacing="3">(CAPI LLEGA TARDE. COMO SIEMPRE.)</text>`;
 
   const inner = `${paperBg(W, H)}${rays}${groundSvg}
-  <g filter="url(#wobble)">${sign}${cord}${c}${fx}${m}${money}${bubM}${bubC}</g>
+  <g filter="url(#wobble)">${clock}${sign}${cord}${c}${fx}${m}${money}${bubM}${bubC}</g>
   ${late}
   ${P.wordmark(80, 96, 0.82)}
   ${filmFx(W, H)}${P.filmGate(W, H)}`;
