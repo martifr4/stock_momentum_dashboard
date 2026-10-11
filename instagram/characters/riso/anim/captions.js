@@ -55,6 +55,8 @@ function stampScale(k, kind = 'stamp') {
   if (kind === 'stamp') return [1.08, 1.03, 1.0][Math.min(k, 2)];
   if (kind === 'pop') return k >= 6 ? 1 : 0.6 + 0.4 * T.EASE.easeOutBack(k / 6, 2.2); // pop con overshoot
   if (kind === 'big') return k >= 2 ? 1 : [1.3, 1.15][k];
+  // pop de ritmo (ronda 3 del reel 00): 0,85 → 1,05 → 1,0 en 6 fotogramas
+  if (kind === 'pop6') return k >= 5 ? 1 : [0.85, 0.95, 1.05, 1.03, 1.01][Math.floor(k)];
   return 1;
 }
 

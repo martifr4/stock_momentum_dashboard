@@ -147,7 +147,7 @@ function camTransform({ x = 0, z = 1, A = [540, 960], shake = [0, 0] } = {}) {
 }
 const camApply = ({ x = 0, z = 1, A = [540, 960], shake = [0, 0] } = {}, p) => [A[0] + (p[0] - x - A[0]) * z + shake[0], A[1] + (p[1] - A[1]) * z + shake[1]];
 // temblor por tabla: { f: [dx,dy] } relativo a f0
-function shakeTable(t, f0, table) { const v = table[t - f0]; return v ? v : [0, 0]; }
+function shakeTable(t, f0, table) { const v = table[Math.round(t - f0)]; return v ? v : [0, 0]; } // t puede ser fraccionario (remapeo)
 
 module.exports = {
   GC, GP, limbHalo, groundChispa, groundPausa, HANDLE, pausaMug, pausaHandle, chispaAnkle,

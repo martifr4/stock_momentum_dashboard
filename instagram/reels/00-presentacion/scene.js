@@ -9,11 +9,35 @@ const { T, RIG, PROPS: P, CAP } = require('../../characters/riso/anim/index.js')
 const { INK, W, L, add, f } = R;
 
 const WIDTH = 1080, HEIGHT = 1920, STORY_FRAMES = 1680;
-// recortes (fotogramas del storyboard, incluidos; longitudes pares para no romper los «dos»)
-const CUTS = [[192, 229], [714, 737]];
-const FRAMES = STORY_FRAMES - CUTS.reduce((a, [x, y]) => a + y - x + 1, 0);
-function storyT(u) { let t = u; for (const [a, b] of CUTS) if (t >= a) t += b - a + 1; return t; }
-function outOf(t) { let u = t; for (const [a, b] of CUTS) { if (t > b) u -= b - a + 1; else if (t >= a) u -= t - a; } return u; }
+// RONDA 3 · manda la voz. Mapa por tramos: salida [u0, u1) → storyboard [t0, t1), lineal.
+// Cada subtítulo empieza exactamente en su «new_frame» de pacing-v3.json; los reposos se comprimen,
+// las acciones van cerca de 1:1 y lo que no cabe se salta (huecos entre tramos).
+const SEGS = [
+  [0, 43, 0, 51], // c1 · gancho: golpe en f5
+  [43, 57, 51, 99], [57, 95, 99, 156], // c2 · reposo comprimido ×3,4; salida, carrera y frenazo ×1,5
+  [95, 127, 156, 192], // c3 · «Esta es Chispa.»
+  [127, 197, 230, 290], // c4
+  [197, 231, 290, 328], [231, 237, 330, 384], // c5 · saltitos y BARRIDO del paneo en 6 f
+  [237, 272, 384, 446], [272, 319, 446, 494], [319, 346, 494, 520], [346, 391, 520, 570], // c6–c9 · Pausa
+  [391, 407, 570, 600], [407, 445, 610, 669], // c10 · 4a corto + 4b
+  [445, 500, 670, 724], [500, 535, 724, 780], // c11–c12 · 4c
+  [535, 604, 780, 850], [604, 648, 850, 960], [648, 704, 960, 1050], // c13–c15 · pantalla partida
+  [704, 787, 1050, 1130], [787, 854, 1130, 1210], [854, 880, 1210, 1290], // c16–c18 · carteles
+  [880, 908, 1290, 1330], [908, 971, 1330, 1410], [971, 1031, 1410, 1530], // c18–c20 · el tirón
+  [1031, 1068, 1530, 1590], [1068, 1112, 1590, 1658], [1112, 1134, 1658, 1680], // c21–c22 · cierre; el salto final ≈ 1:1
+];
+const FRAMES = SEGS[SEGS.length - 1][1];
+function storyT(u) { for (const [u0, u1, t0, t1] of SEGS) if (u >= u0 && u < u1) return t0 + ((u - u0) * (t1 - t0)) / (u1 - u0); return STORY_FRAMES - 1; }
+function outOf(t) {
+  for (const [u0, u1, t0, t1] of SEGS) { if (t < t0) return u0; if (t < t1) return Math.round(u0 + ((t - t0) * (u1 - u0)) / (t1 - t0)); }
+  return FRAMES;
+}
+// cortes de plano (en salida) con barrido de 6 f y el barrido del paneo
+const WHIPS = [outOf(120), outOf(610), outOf(670), outOf(780), outOf(1290)];
+const WHIP_PAN = [231, 237];
+const SHOT_STARTS = [0, 120, 570, 780, 1050, 1290, 1530];
+const shotOf = (t) => SHOT_STARTS.filter((x) => x <= t).length - 1;
+let CUR_TC = 0;
 let LAY = null;
 let CUR_U = 0;
 
@@ -69,7 +93,7 @@ const card = (id) => LAY.cards.find((c) => c.id === id);
 // AYUDAS
 // =====================================================================================
 const G = 1460; // suelo general
-const tw = (t) => T.onTwos(t);
+const tw = () => CUR_TC; // Chispa en «dos» de SALIDA: un dibujo cada 2 fotogramas de salida
 const CH = (o, p) => { add(o, R.chispa(p)); return p; };
 const PZ = (o, p) => { add(o, R.pausa(p)); return p; };
 function chShadow(o, c, g) {
@@ -138,7 +162,7 @@ function shot1(t, w, opt = {}) {
   if (!c.fall && tc < 108) w.black += R.shadowEllipse(BTN.cx, CAP_DOWN + 2, 92, 8, INK.black, 7, 2.2);
   CH(w, cp);
   if (tc >= 6 && tc <= 10) for (const sx of [-70, 70]) { const h = RIG.GC(cp, sx, 136); w.black += R.burst(h[0], h[1] + 16, 1); }
-  if (!opt.cover && t >= 6 && t <= 19) w.black += P.sfxText(462, 1112, '¡CLAC!', { size: 96, rot: -8, sc: [1.3, 1.15, 1][Math.min(t - 6, 2)], approxW: LAY.sfx.clac });
+  if (!opt.cover && t >= 6 && t <= 19) w.black += P.sfxText(462, 1112, '¡CLAC!', { size: 96, rot: -8, sc: [1.3, 1.15, 1][Math.min(Math.floor(t - 6), 2)], approxW: LAY.sfx.clac });
   const shake = opt.cover ? [0, 0] : RIG.shakeTable(t, 6, { 0: [0, 16], 1: [-9, -7], 2: [7, 5], 3: [-3, -2] });
   return { cam: { shake } };
 }
@@ -325,13 +349,13 @@ function shot5(t, w) {
     w.black += P.panelFrame(...PA) + P.panelFrame(...PB);
   }
   const total = P.polyLen(TICKET.pts);
-  if (tc >= 814) add(w, P.ticketGrow(TICKET.pts, TICKET.w, { len: tc >= 960 ? total + 1 : (total * (tc - 814)) / 146, labelSize: LAY.labelSize, amountSize: LAY.amountSize, amountFont: R.FONT_HEAD, amountWeight: 800, amountStretch: '75%' }));
+  if (tc >= 814) add(w, P.ticketGrow(TICKET.pts, TICKET.w, { len: tc >= 850 ? total + 1 : (total * (tc - 814)) / 36, labelSize: LAY.labelSize, amountSize: LAY.amountSize, amountFont: R.FONT_HEAD, amountWeight: 800, amountStretch: '75%' }));
   const C = L();
   const c = chispa5(tc);
   if (c.x < 1250) { C.black += c.y >= GA - 127 * 1.1 - 4 ? R.shadowEllipse(c.x, GA, 110, 11, INK.black, 7, 2.4) : R.liftedShadow(c.x, GA, 90, 9); C.black += RIG.limbHalo(c, 18); CH(C, c); }
   add(w, clipPanel(C, PA));
-  if (t >= 810 && t <= 825) w.black += P.sfxText(575, 712, '¡DING!', { size: 80, rot: 6, sc: [1.3, 1.15, 1][Math.min(t - 810, 2)], approxW: LAY.sfx.ding });
-  const z = push ? T.ramp(t, 990, 1004, 1, 1.35, 'out') : 1;
+  if (t >= 810 && t <= 825) w.black += P.sfxText(575, 712, '¡DING!', { size: 80, rot: 6, sc: [1.3, 1.15, 1][Math.min(Math.floor(t - 810), 2)], approxW: LAY.sfx.ding });
+  const z = push ? T.ramp(t, 990, 1004, 1, 1.35, 'out') + T.ramp(t, 1004, 1050, 0, 0.08, 'linear') : 1; // sigue empujando despacio
   return { cam: { z, A: [500, 1340] }, clip: push ? [0, 480, 1080, 1000] : null };
 }
 
@@ -340,11 +364,11 @@ function shot5(t, w) {
 // =====================================================================================
 const SIGNS = [
   { kind: 'sign', label: 'OFERTA FLASH', at: [290, 1395], rot: 5, f0: 1050, opt: { w: 420, h: 100, size: 60 } },
-  { kind: 'count', at: [185, 1150], rot: -8, f0: 1068, s: 0.95 },
-  { kind: 'sign', label: 'QUEDAN 2', at: [790, 1110], rot: 8, f0: 1086, opt: { w: 320, h: 100, size: 60 } },
-  { kind: 'sign', label: 'SOLO HOY', at: [515, 905], rot: -3, f0: 1104, opt: { w: 320, h: 96, size: 54 } },
-  { kind: 'tag', label: '−70 %', at: [235, 925], rot: -12, f0: 1118, s: 0.68 },
-  { kind: 'tag', label: '−50 %', at: [790, 905], rot: 13, f0: 1130, s: 0.62 },
+  { kind: 'count', at: [185, 1150], rot: -8, f0: 1056, s: 0.95 },
+  { kind: 'sign', label: 'QUEDAN 2', at: [790, 1110], rot: 8, f0: 1062, opt: { w: 320, h: 100, size: 60 } },
+  { kind: 'sign', label: 'SOLO HOY', at: [515, 905], rot: -3, f0: 1068, opt: { w: 320, h: 96, size: 54 } },
+  { kind: 'tag', label: '−70 %', at: [235, 925], rot: -12, f0: 1074, s: 0.68 },
+  { kind: 'tag', label: '−50 %', at: [790, 905], rot: 13, f0: 1080, s: 0.62 },
 ];
 const LANDS = SIGNS.map((s) => s.f0 + 6);
 function signPose(sg, t) {
@@ -374,7 +398,7 @@ function shot6(t, w) {
   let flinch = 0;
   for (const L0 of LANDS) if (tc === L0) flinch = -10;
   const esp = tc >= 1150;
-  const r = esp ? rest(tc, 2) : { dx: 0, sizzle: false };
+  const r = esp ? rest(tc, 2) : tc >= 1056 ? rest(tc, 1) : { dx: 0, sizzle: false };
   const S = 1.6;
   const c = { x: 500 + r.dx, y: G6 - 127 * S + flinch, s: S, pose: 'tiesa', halo: 9, expr: esp ? 'espiral' : tc >= 1056 ? 'alarma' : 'neutral', look: tc < 1056 ? [0, -6] : null, sweat: tc >= 1092 ? 3 : 0, spin: (tc / 2) % 2, sizzle: r.sizzle };
   w.black += R.shadowEllipse(500, G6, 165, 14, INK.black, 7, 2.8);
@@ -420,7 +444,7 @@ function chispa7(tc) {
   const r = rest(tc);
   if (tc < 1380) return { ...base, pose: 'stand', x: 400 + r.dx, y: YF, expr: 'esceptico', look: [8, 0], sizzle: r.sizzle, dust: tc === 1368 };
   if (tc < 1424) return { ...base, pose: 'stand', x: 400 + r.dx, y: YF, expr: 'neutral', look: [0, 2], sweatIdx: [1], sizzle: r.sizzle, blink: RIG.blinkFast(tc, [[1384, 1422]], 11) };
-  return { ...base, pose: 'happy', x: 400 + r.dx, y: YF, expr: tc < 1470 ? 'feliz' : 'orgullosa', look: tc < 1470 ? null : [0, 2], sweatIdx: [1], sizzle: r.sizzle };
+  return { ...base, pose: 'happy', x: 400 + r.dx, y: YF + ((tc / 2) % 4 === 0 ? -10 : (tc / 2) % 4 === 1 ? -4 : 0), expr: tc < 1470 ? 'feliz' : 'orgullosa', look: tc < 1470 ? null : [0, 2], sweatIdx: [1], sizzle: r.sizzle };
 }
 function pausa7(t) {
   const p = { ...PZ0, pose: 'duerme', expr: 'dormida' };
@@ -435,7 +459,9 @@ function pausa7(t) {
   if (t >= 1380) { expr = 'neutral'; look = [0, 6]; }
   const up = T.ramp(t, 1420, 1436, 0, 1, 'io');
   if (t >= 1420) expr = 'brindis';
-  return { ...p, pose: 'sit', expr, look, y: PZ0.y + yOff, rot, arms: lerpPts(SIT.arms, BRINDIS.arms, up), mug: lerpPts(SIT.mug, BRINDIS.mug, up), steam: steamAlt(t), lid: RIG.blinkSlow(t, 1500, { down: 7, hold: 3, up: 10 }), squash: breath() };
+  const sway = t >= 1436 ? 5 * Math.sin(((t - 1436) / 14) * 2 * Math.PI) : 0; // la taza levantada se mece
+  const bArms = [[204, -6, 226 + sway * 0.6, -74 + sway]], bMug = [234 + sway * 0.6, -112 + sway];
+  return { ...p, pose: 'sit', expr, look, y: PZ0.y + yOff, rot, arms: lerpPts(SIT.arms, bArms, up), mug: lerpPts(SIT.mug, bMug, up), steam: steamAlt(t), lid: RIG.blinkSlow(t, 1500, { down: 7, hold: 3, up: 10 }), squash: breath() };
 }
 function shot7(t, w) {
   const tc = tw(t);
@@ -536,11 +562,45 @@ function shot8(t, w) {
 // =====================================================================================
 // COMPOSICIÓN
 // =====================================================================================
+// ---------- ritmo (ronda 3) ----------
+const MAIN = CARDS.filter((c) => /^c\d+$/.test(c.id)); // c1…c22
+const CARD_U = MAIN.map((c) => outOf(c.in));
+// micro-salto de cámara en cada cambio de subtítulo, alternando acercar/alejar, y deriva lenta entre medias
+// (la cámara nunca está quieta): pares 1,00 → 1,05 (4 f) → 1,07; impares 1,07 → 1,02 (4 f) → 1,00
+function punch(u) {
+  let i = 0; for (let j = 0; j < CARD_U.length; j++) if (CARD_U[j] <= u) i = j;
+  const a = CARD_U[i], b = i + 1 < CARD_U.length ? CARD_U[i + 1] : FRAMES, k = u - a;
+  const [zs, zp, ze] = i % 2 === 0 ? [1.0, 1.05, 1.08] : [1.08, 1.03, 1.0];
+  return k < 4 ? T.ramp(k, 0, 4, zs, zp, 'out') : T.ramp(k, 4, Math.max(5, b - a), zp, ze, 'linear'); // deriva a ritmo constante
+}
+// barrido de 6 f en los cortes: 3 f el plano saliente se va a la izquierda, 3 f el entrante llega desde la derecha
+function whipX(u) {
+  for (const c of WHIPS) { const k = u - c; if (k >= -3 && k < 0) return [-60, -260, -640][k + 3]; if (k >= 0 && k < 3) return [640, 260, 60][k]; }
+  return 0;
+}
+const whipping = (u) => WHIPS.some((c) => u - c >= -3 && u - c < 3) || (u >= WHIP_PAN[0] && u < WHIP_PAN[1]);
+// desenfoque de movimiento simulado: líneas de velocidad horizontales en pantalla
+function speedLines(u) {
+  let d = '';
+  for (let i = 0; i < 9; i++) {
+    const y = 560 + T.hash01(u * 13 + i) * 900, x0 = -40 + T.hash01(u * 7 + i * 3) * 700, len = 260 + T.hash01(u + i * 11) * 520;
+    d += `M${f(x0)} ${f(y)} L${f(x0 + len)} ${f(y)} `;
+  }
+  return R.strokeP(d, INK.black, 6, 'stroke-linecap="round"');
+}
+
 function frame(u, opt = {}) {
   R.resetUid();
-  CUR_U = u;
-  const t = opt.story ? u : storyT(u);
-  if (opt.story) CUR_U = outOf(u);
+  let t, tc;
+  if (opt.story) { t = u; tc = T.onTwos(Math.round(u)); CUR_U = outOf(u); }
+  else {
+    CUR_U = u;
+    t = storyT(u);
+    // Chispa en «dos» de salida: se muestrea en el par anterior; si ese par cae en otro plano, se usa el propio
+    tc = T.onTwos(Math.floor(storyT(u - (u % 2))));
+    if (shotOf(tc) !== shotOf(t)) tc = Math.max(SHOT_STARTS[shotOf(t)], T.onTwos(Math.floor(t)));
+  }
+  CUR_TC = tc;
   const w = L();
   let res;
   if (t < 120) res = shot1(t, w, opt);
@@ -552,9 +612,17 @@ function frame(u, opt = {}) {
   else res = shot8(t, w);
   const scr = L();
   if (w.screenRed) { scr.red += w.screenRed; delete w.screenRed; }
-  const cards = opt.cover ? [card('cover')] : LAY.cards.filter((c) => c.id !== 'cover');
-  for (const c of cards) { const r = CAP.render(c, opt.cover ? 0 : t); if (r) add(c.world ? w : scr, r); }
-  const tf = RIG.camTransform(res.cam || {});
+  if (opt.cover) add(scr, CAP.render(card('cover'), 0));
+  else for (const c of LAY.cards) {
+    if (c.id === 'cover' || t < c.in || t >= c.out) continue;
+    // el «pop» se cuenta en fotogramas de salida desde la entrada de la tarjeta (o de cada segmento)
+    const cu = { ...c, in: -1e9, out: 1e9, segs: (c.segs || [c.in]).map(outOf), kind: 'pop6' };
+    const r = CAP.render(cu, u);
+    if (r) add(c.world ? w : scr, r);
+  }
+  const z = opt.cover ? 1 : punch(u), wx = opt.cover ? 0 : whipX(u);
+  const tf = `translate(${f(wx)} 0) translate(${f(540 * (1 - z))} ${f(1150 * (1 - z))}) scale(${f(z * 10000) / 10000}) ${RIG.camTransform(res.cam || {})}`;
+  if (!opt.cover && whipping(u)) scr.black = speedLines(u) + (scr.black || '');
   const out = { defs: (w.defs || '') + (scr.defs || '') };
   let o0 = '', o1 = '';
   if (res.clip) { out.defs += `<clipPath id="worldclip"><rect x="${res.clip[0]}" y="${res.clip[1]}" width="${res.clip[2]}" height="${res.clip[3]}"/></clipPath>`; o0 = '<g clip-path="url(#worldclip)">'; o1 = '</g>'; }
@@ -562,4 +630,21 @@ function frame(u, opt = {}) {
   return out;
 }
 
-module.exports = { WIDTH, HEIGHT, FRAMES, STORY_FRAMES, CUTS, CARDS, storyT, outOf, prepare, setup, frame };
+// ---------- efectos de sonido (para la mezcla; tiempos de salida) ----------
+function sfxCues() {
+  const S = (t, type) => ({ frame: outOf(t), type });
+  const cues = [S(6, 'clac'), S(6, 'coins'), S(108, 'swoosh'), S(156, 'splash')];
+  for (const t of [290, 300, 310, 572, 1536, 1560, 1594]) cues.push(S(t, 'boing'));
+  cues.push({ frame: WHIP_PAN[0], type: 'whoosh' });
+  for (const c of WHIPS) cues.push({ frame: c - 3, type: 'whoosh' });
+  cues.push(S(458, 'slide'), S(618, 'whoosh'), S(810, 'ding'), S(814, 'print'));
+  for (const sg of SIGNS) cues.push(S(sg.f0 + 6, 'thunk'));
+  let last = -99;
+  for (let t = 1090; t < 1290; t += 10) { const fr = outOf(t); if (fr - last >= 8) { cues.push({ frame: fr, type: 'tick' }); last = fr; } }
+  cues.push(S(1050, 'zzz'), S(1220, 'zzz'), S(1314, 'swoosh'), S(1318, 'snap'), S(1662, 'swoosh'));
+  // «pop» solo en subtítulos clave (como mucho uno cada 2 s)
+  for (const t of [384, 570, 850, 1330, 1594]) cues.push(S(t, 'pop'));
+  return cues.sort((a, b) => a.frame - b.frame || a.type.localeCompare(b.type));
+}
+
+module.exports = { WIDTH, HEIGHT, FRAMES, STORY_FRAMES, SEGS, WHIPS, CARDS, storyT, outOf, prepare, setup, frame, sfxCues };

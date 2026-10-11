@@ -41,7 +41,7 @@ async function cover() {
   const tpl = await template();
   await scene.setup({ layout: LAYOUT });
   const pg = await RENDER.openPage(tpl, W, H);
-  await pg.draw(scene.frame(20, { cover: true, minY: 640 }));
+  await pg.draw(scene.frame(20, { cover: true, minY: 640, story: true }));
   await pg.shot(path.join(OUT, 'cover.png'));
   await pg.close();
   // cuadrícula del perfil: 3:4 (1080 × 1440, la actual de Instagram) y 4:5 (1080 × 1350) como respaldo
@@ -85,6 +85,7 @@ function encode() {
   if (cmd === 'all') await frames([0, N - 1]);
   if (cmd === 'cover' || cmd === 'all' || cmd === 'encode') await cover();
   if (cmd === 'srt' || cmd === 'encode' || cmd === 'all') srt();
+  if (cmd === 'sfx' || cmd === 'encode' || cmd === 'all') { fs.writeFileSync(path.join(OUT, 'sfx-cues.json'), JSON.stringify({ fps: 30, frames: N, cues: scene.sfxCues() }, null, 1)); console.log('sfx-cues.json'); }
   if (cmd === 'encode' || cmd === 'all') encode();
   console.log('total', ((Date.now() - t0) / 1000).toFixed(1), 's');
 })().catch((e) => { console.error(e); process.exit(1); });

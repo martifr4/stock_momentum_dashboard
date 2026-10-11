@@ -186,3 +186,49 @@
   - Plano 2: la salpicadura se apartó dos veces.
 - **Costura:** salida 1608–1617 → 0–10 revisada en una tira. Mismo dibujo de Chispa en el ápice, `fallLines` desde f0 y Pausa, correa y botón idénticos.
 - **Portada:** revisada a 150 px en el recorte 3:4.
+
+---
+
+## Ronda 3 — ritmo («manda la voz»)
+
+**Brief:** `pacing-v3.md` + `pacing-v3.json` (37,8 s = 1134 f). Cada subtítulo empieza en su `new_frame` exacto (comprobado: 22/22 sin desvío) y dura su frase + 0,18 s.
+
+### Cómo se ha hecho (sin redibujar)
+- **Mapa de tiempo por tramos** (`SEGS` en `scene.js`): el fotograma de salida u (0–1133) se convierte en fotograma del storyboard t, lineal en cada tramo. Los reposos se comprimen y las acciones van cerca de 1:1; lo que no cabe se salta (huecos entre tramos). `storyT(u)` / `outOf(t)` alimentan subtítulos, SRT y efectos.
+  - **c2:** el reposo «feliz» va a ×3,4; la salida, la carrera y el frenazo, a ×1,5.
+  - **c5:** el paneo de los planos 2→3 se convierte en un **barrido de 6 f** (f231–236) y desacelera hacia Pausa.
+  - **c10:** 4a dura 16 f y 4b, 38 f. Se mantienen las dos viñetas del plano 4 (caben).
+  - **c18:** el final del plano 6 va a ×3 (empuje sobre la espiral) y el paseo hipnotizado a ×1,4.
+  - **c22:** el último salto de Chispa (f1112–1133) va a ≈ 1:1 y empalma con f0.
+- **Chispa sigue en «dos» de salida:** se muestrea en el par anterior del vídeo, nunca entre planos.
+- **Pausa sigue en «unos»** con tiempo fraccionario. Su respiración son 13 ciclos exactos en 1134 f, así que el bucle no salta.
+
+### Reglas de dinamismo aplicadas
+1. **Nada quieto más de 0,5 s:** la cámara deriva siempre entre golpes (1,05 → 1,07 o 1,02 → 1,00 durante cada tarjeta). Además, Pausa respira y Chispa vibra y chisporrotea.
+2. **Golpe en cada cambio de subtítulo:**
+   - *Pop* de 0,85 → 0,95 → 1,05 → 1,03 → 1,01 → 1,0 en 6 f, contado en fotogramas de salida (también por segmentos y en «¡Ya, ya, ya!»).
+   - Micro-salto de cámara de 4 f: las tarjetas pares acercan (1,00 → 1,05) y las impares alejan (1,07 → 1,02).
+3. **Transiciones:**
+   - Barridos de 6 f (3 de salida a la izquierda y 3 de entrada desde la derecha) con líneas de velocidad en pantalla: planos 1→2, 4a→4b, 4b→4c, 4→5 y 6→7.
+   - Barrido del paneo 2→3.
+   - Cortes secos con golpe de cámara en 3→4, 5→6 y 7→8.
+4. **Acciones comprimidas:**
+   - La caída inicial dura 5 f.
+   - Anticipaciones de 3–4 f.
+   - El ticket crece en 35 f (≈ 1,2 s, storyboard f814–850) y el total aparece al completarse.
+   - Los carteles caen en ráfaga, uno cada 6 f (antes, cada 12–18).
+5. **Gancho:** en f0 Chispa ya cae, y «En tu cabeza viven dos.» está en pantalla (con pop). **¡CLAC! en f5.**
+6. **Bucle intacto:** f1133 → f0 es el mismo salto. La cámara acaba en z 1,00, y la tarjeta 1 empieza en 1,00.
+
+### Entregables nuevos
+- **`captions.srt`:** regenerado desde el mapa. Los textos en pantalla no cambian, así que difieren un poco de la voz: «Quedan 2» frente a «Quedan dos».
+- **`sfx-cues.json`:** `{ fps, frames, cues: [{ frame, type }] }`, con los tipos del brief.
+  - `pop`, solo en tarjetas clave y con ≥ 2 s entre ellos.
+  - `tick`, a cada segundo visible de la cuenta atrás, con ≥ 8 f de separación (el tramo de c18 va a ×3).
+  - `whoosh`, 3 f antes de cada corte con barrido.
+
+### Desviaciones
+- **4b:** se conserva (el brief permitía fundir las dos viñetas del plano 4).
+- **Duración:** exacta, 1134 f = 37,8 s.
+- **Ticket:** a ×1 son 35 f (1,17 s), no 1,0 s, porque crece durante «El problema…» y queda completo al entrar «Pausa llega tarde.».
+- **Velocidad de c4:** va a 0,86× (60 f del storyboard en 70 de salida). Es la única tarjeta ralentizada; se nota poco porque Chispa sigue en dos y la cámara deriva.
