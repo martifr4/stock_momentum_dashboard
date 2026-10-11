@@ -67,7 +67,37 @@
 12. **Losas de subtítulo:** son reserva en las tres planchas, y en papel no se ven. En «Esta es Chispa.» no hay losa: la palabra roja lleva un contorno de reserva de 12 px para leerse sobre la salpicadura, que es de su misma tinta.
 
 ## Render
-RENDER_PLACEHOLDER
+- **Máquina:** 4 núcleos, 15 GB de RAM. 4 workers de Playwright con trozos de 24 fotogramas.
+- **Texturas** (una vez, en el scratchpad): ≈ 6 s.
+- **Render completo** (1680 fotogramas): **757 s** (12 min 37 s). 1480 dibujados y 200 copiados por repetición; ≈ 1,8 s por dibujo y worker, de los que ≈ 1 s son filtros de plancha.
+- **Codificación + portada + hoja de contactos + preview:** ≈ 71 s.
+- **Re-render parcial** de f156–229 (ajuste de la salpicadura): 16 s.
+- **Fotogramas:** `/tmp/claude-0/…/scratchpad/reel00-frames/f0000–f1679.png`, fuera del repo.
+- **`reel.mp4` (ffprobe):** H.264 High, yuv420p, bt709, 1080 × 1920, 30/1 fps, 1680 fotogramas, 56,000 s, **22,96 MB** (≈ 3,28 Mb/s). Sin pista de audio.
+- **Reproducir:**
+  ```
+  node build.js layout
+  node build.js frames
+  node build.js encode
+  ```
+  o `node build.js all`. `REEL_FRAMES` / `REEL_SCRATCH` cambian las carpetas.
+
+## Control de calidad hecho
+- Por plano, fotogramas clave revisados a tamaño completo y en tiras secuenciales.
+- Al menos dos iteraciones por plano:
+  - **1:** contactos de puños y pies con la tapa.
+  - **2:** percha tumbada y sorbo.
+  - **4:** holgura del balón ≈ 40 px.
+  - **5:** brazo sobre la caja, «¡DING!», ticket con filete e inglete.
+  - **6:** losas por segmentos.
+  - **7:** halo delante del botón y quitar las comillas de «Chispa, no.».
+  - **2:** salpicadura (dos veces).
+- **Costura del bucle:** f1670–1679 → f0–9 revisados en una tira.
+  - Chispa (321, 779) → (320, 778), mismo dibujo `hold` con `fallLines`.
+  - Pausa en `sit`/`neutral`/`look [8, 6]`/`lid 0,5`; la correa en el trazado de reposo y el botón levantado.
+  - Solo cambia la tarjeta de texto, como pide el storyboard.
+- **Zona segura de subtítulos:** comprobada en el layout, sin ninguna línea fuera de x 60–940, y 260–1480. Ningún subtítulo ha tenido que bajar de tamaño.
+- **Portada:** revisada a 150 px de ancho (recorte de cuadrícula). El título se lee y Chispa se reconoce.
 
 ## Puntos débiles conocidos
 - **Escala:** los personajes ocupan sobre todo la banda y 900–1450, y el tercio inferior (y > 1480) queda vacío en casi todos los planos, como manda el storyboard. En el móvil se leen, pero hay aire de sobra. Si se repite, conviene subir el suelo o el tamaño.
