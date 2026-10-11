@@ -82,6 +82,7 @@ def main():
 
     with tempfile.TemporaryDirectory() as tmp:
         clips, report = [], []
+        prev_end = 0.0
         for i, ln in enumerate(lines):
             clip = os.path.join(tmp, f'l{i:02d}.wav')
             synth(ln['text'], a.preset, clip, tmp)
@@ -93,8 +94,14 @@ def main():
                 fast = clip.replace('.wav', '_f.wav')
                 run(['ffmpeg', '-y', '-i', clip, '-af', f'atempo={speed:.4f}', fast])
                 clip = fast
-            clips.append((ln['t'], clip))
-            report.append((ln['t'], duration(clip), room, speed, ln['text']))
+            start, dur = ln['t'], duration(clip)
+            # Si aun acelerada no cabe, adelanta la frase al hueco que dejó la anterior.
+            if dur > room:
+                start = max(prev_end + GAP, ln['t'] - (dur - room))
+                room = end - start
+            prev_end = start + dur
+            clips.append((start, clip))
+            report.append((start, dur, room, speed, ln['text']))
 
         inputs, filt = [], []
         for k, (t, clip) in enumerate(clips):
