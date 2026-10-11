@@ -44,7 +44,24 @@ async function cover() {
   await pg.draw(scene.frame(20, { cover: true, minY: 640 }));
   await pg.shot(path.join(OUT, 'cover.png'));
   await pg.close();
-  execFileSync('python3', ['-I', '-c', `from PIL import Image; im=Image.open('${path.join(OUT, 'cover.png')}'); im.crop((0,285,1080,1635)).save('${path.join(OUT, 'cover-grid.png')}', optimize=True)`]);
+  // cuadrícula del perfil: 3:4 (1080 × 1440, la actual de Instagram) y 4:5 (1080 × 1350) como respaldo
+  execFileSync('python3', ['-I', '-c', `from PIL import Image; im=Image.open('${path.join(OUT, 'cover.png')}'); im.crop((0,240,1080,1680)).save('${path.join(OUT, 'cover-grid.png')}', optimize=True); im.crop((0,285,1080,1635)).save('${path.join(OUT, 'cover-grid-4x5.png')}', optimize=True)`]);
+}
+
+// captions.srt en tiempo de salida: textos del SRT original (contrato), tiempos del storyboard → remapeo por los recortes
+function srt() {
+  const src = fs.readFileSync(path.join(SCRATCH, 'captions-r1.srt'), 'utf8').trim().split(/\n\s*\n/);
+  const toF = (s) => { const [h, m, r] = s.split(':'); return Math.round((+h * 3600 + +m * 60 + parseFloat(r.replace(',', '.'))) * 30); };
+  const ts = (fr) => { const ms = Math.round((fr / 30) * 1000), h = Math.floor(ms / 3600000), m = Math.floor(ms / 60000) % 60, s = Math.floor(ms / 1000) % 60; return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')},${String(ms % 1000).padStart(3, '0')}`; };
+  const byId = Object.fromEntries(scene.CARDS.map((c) => [c.id, c]));
+  const out = src.map((blk) => {
+    const [n, tl, ...txt] = blk.split('\n');
+    const c = byId['c' + n];
+    const a = c ? c.in : toF(tl.split(' --> ')[0]), b = c ? c.out : toF(tl.split(' --> ')[1]);
+    return `${n}\n${ts(scene.outOf(a))} --> ${ts(scene.outOf(b))}\n${txt.join('\n')}`;
+  });
+  fs.writeFileSync(path.join(OUT, 'captions.srt'), out.join('\n\n') + '\n');
+  console.log('captions.srt', out.length, 'subtítulos');
 }
 
 function encode() {
@@ -67,6 +84,7 @@ function encode() {
   if (cmd === 'stills') await frames(null, a1.split(',').map(Number), a2 || path.join(SCRATCH, 'review'));
   if (cmd === 'all') await frames([0, N - 1]);
   if (cmd === 'cover' || cmd === 'all' || cmd === 'encode') await cover();
+  if (cmd === 'srt' || cmd === 'encode' || cmd === 'all') srt();
   if (cmd === 'encode' || cmd === 'all') encode();
   console.log('total', ((Date.now() - t0) / 1000).toFixed(1), 's');
 })().catch((e) => { console.error(e); process.exit(1); });

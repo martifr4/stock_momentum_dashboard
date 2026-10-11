@@ -6,18 +6,20 @@ const { INK, W, L, f, strokeP, halftone, smooth, text, teardrop, roundPoly, FONT
 // ---------- botón «COMPRAR YA» ----------
 // cx: centro; G: suelo. Base negra 360 × 56; tapa roja 320 × 100 (pulsada 320 × 78, arriba 26 px más abajo).
 // lift: px que la tapa sube por encima de su sitio (rebote al soltarse).
-function buyButton(cx, G, { pressed = false, lift = 0, label = 'COMPRAR YA', size = 58 } = {}) {
+// s escala todo el botón (s = 1: base 360 × 56). Tapa arriba: G − 164·s (pulsada G − 138·s).
+function buyButton(cx, G, { pressed = false, lift = 0, label = 'COMPRAR YA', size = 58, s = 1 } = {}) {
   const o = L();
-  const baseTop = G - 56;
-  o.black += `<rect x="${cx - 180}" y="${baseTop}" width="360" height="56" rx="10" fill="${INK.black}"/>`;
-  const lidTop = (pressed ? G - 138 : G - 164) - lift, lidH = pressed ? 78 : 100;
+  const baseTop = G - 56 * s;
+  o.black += `<rect x="${f(cx - 180 * s)}" y="${f(baseTop)}" width="${f(360 * s)}" height="${f(56 * s)}" rx="${f(10 * s)}" fill="${INK.black}"/>`;
+  const lidTop = (pressed ? G - 138 * s : G - 164 * s) - lift, lidH = (pressed ? 78 : 100) * s;
   // cuello entre tapa y base (negro), con hueco de reserva bajo la tapa
-  o.black += `<rect x="${cx - 128}" y="${f(lidTop + lidH - 10)}" width="256" height="${f(baseTop - (lidTop + lidH - 10) + 2)}" fill="${INK.black}"/>`;
-  o.black += `<rect x="${cx - 164}" y="${f(lidTop + lidH)}" width="328" height="4" fill="${W}"/>`;
-  o.red += `<rect x="${cx - 160}" y="${f(lidTop)}" width="320" height="${lidH}" rx="22" fill="${INK.red}"/>`;
-  o.red += text(cx, f(lidTop + lidH / 2 + size * 0.36), label, { size, fill: W, anchor: 'middle', ls: 0.01 });
+  o.black += `<rect x="${f(cx - 128 * s)}" y="${f(lidTop + lidH - 10 * s)}" width="${f(256 * s)}" height="${f(baseTop - (lidTop + lidH - 10 * s) + 2)}" fill="${INK.black}"/>`;
+  o.black += `<rect x="${f(cx - 164 * s)}" y="${f(lidTop + lidH)}" width="${f(328 * s)}" height="${f(4 * s)}" fill="${W}"/>`;
+  o.red += `<rect x="${f(cx - 160 * s)}" y="${f(lidTop)}" width="${f(320 * s)}" height="${f(lidH)}" rx="${f(22 * s)}" fill="${INK.red}"/>`;
+  o.red += text(cx, f(lidTop + lidH / 2 + size * s * 0.36), label, { size: f(size * s), fill: W, anchor: 'middle', ls: 0.01 });
   return o;
 }
+const buttonCapTop = (G, { pressed = false, s = 1 } = {}) => (pressed ? G - 138 * s : G - 164 * s);
 
 // ---------- moneda sin divisa ----------
 // cara: disco azul con aro de reserva; canto: elipse girada. Halo de reserva de 5 px en la plancha azul.
@@ -54,17 +56,17 @@ function blobPath(cx, cy, radii) {
   return d + 'Z';
 }
 // step 0: pequeña; 1: grande + gotas saliendo; 2: asentada (gotas quietas más lejos)
-function inkSplash(x, y, step = 2, { ink = INK.red, rx = 1.6 } = {}) {
+function inkSplash(x, y, step = 2, { ink = INK.red, rx = 1.6, k = 1 } = {}) {
   const lob = [1.0, 0.82, 1.08, 0.86, 1.12, 0.8, 1.04, 0.9, 1.1, 0.84, 1.0, 0.88, 1.06, 0.8, 1.1, 0.86];
-  const R0 = step === 0 ? 60 : step === 1 ? 118 : 110;
+  const R0 = (step === 0 ? 60 : step === 1 ? 118 : 110) * k;
   const radii = lob.map((k, i) => R0 * k * (i % 2 ? 1 : 1.04));
   let s = `<g transform="translate(${f(x)} ${f(y)}) scale(${rx} 1) translate(${f(-x)} ${f(-y)})"><path d="${blobPath(x, y, radii)}" fill="${ink}"/></g>`;
   if (step >= 1) {
     const drops = [[-40, -112, 0.8], [-56, 96, 0.7], [150, -34, 0.8], [168, 22, 0.65], [60, 92, 0.6]];
-    const k = step === 1 ? 1.12 : 1.3;
+    const kk = (step === 1 ? 1.12 : 1.3) * k;
     for (const [dx, dy, sc] of drops) {
       const a = (Math.atan2(dy, dx) * 180) / Math.PI;
-      s += teardrop(x + dx * k * 1.05, y + dy * k * 0.9, sc * 1.4, a - 90 + 180, ink);
+      s += teardrop(x + dx * kk * 1.05, y + dy * kk * 0.9, sc * 1.4 * k, a - 90 + 180, ink);
     }
   }
   return s;
@@ -120,14 +122,16 @@ const panelFrame = (x0, y0, x1, y1, w = 8) => `<rect x="${x0 + w / 2}" y="${y0 +
 
 // ---------- caja registradora genérica ----------
 // body: [x0, y0, x1, y1]; display: texto del visor (reserva); drawerOut: px que sale el cajón
-function register({ body = [670, 820, 890, 960], display = '0,00', drawerOut = 0, keys = [690, 846] } = {}) {
+function register({ body = [670, 820, 890, 960], display = '0,00', drawerOut = 0, keys = null } = {}) {
   const [x0, y0, x1, y1] = body;
+  keys = keys || [x0 + 20, y0 + 26];
   let s = '';
   // visor sobre la caja
+  const dx0 = x0 + 70, dy0 = y0 - 50; // visor relativo a la caja (por defecto: 740, 770)
   s += `<rect x="${x0 + 110}" y="${y0 - 6}" width="20" height="10" fill="${INK.black}"/>`;
-  s += `<rect x="740" y="770" width="120" height="48" rx="8" fill="${INK.black}"/>`;
-  s += `<rect x="748" y="777" width="104" height="34" rx="5" fill="none" stroke="${W}" stroke-width="2.5"/>`;
-  s += text(800, 804, display, { size: 28, font: FONT_MONO, weight: 500, anchor: 'middle', stretch: '100%', fill: W });
+  s += `<rect x="${dx0}" y="${dy0}" width="120" height="48" rx="8" fill="${INK.black}"/>`;
+  s += `<rect x="${dx0 + 8}" y="${dy0 + 7}" width="104" height="34" rx="5" fill="none" stroke="${W}" stroke-width="2.5"/>`;
+  s += text(dx0 + 60, dy0 + 34, display, { size: 28, font: FONT_MONO, weight: 500, anchor: 'middle', stretch: '100%', fill: W });
   s += `<rect x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0 - 30}" rx="12" fill="${INK.black}"/>`;
   // teclado 3 × 3 (reserva)
   for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) s += `<rect x="${keys[0] + c * 30}" y="${keys[1] + r * 24}" width="22" height="16" rx="4" fill="${W}"/>`;
@@ -222,13 +226,13 @@ function ticketGrow(pts, w, { len = Infinity, totalLabel = 'TOTAL', amount = '18
 const polyLen = (pts) => pts.slice(1).reduce((a, p, i) => a + Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1]), 0);
 
 // ---------- correa (asa de la taza → tobillo) ----------
-const LOOP = (x, y, rot = -20) => `<g transform="translate(${f(x)} ${f(y)}) rotate(${f(rot)})" fill="none" stroke="${INK.black}" stroke-width="3.5" stroke-linecap="round"><path d="M0 0 C-12 -16 -22 -4 0 0 C12 -16 22 -4 0 0"/></g>`;
+const LOOP = (x, y, rot = -20, sc = 1, w = 3.5) => `<g transform="translate(${f(x)} ${f(y)}) rotate(${f(rot)}) scale(${sc})" fill="none" stroke="${INK.black}" stroke-width="${f(w / sc)}" stroke-linecap="round"><path d="M0 0 C-12 -16 -22 -4 0 0 C12 -16 22 -4 0 0"/></g>`;
 const LOOP_OPEN = (x, y, rot = 0) => `<g transform="translate(${f(x)} ${f(y)}) rotate(${f(rot)})" fill="none" stroke="${INK.black}" stroke-width="3.5" stroke-linecap="round"><path d="M0 0 C-10 -14 -26 -10 -24 -2 C-22 6 -10 6 -4 2"/></g>`;
 function leashLoose(p0, p1, sag = 80, { loop = true, loopRot = -20 } = {}) {
   const mx = (p0[0] + p1[0]) / 2, my = Math.max(p0[1], p1[1]) + sag;
   return strokeP(`M${f(p0[0])} ${f(p0[1])} Q${f(mx)} ${f(my)} ${f(p1[0])} ${f(p1[1])}`, INK.black, 3.5, 'stroke-linecap="round"') + (loop ? LOOP(p1[0], p1[1], loopRot) : '');
 }
-const leashTaut = (p0, p1, loopRot = -20) => strokeP(`M${f(p0[0])} ${f(p0[1])} L${f(p1[0])} ${f(p1[1])}`, INK.black, 3.5, 'stroke-linecap="round"') + LOOP(p1[0], p1[1], loopRot);
+const leashTaut = (p0, p1, loopRot = -20, w = 3.5, loopSc = 1) => strokeP(`M${f(p0[0])} ${f(p0[1])} L${f(p1[0])} ${f(p1[1])}`, INK.black, w, 'stroke-linecap="round"') + LOOP(p1[0], p1[1], loopRot, loopSc, w);
 // correa en reposo en el suelo: el trazado del storyboard, que sigue al asa
 function leashRest(h, end = [520, 1402]) {
   return strokeP(`M${f(h[0])} ${f(h[1])} C${f(h[0] - 21)} ${f(h[1] + 38)} ${f(end[0] + 60)} ${f(end[1] + 4)} ${f(end[0])} ${f(end[1])}`, INK.black, 3.5, 'stroke-linecap="round"') + LOOP_OPEN(end[0], end[1], 0);
@@ -252,5 +256,5 @@ function countdown(x, y, rot = 0, s = 1, label = '00:59') {
 
 module.exports = {
   buyButton, coinBlank, fallLines, motionLines, blobPath, inkSplash, dust, ball, trafficLight, zebra, thinkDots, panelFrame,
-  register, ticketGrow, polyLen, LOOP, LOOP_OPEN, leashLoose, leashTaut, leashRest, sfxText, countdown,
+  buttonCapTop, register, ticketGrow, polyLen, LOOP, LOOP_OPEN, leashLoose, leashTaut, leashRest, sfxText, countdown,
 };

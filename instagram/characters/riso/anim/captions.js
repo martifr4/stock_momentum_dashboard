@@ -8,7 +8,7 @@ const { INK, W, L, f, styleCss } = R;
 const T = require('./timeline.js');
 
 const SAFE = { x0: 60, x1: 940, y0: 260, y1: 1480 };
-const DEF = { cx: 500, maxW: 840, ls: -0.01, lh: 1.0, slabPadX: 18, slabPadTop: 0.80, slabPadBot: 0.24 };
+const DEF = { top: 240, cx: 500, maxW: 840, ls: -0.01, lh: 1.0, slabPadX: 18, slabPadTop: 0.80, slabPadBot: 0.24 };
 
 // Spans: { t, ink: 'black'|'red'|'blue', seg?: n } o { dot: 'red'|'blue', r, seg? }.
 // spec: { id, in, out, lines: [[span…]], size, base: [y1, y2…] | y, cx, segs: [f0, f1…], world: {x, y, rot}, outline }
@@ -17,8 +17,13 @@ async function prepare(M, specs) {
   for (const sp of specs) {
     let size = sp.size;
     const st = sp.st || 'head';
-    const widthOf = async (span, sz) => (span.dot ? span.r * 2 + sz * 0.08 : M.width([{ t: span.t, st, ls: sp.ls ?? DEF.ls }], sz));
-    const lineW = async (line, sz) => { let w = 0; for (const s of line) w += await widthOf(s, sz); return w; };
+    // ancho del span SIN espacios de los bordes: los espacios se ponen como hueco medido (en SVG un <text>
+    // por span se come el espacio inicial/final, de ahí «Pausallega»)
+    const widthOf = async (span, sz) => (span.dot ? span.r * 2 + sz * 0.08 : M.width([{ t: span.t.trim(), st, ls: sp.ls ?? DEF.ls }], sz));
+    const spaceOf = async (sz) => (await M.width([{ t: 'n n', st, ls: sp.ls ?? DEF.ls }], sz)) - (await M.width([{ t: 'nn', st, ls: sp.ls ?? DEF.ls }], sz));
+    const halo = (span) => (sp.outline && !span.dot && span.ink === sp.outline.ink ? sp.outline.w : 0);
+    const gapsOf = async (line, sz) => { const g = []; const spW = await spaceOf(sz); for (const s of line) { const lead = s.dot ? 0 : s.t.length - s.t.trimStart().length, trail = s.dot ? 0 : s.t.length - s.t.trimEnd().length; g.push([lead * spW + halo(s), trail * spW + halo(s)]); } return g; };
+    const lineW = async (line, sz) => { let w = 0; const g = await gapsOf(line, sz); for (let j = 0; j < line.length; j++) w += (await widthOf(line[j], sz)) + (j ? g[j][0] : 0) + (j < line.length - 1 ? g[j][1] : 0); return w; };
     // si una línea no cabe, se baja de 4 en 4 px (no se vuelve a cortar)
     while (true) {
       let max = 0; for (const ln of sp.lines) max = Math.max(max, await lineW(ln, size));
@@ -29,12 +34,14 @@ async function prepare(M, specs) {
     for (let i = 0; i < sp.lines.length; i++) {
       const ln = sp.lines[i];
       const ws = []; for (const s of ln) ws.push(await widthOf(s, size));
-      const total = ws.reduce((a, b) => a + b, 0);
+      const gp = await gapsOf(ln, size);
+      const total = await lineW(ln, size);
       const anchor = sp.world ? 'start' : sp.anchor || 'middle';
       const cx = sp.cx ?? DEF.cx;
       let x = anchor === 'start' ? 0 : anchor === 'end' ? cx - total : cx - total / 2;
-      const base = Array.isArray(sp.base) ? sp.base[i] : (sp.base ?? (size > 96 ? 410 : 400)) + i * size * (sp.lh ?? DEF.lh);
-      const spans = ln.map((s, j) => { const o = { ...s, x, w: ws[j] }; x += ws[j]; return o; });
+      // por defecto: la parte alta de la primera línea en y = top (240) → línea base = top + 0,74·tamaño
+      const base = Array.isArray(sp.base) ? sp.base[i] : (sp.base ?? Math.round((sp.top ?? DEF.top) + size * 0.74)) + i * size * (sp.lh ?? DEF.lh);
+      const spans = ln.map((s, j) => { if (j) x += gp[j][0]; const o = { ...s, t: s.dot ? s.t : s.t.trim(), x, w: ws[j] }; x += ws[j] + (j < ln.length - 1 ? gp[j][1] : 0); return o; });
       lines.push({ spans, base, w: total, x0: spans[0].x, x1: x });
     }
     out.push({ ...sp, size, st, lines, sizeIn: sp.size });
@@ -112,12 +119,12 @@ function render(card, t, { slab = true, kind = 'stamp' } = {}) {
 const R_esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
 // comprobación de zona segura (para el informe): devuelve [] o lista de problemas
-function checkSafe(cards) {
+function checkSafe(cards, { yTop = SAFE.y0, capH = 0.8 } = {}) {
   const bad = [];
   for (const c of cards) {
     if (c.world) continue;
     for (const ln of c.lines) {
-      if (ln.x0 < SAFE.x0 || ln.x1 > SAFE.x1 || ln.base - c.size * 0.8 < SAFE.y0 || ln.base > SAFE.y1) bad.push(`${c.id}: x ${ln.x0.toFixed(0)}–${ln.x1.toFixed(0)} base ${ln.base}`);
+      if (ln.x0 < SAFE.x0 || ln.x1 > SAFE.x1 || ln.base - c.size * capH < yTop - 0.5 || ln.base > SAFE.y1) bad.push(`${c.id}: x ${ln.x0.toFixed(0)}–${ln.x1.toFixed(0)} base ${ln.base}`);
     }
   }
   return bad;
