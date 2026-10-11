@@ -252,3 +252,33 @@ Dos medidas sobre la línea de tiempo final de 1134 f:
   - `build.js encode` usa ahora crf 21.
 - **Regenerados:** `preview-540.mp4`, `contact-sheet.png`, `cover.png`, `cover-grid.png` (3:4) y `cover-grid-4x5.png`.
 - **`captions.srt` y `sfx-cues.json`:** se han regenerado contra el mapa final y salen idénticos a la versión del WIP. Son 22 subtítulos y 52 efectos; el último efecto está en f1116.
+
+## Ronda 3 · revisión (crítica: tarjeta 19 y escala del gancho)
+Solo cambios visuales; voz, `vo.json`, `sfx-cues.json`, `captions.srt` y audio sin tocar (md5 comprobado). Los fotogramas cambiados se han comparado por SVG contra la versión anterior: **f1–94 y f909–945** (131 f). f0, f95–908 y f946–1133 son idénticos.
+
+1. **Tarjeta 19 («Todos tenemos una Chispa y una Pausa.», f908–970).**
+   - **Problema:** el empuje de 1,35 hacia la yema del dedo, sumado al golpe de la tarjeta, sacaba la cabeza de Pausa por la derecha. Sus ojos quedaban en x ≈ 900–1000, bajo la columna de botones.
+   - **Arreglo (`shot7`):**
+     - El empuje baja a **1,18** (`PUSH7`).
+     - La cámara se desplaza **70 px de mundo a la izquierda** en el pico (`SHIFT7`), unos 88 px en pantalla. El desplazamiento es proporcional a (z − 1), así que vale 0 cuando z = 1.
+     - Las entradas y salidas de la tarjeta (f908 y f946) no cambian.
+   - **Resultado:**
+     - La cara de Pausa queda en x ≈ 650–830 durante todo el empuje. Solo la parte de atrás de la cabeza llega a x ≈ 1005, sin cortarse.
+     - «COMPRAR YA» se lee entero, salvo que la C roza el borde en el pico.
+     - El ritmo se mantiene: golpe de entrada 1,00 → 1,18 en 10 f, retención y vuelta en 16 f, además del golpe de la tarjeta.
+   - **Opciones descartadas:** 1,25 con 80–110 px y 1,22 con 100 px. Cortaban «COMPRAR YA» y el pie de Chispa.
+2. **Gancho (tarjeta 1, f0–42).**
+   - **Cámara de la tarjeta 1:**
+     - Empuje de 1,00 a 1,12 en f0–8, con salida rápida que acompaña la caída y el ¡CLAC! de f5.
+     - Deriva de 1,12 a 1,14 hasta f34.
+     - Vuelta a 1,00 en f43 con «io».
+     - El ancla x pasa a **470** (centro del grupo botón + Pausa) para que ni el botón ni Pausa se salgan. Con z = 1 el ancla no influye.
+   - **Tarjeta 2:** ahora golpea hacia dentro desde 1,00 (1,00 → 1,05 en 4 f y deriva a 1,00 en f95). Así el golpe de f43 se lee como un cambio de sentido, y la tarjeta 3 empieza en 1,00, como antes.
+   - **Bucle:** f1133 (z 1,0005) → f0 (z 1,00) sigue sin salto, y f0 es idéntico al de antes. Por eso **`cover.png` y `cover-grid*.png` no cambian** (la portada usa z = 1).
+   - **Escala:** el grupo ocupa ≈ 40 % del alto en el pico, frente al 35 % anterior. Pausa llega a x ≈ 970 en el pico, pero solo con la parte de atrás de la cabeza; la cara está por debajo de 940.
+- **Render:**
+  - Fotogramas: f1–94 en 55 s y f909–945 en 48 s.
+  - Codificación más vista previa y hoja de contactos: 67 s.
+  - `reel.mp4` se ha recodificado igual: crf 21, 1134 f, 37,8 s, H.264 High, yuv420p, 1080×1920, 30 fps, sin audio, **26,3 MB**.
+  - Se han regenerado `preview-540.mp4` y `contact-sheet.png` (la miniatura de f60 cambia).
+- **freezedetect** (n = 0,003, d = 0,5) marca **5,33–6,37 s (f160–191, tarjeta c4)**. Ya estaba en la versión anterior y queda fuera del alcance de esta revisión. En ese tramo Chispa vibra en «dos» (≈ 1,4 % de píxeles cada 2 f) y la cámara deriva. Con el umbral por defecto (−60 dB) no se detecta nada. Es candidato a reforzarse en otra ronda.

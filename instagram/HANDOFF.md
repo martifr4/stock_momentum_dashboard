@@ -25,29 +25,28 @@ State as of 2026-10-11. Branch: `ccr-47970a53-7k0uvr`. Everything lives under `i
 |---|---|---|
 | Post 00: intro (pinned), 9 slides | `posts/00-presentacion/` | **Final.** ZIP plus `copy.md` (caption, alt text). The owner publishes and pins it manually. |
 | Post 01: supermarket, 11 slides | `posts/01-supermercado/` | **Final** after critic round 2. ZIP plus `copy.md`. |
-| Reel 00: intro | `reels/00-presentacion/` | **In progress, round 3 (pacing).** See below. |
+| Reel 00: intro | `reels/00-presentacion/` | **Round 3 done; sent to the owner for approval.** Silent `reel.mp4` is 37.8 s. Voice A is mixed with SFX and bed into `reel-final.mp4` (gitignored; rebuild it as shown below). Critic score 58/70; all MUST FIX items are fixed. |
 
-### Reel 00: next steps
-1. The owner found the 53.9 s version boring, with silences. Round-3 brief: `pacing-v3.md` and `pacing-v3.json`. The voice leads: target **37.8 s / 1134 frames**, each caption lasts its voice line plus 0.18 s, nothing static for more than 0.5 s, a pop and a camera punch on every caption change, quick cuts.
-2. The animator was **stopped mid-round-3**:
-   - `scene.js`, `anim/rigs.js`, `anim/captions.js`, `build.js`, `captions.srt`, `sfx-cues.json` and `notes.md` are partly updated.
-   - `reel.mp4` and the covers are still the OLD 53.9 s round-2 encode (restored; the round-3 encode was interrupted). Re-render and encode needed.
-   - `notes.md` already has the «Ronda 3» changelog: the 1134-frame timeline is built, `captions.srt` and `sfx-cues.json` are regenerated, and the c18 ticks are tuned.
-   - Last open issue: near-static runs (e.g. about f1003–1030, card 20) must be checked against the 0.5 s rule before the final encode.
-3. **To finish:**
-   - Resume with `ig-animator` (render frames outside the repo).
-   - Encode the silent `reel.mp4` (~37.8 s).
-   - Regenerate `captions.srt` and `sfx-cues.json` against the final frames.
-4. **Audio** (voice **A** is chosen for now; the owner wants to change it later):
-   - Update `vo.json` line times to the new captions (one line per caption card, same 22 texts).
-   - Then:
-     ```
-     python3 instagram/reels/tools/voiceover.py vo.json --preset A --out vo.wav
-     python3 instagram/reels/tools/sfx.py sfx-cues.json --duration <dur> --out sfx.wav --bed bed.wav
-     python3 instagram/reels/tools/sfx.py --mix vo.wav sfx.wav bed.wav --video reel.mp4 --out reel-final.mp4
-     ```
-   - Piper voices download automatically into `reels/tools/voices/` (gitignored). Needs `pip install piper-tts`.
-5. Run `ig-reel-critic` on the result, do one revision round, and send the owner the MP4. Keep large MP4 variants out of git.
+### Reel 00: state and how to rebuild
+- **Round 3 is closed.**
+  - Critic score: 58/70.
+  - Fixes applied:
+    - SFX are ducked under the voice, with mix tweaks in `sfx-mix.json`.
+    - Audio is 48 kHz.
+    - Pausa's face on card 19 is moved left of the IG buttons.
+    - Card 1 gets a hook push-in.
+  - Details are in `notes.md` («Ronda 3» and «Ronda 3 · revisión»).
+- **Final audio:** −14 LUFS, true peak −2.9 dBTP, no silences over 0.5 s.
+- **Open nice-to-haves for a later round:**
+  - Caption size jumps between cards; aim for a minimum 60 px cap height.
+  - Card 4 (5.3–6.4 s) is low-motion, but passes freezedetect at default settings.
+- **Rebuild the audio** from `reels/00-presentacion/`, with `$S` set to any scratch dir:
+  ```
+  python3 ../tools/voiceover.py vo.json --preset A --out $S/vo.wav
+  python3 ../tools/sfx.py sfx-cues.json --duration 37.8 --out $S/sfx.wav --bed $S/bed.wav --tweaks sfx-mix.json
+  python3 ../tools/sfx.py --mix $S/vo.wav $S/sfx.wav $S/bed.wav --video reel.mp4 --out reel-final.mp4
+  ```
+- **Voice:** the owner wants to change it later. `vo.json` line times match the 22 cards (one line per card).
 
 ## Pending decisions and notes for the owner
 - **Voice:** current audio is synthetic (Piper). For a better voice: an ElevenLabs or Google TTS API key as an environment variable, or the owner records it.

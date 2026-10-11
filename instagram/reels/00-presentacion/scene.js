@@ -423,7 +423,7 @@ const CS7 = 1.0, Y7 = G - 127 * CS7;
 const GF = 1540, YF = GF - 127;
 const HAND_R = 12, GAP = 30;
 const LEAN7 = -10;
-const PUSH7 = Number(process.env.PUSH7 || 1.35), SHIFT7 = Number(process.env.SHIFT7 || 0); // empuje de la tarjeta 19 (revisión)
+const PUSH7 = 1.18, SHIFT7 = 70; // tarjeta 19 (revisión): empuje 1,35 → 1,18 y 70 px de mundo a la izquierda en el pico
 const YDIVE = CAP_UP - GAP - HAND_R - HAND[1] * CS7; // yema a 30 px de la tapa
 function chispa7(tc) {
   const base = { s: CS7, expr: 'euforia' };
@@ -576,7 +576,11 @@ const CARD_U = MAIN.map((c) => outOf(c.in));
 function punch(u) {
   let i = 0; for (let j = 0; j < CARD_U.length; j++) if (CARD_U[j] <= u) i = j;
   const a = CARD_U[i], b = i + 1 < CARD_U.length ? CARD_U[i + 1] : FRAMES, k = u - a;
-  const [zs, zp, ze] = i % 2 === 0 ? [1.0, 1.05, 1.08] : [1.08, 1.03, 1.0];
+  // ronda 3 · revisión — gancho: la tarjeta 1 empuja 1,00 → 1,12 con el golpe (f0–8), deriva a 1,14 y vuelve a 1,00 en f43;
+  // ancla x 470 (centro del grupo botón + Pausa) para que ni el botón ni Pausa se salgan
+  // (f0 sigue en 1,00, igual que f1133: el bucle no salta). La tarjeta 2 golpea hacia dentro desde 1,00 (1,00 → 1,05 → 1,00).
+  if (i === 0) return k < 8 ? T.ramp(k, 0, 8, 1.0, 1.12, 'out') : k < 34 ? T.ramp(k, 8, 34, 1.12, 1.14, 'linear') : T.ramp(k, 34, b - a, 1.14, 1.0, 'io');
+  const [zs, zp, ze] = i === 1 ? [1.0, 1.05, 1.0] : i % 2 === 0 ? [1.0, 1.05, 1.08] : [1.08, 1.03, 1.0];
   return k < 4 ? T.ramp(k, 0, 4, zs, zp, 'out') : T.ramp(k, 4, Math.max(5, b - a), zp, ze, 'linear'); // deriva a ritmo constante
 }
 // barrido de 6 f en los cortes: 3 f el plano saliente se va a la izquierda, 3 f el entrante llega desde la derecha
@@ -627,7 +631,7 @@ function frame(u, opt = {}) {
     if (r) add(c.world ? w : scr, r);
   }
   const z = opt.cover ? 1 : punch(u), wx = opt.cover ? 0 : whipX(u);
-  const tf = `translate(${f(wx)} 0) translate(${f(540 * (1 - z))} ${f(1150 * (1 - z))}) scale(${f(z * 10000) / 10000}) ${RIG.camTransform(res.cam || {})}`;
+  const tf = `translate(${f(wx)} 0) translate(${f((CUR_U < CARD_U[1] ? 470 : 540) * (1 - z))} ${f(1150 * (1 - z))}) scale(${f(z * 10000) / 10000}) ${RIG.camTransform(res.cam || {})}`;
   if (!opt.cover && whipping(u)) scr.black = speedLines(u) + (scr.black || '');
   const out = { defs: (w.defs || '') + (scr.defs || '') };
   let o0 = '', o1 = '';
