@@ -39,7 +39,7 @@ const CARDS = [
   { id: 'c22', in: 1590, out: 1680, size: 96, base: [420], segs: [1590, 1594, 1600], lines: [[k('Comenta ', 'black', 0), { dot: 'red', r: 30, seg: 1 }, k(' o ', 'black', 0), { dot: 'blue', r: 30, seg: 2 }]] },
   { id: 'c22b', in: 1590, out: 1680, size: 40, st: 'mono', ls: 0.06, base: [520], lines: [[k('@dinero_irracional')]] },
   // frase de Pausa durante el tirón (decisión del dueño): junto a quien habla, en azul
-  { id: 'chispaNo', in: 1322, out: 1362, size: 60, cx: 795, base: [1172], lines: [[k('«Chispa, no.»', 'blue')]] },
+  { id: 'chispaNo', in: 1322, out: 1362, size: 60, cx: 795, base: [1172], lines: [[k('Chispa, no.', 'blue')]] },
   // portada
   { id: 'cover', in: -1e9, out: 1e9, size: 150, maxW: 880, base: [470, 610], lines: [[k('En tu cabeza')], [k('viven dos.')]] },
 ];
@@ -179,16 +179,19 @@ function chispa23(tc) {
 function camX3(t) { return t < 330 ? 0 : t >= 420 ? 700 : 700 * (1 - Math.cos(Math.PI * ((t - 330) / 90))) / 2; }
 function shot23(t, w) {
   const tc = tw(t);
-  // percha de la etiqueta (negra)
-  w.black += `<path d="M700 1400 L700 1150 L640 1150" fill="none" stroke="${INK.black}" stroke-width="8" stroke-linejoin="round"/>`;
+  // percha de la etiqueta (negra). El tirón de f132 la tumba hacia la derecha (dos): así no cruza a Chispa
+  const fall = tc < 134 ? 0 : { 134: 14, 136: 38, 138: 66, 140: 86, 142: 80, 144: 90 }[tc] ?? 90;
   const c = chispa23(tc);
+  let st = `<path d="M700 1396 L700 1150 L640 1150" fill="none" stroke="${INK.black}" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>`;
   if (tc < 132) {
-    w.black += R.strokeP('M640 1150 L640 1176', INK.black, 3.5);
+    st += R.strokeP('M640 1150 L640 1176', INK.black, 3.5);
     w.red += R.priceTag(640, 1205, 10, '−70 %', 0.42);
   } else {
     const sw = tc <= 150 ? [6, -6][((tc - 132) / 2) % 2] : 0; // hilo roto que se balancea (2 dibujos)
-    w.black += `<g transform="rotate(${sw} 640 1150)">${R.strokeP('M640 1150 L640 1185', INK.black, 3.5, 'stroke-linecap="round"')}</g>`;
+    st += `<g transform="rotate(${sw - fall} 640 1150)">${R.strokeP('M640 1150 L640 1185', INK.black, 3.5, 'stroke-linecap="round"')}</g>`;
   }
+  w.black += `<g transform="rotate(${fall} 700 1396)">${st}</g>`;
+  if (tc === 140 || tc === 142) w.black += P.dust(930, 1394, 18, 0.8);
   // polvo del frenazo (dos): crece r 10 → 34 y se deshace f134–146
   if (c.dust) {
     const kk = (tc - 134) / 12;
@@ -333,9 +336,9 @@ function shot5(t, w) {
   // Chispa delante (recortada al panel A)
   const C = L();
   const c = chispa5(tc);
-  if (c.x < 1200) { C.black += c.y >= 846 ? R.shadowEllipse(c.x, 960, 86, 10, INK.black, 7, 2.4) : R.liftedShadow(c.x, 960, 70, 8); CH(C, c); }
+  if (c.x < 1200) { C.black += c.y >= 846 ? R.shadowEllipse(c.x, 960, 86, 10, INK.black, 7, 2.4) : R.liftedShadow(c.x, 960, 70, 8); C.black += RIG.limbHalo(c, 18); CH(C, c); }
   add(w, RIG.clipLayers(C, PA[0] + 4, PA[1] + 4, PA[2] - PA[0] - 8, PA[3] - PA[1] - 8));
-  if (t >= 810 && t <= 825) w.black += P.sfxText(700, 740, '¡DING!', { size: 72, rot: 6, sc: [1.3, 1.15, 1][Math.min(t - 810, 2)], approxW: LAY.sfx.ding });
+  if (t >= 810 && t <= 825) w.black += P.sfxText(742, 738, '¡DING!', { size: 72, rot: 6, sc: [1.3, 1.15, 1][Math.min(t - 810, 2)], approxW: LAY.sfx.ding });
   // empuje final hacia el total
   const z = t < 990 ? 1 : T.ramp(t, 990, 1004, 1, 1.6, 'out');
   return { cam: { z, A: [560, 1363] }, clip: t >= 990 ? [0, 540, 1080, 940] : null };
@@ -445,7 +448,8 @@ function shot7(t, w, scr) {
   const c = chispa7(tc);
   chShadow(w, c, 1400);
   if (c.dust) for (const dx of [-60, 60]) w.black += P.dust(c.x + dx, 1394, 22, 0.9);
-  const cp = { ...c }; delete cp.dust;
+  const cp = { halo: 8, ...c }; delete cp.dust;
+  w.black += RIG.limbHalo(cp, 16); // delante del botón: el alambre se lee sobre la base negra
   CH(w, cp);
   // correa: floja → tensa (f1318–1361) → floja; siempre calculada del asa al tobillo
   const h = RIG.pausaHandle(pz), a = RIG.chispaAnkle(cp);
@@ -506,6 +510,8 @@ function shot8(t, w) {
   const cp = { ...c }; delete cp.burst; delete cp.fall;
   if (c.fall) { w.black += R.liftedShadow(320, 1238, 104 - (908 - c.y) * 0.1, 7); w.black += P.fallLines(c.x, c.y - 203); }
   else chShadow(w, cp, cp.x > 170 && cp.x < 470 && cp.y + 127 * cp.s < 1238 ? 1238 : 1400);
+  cp.halo = 8;
+  w.black += RIG.limbHalo(cp, 16);
   CH(w, cp);
   if (c.burst) { const b = RIG.GC(cp, 6, -150); w.black += R.burst(b[0], b[1], 1.1); }
   // correa: atada hasta f1653; el lazo se suelta y cae (3 dibujos) al trazado de reposo

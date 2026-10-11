@@ -1,6 +1,7 @@
 # Post 01 — El supermercado está diseñado para Chispa
 
-**Formato:** carrusel, 11 slides, 1080×1350, estilo Riso · **Estado:** borrador para revisión
+**Formato:** carrusel, 11 slides, 1080×1350, estilo Riso · **Estado:** borrador v2 (revisado por el dueño de la cuenta)
+**Fuentes en los slides:** cada slide con estudio lleva una línea de fuente pequeña al pie del slide, encima de la barra inferior.
 **Idea:** recorrer el súper como una ruta, de la entrada a la caja. En cada parada Chispa cae en un truco y Pausa le da el antídoto. Al final, «la lista de la compra de Pausa» para guardar.
 **Neutro:** «súper», «carrito», «estante», «dulces y snacks» (sin *lineal*, *chuches*, *carro*).
 
@@ -25,38 +26,45 @@
 > En un estudio clásico, con música lenta la gente caminaba más despacio y gastaba más que con música rápida.
 > Más tiempo en el pasillo = más cosas en el carrito.
 > 🔵 **Pausa:** «Entra con lista. Sal cuando la acabes.»
+> <sub>Fuente: Milliman (1982), *Journal of Marketing*.</sub>
 
 **4 · Parada 2: lo básico, al fondo**
 > **El pan está al fondo. Por algo.**
 > Pan, leche, huevos: lo que compras siempre suele estar lejos de la entrada. Para llegar, cruzas medio súper… y Chispa va llenando el carrito.
 > 🔵 **Pausa:** «Ve directa a lo que necesitas. Sin pasear pasillos.»
+> <sub>Práctica habitual en la distribución de tiendas.</sub>
 
 **5 · Parada 3: el estante**
 > **Lo que ves primero no es casualidad.**
 > Las marcas compiten por estar donde más miras y con más paquetes de frente: cuanto más lo ves, más lo eliges.
-> Dato sin humo: el punto que más se mira no está a la altura de los ojos, sino un poco por debajo.
+> **Dato:** el punto que más se mira no está a la altura de los ojos, sino un poco por debajo.
 > 🔵 **Pausa:** «Antes de coger nada, mira arriba y abajo.»
+> <sub>Fuentes: Chandon et al. (2009), *Journal of Marketing*; Chen et al. (2021), *Journal of Marketing Research*.</sub>
 
 **6 · Parada 4: el cartel**
 > **El cartel de oferta vende… aunque no haya oferta.**
 > Un cartel llamativo hace subir las ventas incluso cuando el precio no ha bajado. Chispa ve amarillo y entiende «barato».
 > 🔵 **Pausa:** «Mira el precio, no el cartel.»
+> <sub>Fuente: Inman, McAlister y Hoyer (1990), *Journal of Consumer Research*.</sub>
 
 **7 · Parada 5: la segunda unidad**
 > **«2.ª unidad al 50 %» no es un 50 % de descuento.**
 > 2 × 4 € = 6 € → 3 € cada una. Es un **25 %**.
 > Y solo ahorras si de verdad ibas a usar las dos.
 > 🔵 **Pausa:** «¿Necesitas dos? Si no, no es ahorro.»
+> <sub>Cálculo: (4 € + 2 €) ÷ 2 = 3 € por unidad.</sub>
 
 **8 · Parada 6: la reduflación**
 > **Mismo precio. Menos producto.**
 > El envase parece igual, pero trae menos. Es legal si el peso aparece en la etiqueta… y Chispa nunca mira el peso.
 > 🔵 **Pausa:** «Compara el precio por kilo o por litro.»
+> <sub>Reduflación: menos cantidad por el mismo precio.</sub>
 
 **9 · Parada 7: la caja**
 > **La última trampa está en la cola.**
 > Dulces y snacks junto a la caja, justo cuando esperas y estás cansado. En supermercados británicos que los quitaron de ahí, se compraron bastantes menos.
 > 🔵 **Pausa:** «La cola no es un pasillo más.»
+> <sub>Fuente: Ejlerskov et al. (2018), *PLOS Medicine*.</sub>
 
 **10 · La lista de la compra de Pausa** *(para guardar)*
 > ☐ Entra con lista y sal al acabarla.
@@ -80,7 +88,7 @@
 ```
 Entraste a por pan. Saliste con el carrito lleno. No es mala suerte: es diseño. 🛒
 
-El súper está pensado para hablar con tu Chispa: música, carteles, estantes, ofertas… Hoy lo recorremos con Pausa de guía.
+El súper está pensado para hablar con tu Chispa: música, carteles, estantes, ofertas… Hoy lo recorremos con Pausa de guía. Los datos hablan por sí solos.
 
 👉 ¿En qué parada cae tu Chispa siempre? Comenta el número.
 📌 Guarda la lista del final para tu próxima compra.

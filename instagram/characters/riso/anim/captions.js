@@ -68,6 +68,7 @@ function render(card, t, { slab = true, kind = 'stamp' } = {}) {
   const size = card.size, ls = card.ls ?? DEF.ls;
   const segs = card.segs || [card.in];
   const css = styleCss(card.st, size, ls);
+  const slabs = L();
   for (let si = 0; si < segs.length; si++) {
     const k = t - segs[si];
     const sc = stampScale(k, card.kind || kind);
@@ -77,7 +78,7 @@ function render(card, t, { slab = true, kind = 'stamp' } = {}) {
     if (!isFinite(bb.x0)) continue;
     // ancla del sello: centro del bloque entero (una tarjeta) o del segmento (por segmentos)
     const anc = segs.length === 1 ? spanBounds(card.lines, () => true, size) : bb;
-    const g = L();
+    const g = L(), gs = L();
     for (const ln of card.lines) {
       const mine = ln.spans.filter(inSeg);
       if (!mine.length) continue;
@@ -85,7 +86,7 @@ function render(card, t, { slab = true, kind = 'stamp' } = {}) {
         const sx0 = mine[0].x - DEF.slabPadX, sx1 = mine[mine.length - 1].x + mine[mine.length - 1].w + DEF.slabPadX;
         const sy0 = ln.base - size * DEF.slabPadTop, sy1 = ln.base + size * DEF.slabPadBot;
         const rect = `<rect x="${f(sx0)}" y="${f(sy0)}" width="${f(sx1 - sx0)}" height="${f(sy1 - sy0)}" rx="${f(size * 0.16)}" fill="${W}"/>`;
-        g.blue += rect; g.red += rect; g.black += rect;
+        gs.blue += rect; gs.red += rect; gs.black += rect;
       }
       for (const s of mine) {
         const ink = s.dot || s.ink || 'black';
@@ -95,8 +96,13 @@ function render(card, t, { slab = true, kind = 'stamp' } = {}) {
       }
     }
     const tf = sc === 1 ? '' : `translate(${f(anc.cx)} ${f(anc.cy)}) scale(${sc}) translate(${f(-anc.cx)} ${f(-anc.cy)})`;
-    for (const kk of ['blue', 'red', 'black']) if (g[kk]) o[kk] += tf ? `<g transform="${tf}">${g[kk]}</g>` : g[kk];
+    for (const kk of ['blue', 'red', 'black']) {
+      if (gs[kk]) slabs[kk] += tf ? `<g transform="${tf}">${gs[kk]}</g>` : gs[kk];
+      if (g[kk]) o[kk] += tf ? `<g transform="${tf}">${g[kk]}</g>` : g[kk];
+    }
   }
+  // todas las losas debajo de todo el texto (una losa nueva no tapa el final del segmento anterior)
+  for (const kk of ['blue', 'red', 'black']) o[kk] = slabs[kk] + o[kk];
   if (card.world) { // anclada al mundo: ancla izquierda en (x,y) con giro
     const { x, y, rot = 0 } = card.world;
     for (const kk of ['blue', 'red', 'black']) if (o[kk]) o[kk] = `<g transform="translate(${x} ${y}) rotate(${rot})">${o[kk]}</g>`;

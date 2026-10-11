@@ -35,6 +35,22 @@ function chispaAnkle(c) {
   return GC(c, foot[0] + 2, foot[1] - 4);
 }
 
+// halo de reserva bajo las extremidades de alambre (para que se lean sobre atrezo negro): capa negra blanca
+function limbHalo(c, w = 16) {
+  const P = c.pose && R.CHISPA_POSES[c.pose] ? { ...R.CHISPA_POSES[c.pose], ...(c.limbs || {}) } : null;
+  if (!P) return '';
+  const SOCK = R.SOCK;
+  let d = '';
+  for (const [k, sk] of [['armL', 'armL'], ['armR', 'armR'], ['legL', 'legL'], ['legR', 'legR']]) {
+    if (!P[k]) continue;
+    const pts = [SOCK[sk], ...P[k]].map((q) => RIG_GC(c, q[0], q[1]));
+    d += 'M' + pts.map((q) => `${f(q[0])} ${f(q[1])}`).join(' L') + ' ';
+  }
+  const ws = w * c.s;
+  return `<path d="${d}" fill="none" stroke="#ffffff" stroke-width="${f(ws)}" stroke-linecap="round" stroke-linejoin="round"/>`;
+}
+const RIG_GC = (...a) => GC(...a);
+
 // ---------- squash & stretch, anticipación ----------
 // impacto: squash que se recupera (en unos para Pausa; Chispa lo muestrea en dos)
 function impactSquash(t, f0, { amount = 0.88, frames = 6, e = 'out' } = {}) {
@@ -134,7 +150,7 @@ const camApply = ({ x = 0, z = 1, A = [540, 960], shake = [0, 0] } = {}, p) => [
 function shakeTable(t, f0, table) { const v = table[t - f0]; return v ? v : [0, 0]; }
 
 module.exports = {
-  GC, GP, groundChispa, groundPausa, HANDLE, pausaMug, pausaHandle, chispaAnkle,
+  GC, GP, limbHalo, groundChispa, groundPausa, HANDLE, pausaMug, pausaHandle, chispaAnkle,
   impactSquash, anticipate, breathe, blinkSlow, blinkFast, cycle, runCycle, walkCycle, lookAt, mouthSwap,
   wrapLayers, clipLayers, shiftPlate, latePlate, camTransform, camApply, shakeTable,
 };

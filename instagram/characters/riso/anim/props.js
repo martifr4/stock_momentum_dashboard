@@ -157,17 +157,25 @@ function ticketGrow(pts, w, { len = Infinity, totalLabel = 'TOTAL', amount = '18
   const Ld = Math.min(len, total);
   if (Ld < 4) return o;
   const hw = w / 2;
-  let shadow = '', paper = '', ink = '';
+  let shadow = '', paper = '', ink = '', edges = '', pe = '';
   const vis = segs.filter((sg) => sg.s0 < Ld);
   vis.forEach((sg, i) => {
     const last = i === vis.length - 1;
     const l = Math.min(sg.len, Ld - sg.s0);
     const b = [sg.a[0] + sg.tx * l, sg.a[1] + sg.ty * l];
     // un poco de solape con el tramo siguiente para que el pliegue no deje rendija
-    const ext = last ? 0 : hw * 0.98;
-    const a0 = i === 0 ? sg.a : [sg.a[0], sg.a[1]];
-    const b2 = [b[0] + sg.tx * ext, b[1] + sg.ty * ext];
-    const q = [[a0[0] + sg.nx * hw, a0[1] + sg.ny * hw], [b2[0] + sg.nx * hw, b2[1] + sg.ny * hw], [b2[0] - sg.nx * hw, b2[1] - sg.ny * hw], [a0[0] - sg.nx * hw, a0[1] - sg.ny * hw]];
+    // juntas a inglete en los pliegues (el borde exterior de dos tramos se encuentra en un punto)
+    const miter = (j) => { // vértice j de la polilínea completa
+      if (j <= 0 || j >= segs.length) { const sgj = segs[Math.min(Math.max(j, 0), segs.length - 1)]; return [sgj.nx * hw, sgj.ny * hw]; }
+      const p0 = segs[j - 1], p1 = segs[j];
+      let mx = p0.nx + p1.nx, my = p0.ny + p1.ny; const ml = Math.hypot(mx, my); mx /= ml; my /= ml;
+      const k = hw / (mx * p0.nx + my * p0.ny);
+      return [mx * k, my * k];
+    };
+    const segIdx = segs.indexOf(sg);
+    const mA = miter(segIdx), mB = last ? [sg.nx * hw, sg.ny * hw] : miter(segIdx + 1);
+    const a0 = sg.a, b2 = b;
+    const q = [[a0[0] + mA[0], a0[1] + mA[1]], [b2[0] + mB[0], b2[1] + mB[1]], [b2[0] - mB[0], b2[1] - mB[1]], [a0[0] - mA[0], a0[1] - mA[1]]];
     let d = 'M' + q.map((p) => `${f(p[0])} ${f(p[1])}`).join(' L') + 'Z';
     if (last) {
       const [p0, p1, p2, p3] = q, n = 8;
@@ -177,12 +185,15 @@ function ticketGrow(pts, w, { len = Infinity, totalLabel = 'TOTAL', amount = '18
     }
     shadow += `<path d="${d}" transform="translate(8 10)"/>`;
     paper += `<path d="${d}" fill="${W}"/>`;
+    edges += `<path d="${d}" fill="none" stroke="${INK.black}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    pe += `<path d="${d}" fill="${W}"/>` + `<path d="${d}" fill="none" stroke="${INK.black}" stroke-width="2.5" stroke-linejoin="round"/>`;
     // renglones a posiciones fijas del recorrido completo (no se mueven al crecer)
     const isFinalSeg = sg === segs[segs.length - 1];
     const nL = Math.floor((sg.len - (isFinalSeg ? 130 : 26)) / 16);
     for (let k = 0; k < nL; k++) {
       const t = 16 + k * 16;
       if (sg.s0 + t > Ld - 14) break;
+      if (i > 0 && t < hw + 10) continue; // bajo el pliegue del tramo anterior
       const cx = sg.a[0] + sg.tx * t, cy = sg.a[1] + sg.ty * t;
       const in1 = hw - 12, l1 = 22 + ((k * 37 + i * 11) % 26) + (w - 92) * 0.3, l2 = 12 + ((k * 13) % 8);
       const s1 = [cx + sg.nx * in1, cy + sg.ny * in1], e1 = [s1[0] - sg.nx * l1, s1[1] - sg.ny * l1];
@@ -190,6 +201,7 @@ function ticketGrow(pts, w, { len = Infinity, totalLabel = 'TOTAL', amount = '18
       ink += `<path d="M${f(s1[0])} ${f(s1[1])} L${f(e1[0])} ${f(e1[1])} M${f(s2[0])} ${f(s2[1])} L${f(e2[0])} ${f(e2[1])}" stroke="${INK.black}" stroke-width="3" stroke-linecap="round"/>`;
     }
   });
+  const paperEdge = pe;
   if (full) {
     const sg = segs[segs.length - 1];
     const t = sg.len - 62, cx = sg.a[0] + sg.tx * t, cy = sg.a[1] + sg.ty * t;
@@ -202,7 +214,7 @@ function ticketGrow(pts, w, { len = Infinity, totalLabel = 'TOTAL', amount = '18
   o.defs += `<clipPath id="${shId}">${shadow}</clipPath>`;
   const all = vis.flatMap((sg) => [sg.a, sg.b]);
   const sx0 = Math.min(...all.map((p) => p[0])) - 70, sx1 = Math.max(...all.map((p) => p[0])) + 70, sy0 = Math.min(...all.map((p) => p[1])) - 70, sy1 = Math.max(...all.map((p) => p[1])) + 70;
-  o.black += halftone({ x0: sx0, y0: sy0, x1: sx1, y1: sy1, step: 6, rmax: 1.9, color: INK.black, clip: shId, fn: () => 1 }) + paper + ink;
+  o.black += halftone({ x0: sx0, y0: sy0, x1: sx1, y1: sy1, step: 6, rmax: 1.9, color: INK.black, clip: shId, fn: () => 1 }) + paperEdge + ink;
   o.blue += paper; o.red += paper;
   return o;
 }

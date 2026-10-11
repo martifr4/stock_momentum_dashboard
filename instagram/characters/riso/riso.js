@@ -431,7 +431,7 @@ const PAUSA_POSES = {
   // brindis: muñón derecho a la altura de la cúpula con la taza arriba
   brindis: { arms: [[204, -6, 226, -74]], mug: [234, -112], feet: true },
   // sorbo (Reels): la taza sube hasta la comisura
-  sorbo: { arms: [[140, 80, 112, 66]], mug: [100, 56], feet: true },
+  sorbo: { arms: [[140, 84, 114, 74]], mug: [100, 70], feet: true },
 };
 // Parámetros de Reels: lid (párpado), arms / mug (sobrescriben la pose para interpolar), steam, mugRot.
 function pausa({ x = 0, y = 0, s = 1, rot = 0, flip = false, expr = 'neutral', pose = 'sit', look, knockFor = null, shine = true, squash = 1, halo = 0, lid = null, arms = null, mug: mugAt = undefined, steam = undefined, mugRot = 0 }) {
