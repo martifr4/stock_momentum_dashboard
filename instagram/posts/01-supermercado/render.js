@@ -116,6 +116,222 @@ function nodArcs(x, y, s = 1) {
     `<path d="M-130 30 Q-138 8 -130 -14"/><path d="M-150 34 Q-160 8 -150 -18"/><path d="M130 30 Q138 8 130 -14"/><path d="M150 34 Q160 8 150 -18"/></g>`;
 }
 
+
+// ------------------------------------------------------------------ 4 · Parada 2: lo básico, al fondo
+S[4] = async (M) => {
+  const ly = L();
+  add(ly, chrome(4, 'red'));
+  add(ly, stopHeader(2, 'PARADA 2: LO BÁSICO, AL FONDO'));
+  let y = title(ly, [[h('El pan está al fondo.')], [h('Por algo.')]], 72);
+  y += 24 + 38 * 0.8;
+  y = (await para(ly, M, [r('Pan, leche, huevos: lo que compras siempre suele estar lejos de la entrada. Para llegar, cruzas medio súper… y Chispa va llenando el carrito.')], { y })).next;
+  const FLOOR = 1132;
+  // el pan, al fondo del todo (izquierda)
+  add(ly, P.mostradorPan(64, FLOOR));
+  // la ruta azul entra por la derecha y da un rodeo en S antes de llegar al pan
+  ly.blue += `<path d="M640 ${FLOOR - 6} C560 ${FLOOR - 6} 560 ${FLOOR - 120} 470 ${FLOOR - 120} S300 ${FLOOR - 230} 250 ${FLOOR - 120} S210 ${FLOOR - 10} 186 ${FLOOR - 10}" fill="none" stroke="${INK.blue}" stroke-width="7" stroke-dasharray="18 14" stroke-linecap="round"/>`;
+  // Chispa a medio camino, empujando hacia la izquierda un carrito ya lleno
+  const C = { x: 520, y: 1018, s: 0.7, flip: true, lean: 6 };
+  const hand = G(C, ...CH_POSES.empuja.hand);
+  ly.black += shadowEllipse(C.x - 120, FLOOR, 240, 9, INK.black, 7, 2.3);
+  const cs = 0.7;
+  for (const c of cargaLlena()) add(ly, P.tf(c, `translate(${hand[0]} ${hand[1]}) scale(${-cs} ${cs})`));
+  add(ly, carrito({ x: hand[0], y: hand[1], s: cs, flip: true }));
+  add(ly, chispaP('empuja', { ...C, expr: 'feliz', sweatIdx: [1] }));
+  const pc = await pausaCorner(M, { expr: 'esceptico', look: [-8, 6], quote: '«Ve directamente a lo que necesitas. Sin pasear pasillos.»', anchor: 900 });
+  add(ly, pc.layers);
+  add(ly, sourceLine([[m('Práctica habitual en la distribución de tiendas.')]]));
+  return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
+};
+
+// ------------------------------------------------------------------ 5 · Parada 3: el estante
+S[5] = async (M) => {
+  const ly = L();
+  add(ly, chrome(5, 'red'));
+  add(ly, stopHeader(3, 'PARADA 3: EL ESTANTE'));
+  let y = title(ly, [[h('Lo que ves primero')], [h('no es casualidad.')]], 68);
+  y += 24 + 38 * 0.8;
+  y = (await para(ly, M, [r('Las marcas compiten por estar donde más miras y con más paquetes de frente: cuanto más lo ves, más lo eliges.')], { y })).next + 16;
+  y = (await para(ly, M, [b('Dato:'), r(' el punto que más se mira no está a la altura de los ojos, sino un poco por debajo.')], { y })).next;
+  // estante: dos montantes + 4 baldas
+  const X0s = 70, X1s = 370, FLOOR = 1140, yb = [828, 916, 1004, 1092];
+  ly.black += `<rect x="${X0s}" y="790" width="8" height="${FLOOR - 790}" fill="${INK.black}"/><rect x="${X1s - 8}" y="790" width="8" height="${FLOOR - 790}" fill="${INK.black}"/>`;
+  for (const yy of yb) ly.black += P.balda(X0s, X1s, yy);
+  // balda alta: 2 distintos
+  add(ly, P.caja(140, yb[0], 56, 50, 'black')); add(ly, P.lata(280, yb[0], 40, 46, 'black'));
+  // a la altura de los ojos: 2 distintos
+  add(ly, P.botella(130, yb[1], 28, 70, 'black')); add(ly, P.caja(270, yb[1], 70, 60, 'black'));
+  // un poco por debajo: 5 rojos idénticos de frente
+  for (let i = 0; i < 5; i++) add(ly, P.caja(108 + i * 56, yb[2], 44, 66, 'red'));
+  // balda baja
+  add(ly, P.lata(160, yb[3], 40, 50, 'black'));
+  // Chispa frente al estante, mirando la fila roja
+  const C = { x: 520, y: 1012, s: 0.75, flip: true };
+  ly.black += shadowEllipse(C.x - 6, FLOOR - 4, 110, 9, INK.black, 7, 2.3);
+  add(ly, chispaP('alcanza', { ...C, expr: 'euforia', look: [-4, 4] }));
+  // línea de mirada: cono de dos trazos discontinuos, del ojo a la fila roja (sin punta)
+  const eyeP = G(C, 18, -4);
+  ly.black += strokeP(`M${f(eyeP[0] - 24)} ${f(eyeP[1] - 2)} L376 ${yb[2] - 62} M${f(eyeP[0] - 24)} ${f(eyeP[1] + 4)} L376 ${yb[2] - 4}`, INK.black, 3.5, 'stroke-dasharray="8 8" stroke-linecap="round"');
+  const pc = await pausaCorner(M, { expr: 'neutral', look: [0, -9], quote: '«Antes de coger nada, mira arriba y abajo.»', anchor: 900 });
+  add(ly, pc.layers);
+  add(ly, sourceLine([[m('Fuentes: Chandon et al. (2009), '), mi('Journal of Marketing'), m(';')], [m('Chen et al. (2021), '), mi('Journal of Marketing Research'), m('.')]]));
+  return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
+};
+
+// ------------------------------------------------------------------ 6 · Parada 4: el cartel
+S[6] = async (M) => {
+  const ly = L();
+  add(ly, chrome(6, 'red'));
+  add(ly, stopHeader(4, 'PARADA 4: EL CARTEL'));
+  let y = title(ly, [[h('El cartel de oferta')], [h('vende… aunque no')], [h('haya oferta.')]], 64);
+  y += 24 + 38 * 0.8;
+  y = (await para(ly, M, [r('Un cartel llamativo hace subir las ventas incluso cuando el precio no ha bajado. Chispa ve el cartel y entiende «barato».')], { y })).next;
+  const FLOOR = 1140, yb = 1010;
+  // balda corta con dos envases idénticos y dos etiquetas mudas idénticas
+  ly.black += P.balda(70, 400, yb, 8);
+  ly.black += `<rect x="90" y="${yb}" width="8" height="${FLOOR - yb}" fill="${INK.black}"/><rect x="372" y="${yb}" width="8" height="${FLOOR - yb}" fill="${INK.black}"/>`;
+  add(ly, P.botella(160, yb, 46, 120, 'black')); add(ly, P.botella(310, yb, 46, 120, 'black'));
+  ly.black += P.etiquetaMuda(160, yb + 14) + P.etiquetaMuda(310, yb + 14);
+  add(ly, P.cartelEstallido(316, y + 90, 104, 'OFERTA'));
+  // Chispa hipnotizada, brazos al frente
+  const C = { x: 530, y: 1010, s: 0.75, flip: true, lean: 6 };
+  ly.black += shadowEllipse(C.x, FLOOR - 4, 110, 9, INK.black, 7, 2.3);
+  add(ly, chispaP('zombi', { ...C, expr: 'espiral', sweatIdx: [1] }));
+  const pc = await pausaCorner(M, { pose: 'lupa', prop: P.lupa, expr: 'esceptico', look: [-8, 6], quote: '«Mira el precio, no el cartel.»', anchor: 880 });
+  add(ly, pc.layers);
+  add(ly, sourceLine([[m('Fuente: Inman, McAlister y Hoyer (1990),')], [mi('Journal of Consumer Research'), m('.')]]));
+  return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
+};
+
+// ------------------------------------------------------------------ 7 · Parada 5: la segunda unidad
+S[7] = async (M) => {
+  const ly = L();
+  add(ly, chrome(7, 'red'));
+  add(ly, stopHeader(5, 'PARADA 5: LA SEGUNDA UNIDAD'));
+  let y = title(ly, [[h('«2.ª unidad al 50 %»')], [h('no es un 50 %')], [h('de descuento.')]], 64);
+  y += 24 + 48 * 0.8;
+  add(ly, richText({ x: X0, y, lines: [[h('4 € + 2 € = 6 € por las dos → 3 € cada una.')], [h('Es un '), h('25 %', 'blue'), h('.')]].map((ln) => ln.map((sp) => ({ ...sp, t: nb(sp.t) }))), size: 48, lh: 1.08, ls: -0.005 }));
+  y += 48 * 1.08 + 24 + 38;
+  y = (await para(ly, M, [r('Y solo ahorras si de verdad ibas a usar las dos.')], { y })).next;
+  // escena: cartel detrás y Chispa con un envase idéntico en cada mano
+  ly.red += sign(300, 830, -4, nb('2.ª UNIDAD AL 50 %'), { w: 470, h: 92, size: 54 });
+  const C = { x: 300, y: 1006, s: 0.8 };
+  ly.black += shadowEllipse(C.x, 1132, 120, 9, INK.black, 7, 2.3);
+  add(ly, chispa({ ...C, expr: 'euforia', pose: 'hold', sweatIdx: [0], knockFor: ['red'] }));
+  const hl = G(C, -120, -26), hr = G(C, 118, -28);
+  add(ly, P.botella(hl[0], hl[1] + 12, 34, 92, 'red', -10)); add(ly, P.botella(hr[0], hr[1] + 12, 34, 92, 'red', 10));
+  ly.black += burst(C.x + 6, C.y - 130 * C.s - 40, 0.8);
+  const pc = await pausaCorner(M, { expr: 'neutral', look: [-4, -8], quote: '«¿Necesitas dos? Si no, no es ahorro.»', anchor: 900 });
+  add(ly, pc.layers);
+  add(ly, sourceLine([[m(nb('Cálculo: (4 € + 2 €) ÷ 2 = 3 € por unidad.'))]]));
+  return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
+};
+
+// ------------------------------------------------------------------ 8 · Parada 6: la reduflación
+S[8] = async (M) => {
+  const ly = L();
+  add(ly, chrome(8, 'red'));
+  add(ly, stopHeader(6, 'PARADA 6: LA REDUFLACIÓN'));
+  let y = title(ly, [[h('Mismo precio.')], [h('Menos producto.')]], 72);
+  y += 24 + 38 * 0.8;
+  y = (await para(ly, M, [r('El envase parece igual, pero trae menos. Es legal si el peso aparece en la etiqueta… y Chispa nunca mira el peso.')], { y })).next;
+  const FLOOR = 1140, yb = 1060;
+  ly.black += P.balda(70, 380, yb, 8);
+  ly.black += `<rect x="90" y="${yb}" width="8" height="${FLOOR - yb}" fill="${INK.black}"/><rect x="352" y="${yb}" width="8" height="${FLOOR - yb}" fill="${INK.black}"/>`;
+  add(ly, P.envaseCorte(150, yb, 110, 160, 1));
+  add(ly, P.envaseCorte(300, yb, 110, 160, 0.7));
+  ly.black += P.etiquetaMuda(150, yb - 214) + P.etiquetaMuda(300, yb - 214);
+  // Chispa se lleva otra caja (la de menos) bajo el brazo, ojos cerrados
+  const C = { x: 510, y: 1010, s: 0.7 };
+  ly.black += shadowEllipse(C.x, FLOOR - 4, 110, 9, INK.black, 7, 2.3);
+  const hb = G(C, 150, 40);
+  add(ly, chispaP('abraza', { ...C, expr: 'feliz' }));
+  add(ly, P.envaseCorte(hb[0] + 8, hb[1] + 46, 70, 100, 0.7));
+  ly.black += `<circle cx="${f(G(C, 186, 18)[0])}" cy="${f(G(C, 186, 18)[1])}" r="5" fill="${INK.black}"/>`;
+  const pc = await pausaCorner(M, { pose: 'lupa', prop: P.lupa, expr: 'neutral', look: [-8, 4], quote: '«Compara el precio por kilo o por litro.»', anchor: 880 });
+  add(ly, pc.layers);
+  add(ly, sourceLine([[m('Reduflación: menos cantidad por el mismo precio.')]]));
+  return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
+};
+
+// ------------------------------------------------------------------ 9 · Parada 7: la caja
+S[9] = async (M) => {
+  const ly = L();
+  add(ly, chrome(9, 'red'));
+  add(ly, stopHeader(7, 'PARADA 7: LA CAJA'));
+  let y = title(ly, [[h('La última trampa')], [h('está en la cola.')]], 72);
+  y += 24 + 38 * 0.8;
+  y = (await para(ly, M, [r('Dulces y snacks junto a la caja, justo cuando esperas y te puede el cansancio. En supermercados británicos que los quitaron de ahí, se compraron bastantes menos.')], { y })).next;
+  const FLOOR = 1140;
+  add(ly, P.mostradorCaja(400, 620, 1010, FLOOR));
+  add(ly, P.expositorSnacks(300, 382, 880, FLOOR));
+  // Chispa en la cola, carrito lleno detrás (cortado por el borde)
+  const C = { x: 190, y: 1020, s: 0.72 };
+  const cart = { x: C.x - 130, y: 1004 };
+  for (const c of cargaLlena()) add(ly, P.clipLayers(P.tf(c, `translate(${cart.x} ${cart.y}) scale(-0.7 0.7)`), 0, 0, 1080, 1350));
+  add(ly, carrito({ x: cart.x, y: cart.y, s: 0.7, flip: true }));
+  ly.black += shadowEllipse(C.x, FLOOR - 4, 110, 9, INK.black, 7, 2.3);
+  add(ly, chispaP('pica', { ...C, expr: 'neutral', look: [6, 3], limbs: { armR: [[140, 60], [172, 52]] } }));
+  // correa en tirón: del asa de la taza de Pausa al tobillo de Chispa (Pausa llega a tiempo)
+  const pc = await pausaCorner(M, { expr: 'esceptico', look: [-8, 6], quote: '«La cola no es un pasillo más.»', anchor: 900 });
+  add(ly, pc.layers);
+  const Pz = { x: 866, y: 1046, s: 0.7, flip: true };
+  const mugH = G(Pz, 236, 86), ankle = G(C, 40, 112);
+  ly.black += P.correaTensa(mugH, ankle);
+  add(ly, sourceLine([[m('Fuente: Ejlerskov et al. (2018), '), mi('PLOS Medicine'), m('.')]]));
+  return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
+};
+
+// ------------------------------------------------------------------ 10 · La lista de la compra de Pausa
+S[10] = async (M) => {
+  const ly = L();
+  add(ly, chrome(10, 'blue'));
+  const sheet = { x0: 104, y0: 160, x1: 912, y1: 1196 };
+  const items = ['Entra con lista y sal al acabarla.', 'Ve directamente a lo básico.', 'Mira arriba y abajo.', 'Precio, no cartel.', '¿Necesitas dos?', 'Precio por kilo.', 'En la caja, nada nuevo.'];
+  const content = L();
+  add(content, P.listaCompra({ ...sheet, rot: 0 }));
+  const mx = 104 + 110;
+  add(content, richText({ x: mx + 24, y: 262, lines: [[h('La lista de la compra')], [h('de '), h('Pausa', 'blue')]], size: 64, lh: 0.98, ls: -0.01 }));
+  const gap = 1036 * (108 / 1036);
+  const rnd = P.rand(9);
+  items.forEach((t, i) => {
+    const base = 160 + gap * (3.9 + i) - 14;
+    add(content, stopBadge(104 + 55, base - 14, i + 1, { r: 22, size: 28 }));
+    content.black += P.casilla(mx + 22, base - 2, 40, -3 + rnd() * 6);
+    add(content, richText({ x: mx + 82, y: base - 6, lines: [[r(t)]], size: 42 }));
+  });
+  add(ly, P.tf(content, `rotate(-1.5 508 678)`));
+  // Pausa satisfecha, fuera de la hoja, en la esquina
+  const Pz = { x: 950, y: 1132, s: 0.46, flip: true };
+  ly.black += shadowEllipse(Pz.x, 1196, 100, 7, INK.black, 6, 2);
+  add(ly, pausa({ ...Pz, expr: 'feliz', pose: 'sit' }));
+  return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
+};
+
+// ------------------------------------------------------------------ 11 · Tu turno
+S[11] = async (M) => {
+  const ly = L();
+  add(ly, chrome(11, 'plum', 'Dinero Irracional'));
+  const t = await M.wrap([h('¿En qué parada cae tu '), h('Chispa', 'red'), h(' siempre?')], CW, 92);
+  add(ly, richText({ x: X0, y: 232, lines: t, size: 92, lh: 0.96, ls: -0.012 }));
+  for (let i = 0; i < 7; i++) add(ly, stopBadge(168 + i * 124, 520, i + 1, { r: 40, size: 50 }));
+  add(ly, richText({ x: 540, y: 642, lines: [[h('Comenta el número.')]], size: 60, anchor: 'middle' }));
+  add(ly, P.chincheta(92, 712, 1.3));
+  add(ly, richText({ x: 136, y: 730, lines: [[r('Guárdalo para tu próxima compra.')]], size: 38 }));
+  ly.black += P.avionPapel(92, 776, 1.1);
+  add(ly, richText({ x: 136, y: 790, lines: [[r('Envíaselo a quien «solo iba a por pan».')]], size: 38 }));
+  // Chispa sale solo con el pan, como un trofeo; Pausa brinda
+  const C = { x: 300, y: 1236 - 122 * 1.0 - 2, s: 1.0 };
+  add(ly, chispaP('trofeo', { ...C, expr: 'euforia', look: [0, -1], sweat: 2 }));
+  const hd = G(C, ...CH_POSES.trofeo.hand);
+  add(ly, P.baguette(hd[0] + 10, hd[1] - 44, 150, 28, -62));
+  ly.black += burst(C.x - 30, C.y - 130 * C.s - 10, 0.9);
+  const Pz = { x: 760, y: 1200 - 135 * 1.1, s: 1.1 };
+  ly.black += shadowEllipse(Pz.x + 10, 1196, 230, 13, INK.black, 7, 2.8);
+  add(ly, pausa({ ...Pz, expr: 'brindis', pose: 'brindis', look: [0, 6] }));
+  return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
+};
+
 // ------------------------------------------------------------------ main
 (async () => {
   const which = process.argv.slice(2).map(Number).filter(Boolean);

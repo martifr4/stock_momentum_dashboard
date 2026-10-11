@@ -388,10 +388,12 @@ function shot6(t, w) {
 // PLANO 7 · La promesa · 1290–1529 — el tirón «a un milímetro»
 // =====================================================================================
 // zambullida: la mano apunta recta hacia abajo a la tapa; pies recogidos detrás (todo por encima de la tapa)
-const DIVE = { armR: [[118, 78], [126, 121]], armL: [[-122, 8], [-150, -22]], legL: [[-70, 84], [-104, 92]], legR: [[30, 94], [6, 104]] };
+const DIVE = { armR: [[132, 96], [128, 170]], armL: [[-124, 4], [-154, -32]], legL: [[-80, 82], [-130, 74]], legR: [[0, 96], [-44, 102]] };
+const HAND = [128, 170];
 const CS7 = 1.0, Y7 = G - 127 * CS7;
 const HAND_R = 12, GAP = 30;
-const YDIVE = CAP_UP - GAP - HAND_R - 121 * CS7; // mano a 30 px de la tapa
+const LEAN7 = -10;
+const YDIVE = CAP_UP - GAP - HAND_R - HAND[1] * CS7; // yema a 30 px de la tapa
 function chispa7(tc) {
   const base = { s: CS7, expr: 'euforia' };
   if (tc <= 1308) {
@@ -402,10 +404,10 @@ function chispa7(tc) {
   if (tc === 1312) return { ...base, pose: 'shrug', x: 625, y: Y7, squash: 0.86, front: true };
   if (tc === 1314) return { ...base, pose: 'lunge', flip: true, x: 545, y: 1190, speed: 4, halo: 8, squash: 1.05 };
   if (tc === 1316) return { ...base, pose: 'lunge', flip: true, x: 440, y: 1104, speed: 4, halo: 8 };
-  if (tc === 1318) return { ...base, pose: 'lunge', flip: true, limbs: DIVE, x: 350, y: YDIVE + 4, speed: 4, halo: 8, dive: true };
+  if (tc === 1318) return { ...base, pose: 'lunge', flip: true, limbs: DIVE, lean: LEAN7, x: 350, y: YDIVE - 8, speed: 4, halo: 8, dive: true };
   if (tc <= 1360) {
     const dx = tc >= 1322 && tc <= 1328 ? T.jitter(tc, 3, 1322) : 0;
-    return { ...base, pose: 'lunge', flip: true, limbs: DIVE, x: 330 + dx, y: YDIVE, expr: tc >= 1322 ? 'alarma' : 'euforia', halo: 8, dive: true };
+    return { ...base, pose: 'lunge', flip: true, limbs: DIVE, lean: LEAN7, x: 330 + dx, y: YDIVE, expr: tc >= 1322 ? 'alarma' : 'euforia', halo: 8, dive: true };
   }
   if (tc <= 1366) {
     const p0 = { 1362: [380, 1200], 1364: [410, 1290], 1366: [430, Y7] }[tc];
@@ -450,12 +452,12 @@ function shot7(t, w) {
   if (c.dust) for (const dx of [-60, 60]) w.black += P.dust(c.x + dx, G - 6, 24, 0.9);
   w.black += RIG.limbHalo(cp, 16);
   CH(w, cp);
-  if (c.dive) { const h = RIG.GC(cp, 126, 121); w.black += `<circle cx="${f(h[0])}" cy="${f(h[1])}" r="${HAND_R}" fill="${INK.black}"/>`; }
+  if (c.dive) { const h = RIG.GC(cp, HAND[0], HAND[1]); w.black += `<circle cx="${f(h[0])}" cy="${f(h[1])}" r="${HAND_R}" fill="${INK.black}"/>`; }
   const h = RIG.pausaHandle(pz), a = RIG.chispaAnkle(cp);
   if (tc >= 1318 && tc <= 1360) w.black += P.leashTaut(h, a, cp.flip ? 20 : -20, 5, 1.5);
   else w.black += P.leashLoose(h, a, 60, { loopRot: cp.flip ? 20 : -20 });
   // cámara: empuje fuerte hacia la yema del dedo durante el congelado, y vuelta
-  const FT = RIG.GC({ ...cp, x: 330, y: YDIVE, flip: true, s: CS7, squash: 1 }, 126, 121 + HAND_R / CS7);
+  const FT = RIG.GC({ ...cp, x: 330, y: YDIVE, flip: true, lean: LEAN7, s: CS7, squash: 1 }, HAND[0], HAND[1] + HAND_R / CS7);
   let z = 1;
   if (t >= 1330 && t <= 1361) z = T.ramp(t, 1330, 1340, 1, 1.35, 'out');
   if (t > 1361) z = T.ramp(t, 1362, 1378, 1.35, 1, 'io');
