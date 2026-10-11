@@ -129,9 +129,9 @@ S[4] = async (M) => {
   // el pan, al fondo del todo (izquierda)
   add(ly, P.mostradorPan(64, FLOOR));
   // la ruta azul entra por la derecha y da un rodeo en S antes de llegar al pan
-  ly.blue += `<path d="M640 ${FLOOR - 6} C560 ${FLOOR - 6} 560 ${FLOOR - 120} 470 ${FLOOR - 120} S300 ${FLOOR - 230} 250 ${FLOOR - 120} S210 ${FLOOR - 10} 186 ${FLOOR - 10}" fill="none" stroke="${INK.blue}" stroke-width="7" stroke-dasharray="18 14" stroke-linecap="round"/>`;
+  ly.blue += `<path d="M640 ${FLOOR - 40} C600 ${FLOOR - 40} 600 ${FLOOR + 6} 540 ${FLOOR + 6} C470 ${FLOOR + 6} 470 ${FLOOR - 40} 400 ${FLOOR - 40} C330 ${FLOOR - 40} 330 ${FLOOR + 6} 260 ${FLOOR + 6} C210 ${FLOOR + 6} 210 ${FLOOR - 20} 186 ${FLOOR - 20}" fill="none" stroke="${INK.blue}" stroke-width="7" stroke-dasharray="18 14" stroke-linecap="round"/>`;
   // Chispa a medio camino, empujando hacia la izquierda un carrito ya lleno
-  const C = { x: 520, y: 1018, s: 0.7, flip: true, lean: 6 };
+  const C = { x: 540, y: 1012, s: 0.7, flip: true, lean: 6 };
   const hand = G(C, ...CH_POSES.empuja.hand);
   ly.black += shadowEllipse(C.x - 120, FLOOR, 240, 9, INK.black, 7, 2.3);
   const cs = 0.7;
@@ -168,7 +168,7 @@ S[5] = async (M) => {
   // Chispa frente al estante, mirando la fila roja
   const C = { x: 520, y: 1012, s: 0.75, flip: true };
   ly.black += shadowEllipse(C.x - 6, FLOOR - 4, 110, 9, INK.black, 7, 2.3);
-  add(ly, chispaP('alcanza', { ...C, expr: 'euforia', look: [-4, 4] }));
+  add(ly, chispaP('alcanza', { ...C, expr: 'euforia', look: [-4, 4], limbs: { armR: [[150, -10], [206, -46]], armL: [[-130, 62], [-122, 90]] } }));
   // línea de mirada: cono de dos trazos discontinuos, del ojo a la fila roja (sin punta)
   const eyeP = G(C, 18, -4);
   ly.black += strokeP(`M${f(eyeP[0] - 24)} ${f(eyeP[1] - 2)} L376 ${yb[2] - 62} M${f(eyeP[0] - 24)} ${f(eyeP[1] + 4)} L376 ${yb[2] - 4}`, INK.black, 3.5, 'stroke-dasharray="8 8" stroke-linecap="round"');
@@ -192,7 +192,7 @@ S[6] = async (M) => {
   ly.black += `<rect x="90" y="${yb}" width="8" height="${FLOOR - yb}" fill="${INK.black}"/><rect x="372" y="${yb}" width="8" height="${FLOOR - yb}" fill="${INK.black}"/>`;
   add(ly, P.botella(160, yb, 46, 120, 'black')); add(ly, P.botella(310, yb, 46, 120, 'black'));
   ly.black += P.etiquetaMuda(160, yb + 14) + P.etiquetaMuda(310, yb + 14);
-  add(ly, P.cartelEstallido(316, y + 90, 104, 'OFERTA'));
+  add(ly, P.cartelEstallido(330, 846, 100, 'OFERTA'));
   // Chispa hipnotizada, brazos al frente
   const C = { x: 530, y: 1010, s: 0.75, flip: true, lean: 6 };
   ly.black += shadowEllipse(C.x, FLOOR - 4, 110, 9, INK.black, 7, 2.3);
@@ -214,13 +214,13 @@ S[7] = async (M) => {
   y += 48 * 1.08 + 24 + 38;
   y = (await para(ly, M, [r('Y solo ahorras si de verdad ibas a usar las dos.')], { y })).next;
   // escena: cartel detrás y Chispa con un envase idéntico en cada mano
-  ly.red += sign(300, 830, -4, nb('2.ª UNIDAD AL 50 %'), { w: 470, h: 92, size: 54 });
-  const C = { x: 300, y: 1006, s: 0.8 };
+  ly.red += sign(300, 788, -4, nb('2.ª UNIDAD AL 50 %'), { w: 470, h: 92, size: 54 });
+  const C = { x: 300, y: 1016, s: 0.8 };
   ly.black += shadowEllipse(C.x, 1132, 120, 9, INK.black, 7, 2.3);
-  add(ly, chispa({ ...C, expr: 'euforia', pose: 'hold', sweatIdx: [0], knockFor: ['red'] }));
+  add(ly, chispa({ ...C, expr: 'euforia', pose: 'hold', sweatIdx: [1] }));
   const hl = G(C, -120, -26), hr = G(C, 118, -28);
   add(ly, P.botella(hl[0], hl[1] + 12, 34, 92, 'red', -10)); add(ly, P.botella(hr[0], hr[1] + 12, 34, 92, 'red', 10));
-  ly.black += burst(C.x + 6, C.y - 130 * C.s - 40, 0.8);
+  ly.black += burst(C.x + 6, C.y - 130 * C.s + 4, 0.7);
   const pc = await pausaCorner(M, { expr: 'neutral', look: [-4, -8], quote: '«¿Necesitas dos? Si no, no es ahorro.»', anchor: 900 });
   add(ly, pc.layers);
   add(ly, sourceLine([[m(nb('Cálculo: (4 € + 2 €) ÷ 2 = 3 € por unidad.'))]]));
@@ -238,9 +238,9 @@ S[8] = async (M) => {
   const FLOOR = 1140, yb = 1060;
   ly.black += P.balda(70, 380, yb, 8);
   ly.black += `<rect x="90" y="${yb}" width="8" height="${FLOOR - yb}" fill="${INK.black}"/><rect x="352" y="${yb}" width="8" height="${FLOOR - yb}" fill="${INK.black}"/>`;
-  add(ly, P.envaseCorte(150, yb, 110, 160, 1));
-  add(ly, P.envaseCorte(300, yb, 110, 160, 0.7));
-  ly.black += P.etiquetaMuda(150, yb - 214) + P.etiquetaMuda(300, yb - 214);
+  add(ly, P.envaseCorte(150, yb, 120, 190, 1));
+  add(ly, P.envaseCorte(300, yb, 120, 190, 0.7));
+  ly.black += P.etiquetaMuda(150, yb - 240) + P.etiquetaMuda(300, yb - 240);
   // Chispa se lleva otra caja (la de menos) bajo el brazo, ojos cerrados
   const C = { x: 510, y: 1010, s: 0.7 };
   ly.black += shadowEllipse(C.x, FLOOR - 4, 110, 9, INK.black, 7, 2.3);
@@ -277,7 +277,7 @@ S[9] = async (M) => {
   add(ly, pc.layers);
   const Pz = { x: 866, y: 1046, s: 0.7, flip: true };
   const mugH = G(Pz, 236, 86), ankle = G(C, 40, 112);
-  ly.black += P.correaTensa(mugH, ankle);
+  ly.black += strokeP(`M${f(mugH[0])} ${f(mugH[1])} L${f(ankle[0])} ${f(ankle[1])}`, W, 10) + P.correaTensa(mugH, ankle);
   add(ly, sourceLine([[m('Fuente: Ejlerskov et al. (2018), '), mi('PLOS Medicine'), m('.')]]));
   return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
 };
@@ -286,24 +286,23 @@ S[9] = async (M) => {
 S[10] = async (M) => {
   const ly = L();
   add(ly, chrome(10, 'blue'));
-  const sheet = { x0: 104, y0: 160, x1: 912, y1: 1196 };
+  const sheet = { x0: 104, y0: 160, x1: 900, y1: 1196, first: 384, gap: 104 };
   const items = ['Entra con lista y sal al acabarla.', 'Ve directamente a lo básico.', 'Mira arriba y abajo.', 'Precio, no cartel.', '¿Necesitas dos?', 'Precio por kilo.', 'En la caja, nada nuevo.'];
   const content = L();
   add(content, P.listaCompra({ ...sheet, rot: 0 }));
   const mx = 104 + 110;
-  add(content, richText({ x: mx + 24, y: 262, lines: [[h('La lista de la compra')], [h('de '), h('Pausa', 'blue')]], size: 64, lh: 0.98, ls: -0.01 }));
-  const gap = 1036 * (108 / 1036);
+  add(content, richText({ x: mx + 24, y: 268, lines: [[h('La lista de la compra')], [h('de '), h('Pausa', 'blue')]], size: 64, lh: 0.98, ls: -0.01 }));
   const rnd = P.rand(9);
   items.forEach((t, i) => {
-    const base = 160 + gap * (3.9 + i) - 14;
+    const line = sheet.first + sheet.gap * (i + 1), base = line - 14;
     add(content, stopBadge(104 + 55, base - 14, i + 1, { r: 22, size: 28 }));
-    content.black += P.casilla(mx + 22, base - 2, 40, -3 + rnd() * 6);
-    add(content, richText({ x: mx + 82, y: base - 6, lines: [[r(t)]], size: 42 }));
+    content.black += P.casilla(mx + 22, base, 40, -3 + rnd() * 6);
+    add(content, richText({ x: mx + 82, y: base - 2, lines: [[r(t)]], size: 42 }));
   });
-  add(ly, P.tf(content, `rotate(-1.5 508 678)`));
-  // Pausa satisfecha, fuera de la hoja, en la esquina
-  const Pz = { x: 950, y: 1132, s: 0.46, flip: true };
-  ly.black += shadowEllipse(Pz.x, 1196, 100, 7, INK.black, 6, 2);
+  add(ly, P.tf(content, `rotate(-1.5 502 678)`));
+  // Pausa satisfecha, fuera de la hoja, en la esquina (pisa solo el borde)
+  const Pz = { x: 966, y: 1136, s: 0.46, flip: true };
+  ly.black += shadowEllipse(Pz.x, 1198, 96, 7, INK.black, 6, 2);
   add(ly, pausa({ ...Pz, expr: 'feliz', pose: 'sit' }));
   return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
 };
@@ -311,20 +310,20 @@ S[10] = async (M) => {
 // ------------------------------------------------------------------ 11 · Tu turno
 S[11] = async (M) => {
   const ly = L();
-  add(ly, chrome(11, 'plum', 'Dinero Irracional'));
+  add(ly, chrome(11, 'plum', '@dinero_irracional'));
   const t = await M.wrap([h('¿En qué parada cae tu '), h('Chispa', 'red'), h(' siempre?')], CW, 92);
   add(ly, richText({ x: X0, y: 232, lines: t, size: 92, lh: 0.96, ls: -0.012 }));
-  for (let i = 0; i < 7; i++) add(ly, stopBadge(168 + i * 124, 520, i + 1, { r: 40, size: 50 }));
-  add(ly, richText({ x: 540, y: 642, lines: [[h('Comenta el número.')]], size: 60, anchor: 'middle' }));
-  add(ly, P.chincheta(92, 712, 1.3));
-  add(ly, richText({ x: 136, y: 730, lines: [[r('Guárdalo para tu próxima compra.')]], size: 38 }));
-  ly.black += P.avionPapel(92, 776, 1.1);
-  add(ly, richText({ x: 136, y: 790, lines: [[r('Envíaselo a quien «solo iba a por pan».')]], size: 38 }));
+  for (let i = 0; i < 7; i++) add(ly, stopBadge(168 + i * 124, 470, i + 1, { r: 40, size: 50 }));
+  add(ly, richText({ x: 540, y: 600, lines: [[h('Comenta el número.')]], size: 60, anchor: 'middle' }));
+  add(ly, P.chincheta(92, 684, 1.3));
+  add(ly, richText({ x: 136, y: 702, lines: [[r('Guárdalo para tu próxima compra.')]], size: 38 }));
+  ly.black += P.avionPapel(92, 750, 1.1);
+  add(ly, richText({ x: 136, y: 764, lines: [[r('Envíaselo a quien «solo iba a por pan».')]], size: 38 }));
   // Chispa sale solo con el pan, como un trofeo; Pausa brinda
   const C = { x: 300, y: 1236 - 122 * 1.0 - 2, s: 1.0 };
   add(ly, chispaP('trofeo', { ...C, expr: 'euforia', look: [0, -1], sweat: 2 }));
   const hd = G(C, ...CH_POSES.trofeo.hand);
-  add(ly, P.baguette(hd[0] + 10, hd[1] - 44, 150, 28, -62));
+  add(ly, P.baguette(hd[0] + 22, hd[1] - 46, 150, 28, -64));
   ly.black += burst(C.x - 30, C.y - 130 * C.s - 10, 0.9);
   const Pz = { x: 760, y: 1200 - 135 * 1.1, s: 1.1 };
   ly.black += shadowEllipse(Pz.x + 10, 1196, 230, 13, INK.black, 7, 2.8);

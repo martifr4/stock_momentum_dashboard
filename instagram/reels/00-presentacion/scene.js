@@ -410,13 +410,13 @@ function chispa7(tc) {
     return { ...base, pose: 'lunge', flip: true, limbs: DIVE, lean: LEAN7, x: 330 + dx, y: YDIVE, expr: tc >= 1322 ? 'alarma' : 'euforia', halo: 8, dive: true };
   }
   if (tc <= 1366) {
-    const p0 = { 1362: [380, 1200], 1364: [410, 1290], 1366: [430, Y7] }[tc];
+    const p0 = { 1362: [370, 1200], 1364: [395, 1290], 1366: [400, Y7] }[tc];
     return { ...base, pose: 'shrug', flip: true, x: p0[0], y: p0[1], expr: 'alarma', squash: tc === 1366 ? 0.88 : 1, dust: tc === 1366, halo: 8 };
   }
   const r = rest(tc);
-  if (tc < 1380) return { ...base, pose: 'stand', x: 430 + r.dx, y: Y7, expr: 'esceptico', look: [8, 0], sizzle: r.sizzle, dust: tc === 1368 };
-  if (tc < 1424) return { ...base, pose: 'stand', x: 430 + r.dx, y: Y7, expr: 'neutral', look: [0, 2], sweatIdx: [1], sizzle: r.sizzle, blink: RIG.blinkFast(tc, [[1384, 1422]], 11) };
-  return { ...base, pose: 'happy', x: 430 + r.dx, y: Y7, expr: tc < 1470 ? 'feliz' : 'orgullosa', look: tc < 1470 ? null : [0, 2], sweatIdx: [1], sizzle: r.sizzle };
+  if (tc < 1380) return { ...base, pose: 'stand', x: 400 + r.dx, y: Y7, expr: 'esceptico', look: [8, 0], sizzle: r.sizzle, dust: tc === 1368 };
+  if (tc < 1424) return { ...base, pose: 'stand', x: 400 + r.dx, y: Y7, expr: 'neutral', look: [0, 2], sweatIdx: [1], sizzle: r.sizzle, blink: RIG.blinkFast(tc, [[1384, 1422]], 11) };
+  return { ...base, pose: 'happy', x: 400 + r.dx, y: Y7, expr: tc < 1470 ? 'feliz' : 'orgullosa', look: tc < 1470 ? null : [0, 2], sweatIdx: [1], sizzle: r.sizzle };
 }
 function pausa7(t) {
   const p = { ...PZ0, pose: 'duerme', expr: 'dormida' };
@@ -470,7 +470,7 @@ function shot7(t, w) {
 const KICK = [{ legL: [[-60, 90], [-80, 110]] }, { legL: [[-30, 98], [-36, 124]] }];
 const F0 = { x: BTN.cx, y: Y1(778), s: CS1 }; // dibujo de f0
 function chispa8(tc) {
-  const base = { s: 1, x: 430, y: Y7, expr: 'euforia' };
+  const base = { s: 1, x: 400, y: Y7, expr: 'euforia' };
   if (tc < 1630) {
     let y = Y7;
     const J = { 0: -50, 2: -76, 4: -50, 6: 0 };
@@ -479,15 +479,15 @@ function chispa8(tc) {
     if (tc >= 1594 && tc <= 1598) y = Y7 + { 1594: -26, 1596: -38, 1598: 0 }[tc];
     const air = y !== Y7;
     const r = air ? { dx: 0 } : rest(tc);
-    return { ...base, x: 430 + r.dx, y, pose: 'cheer', sweat: 2, sizzle: r.sizzle, burst: (tc >= 1536 && tc <= 1542) || (tc >= 1560 && tc <= 1566), blink: RIG.blinkFast(tc, [[1600, 1628]], 5) };
+    return { ...base, x: 400 + r.dx, y, pose: 'cheer', sweat: 2, sizzle: r.sizzle, burst: (tc >= 1536 && tc <= 1542) || (tc >= 1560 && tc <= 1566), blink: RIG.blinkFast(tc, [[1600, 1628]], 5) };
   }
   if (tc < 1660) {
     const kick = tc >= 1646 && tc <= 1652 ? KICK[((tc - 1646) / 2) % 2] : null;
     const r = rest(tc);
-    return { ...base, x: 430 + r.dx, pose: 'stand', look: [-6, 6], limbs: kick, sizzle: r.sizzle };
+    return { ...base, x: 400 + r.dx, pose: 'stand', look: [-6, 6], limbs: kick, sizzle: r.sizzle };
   }
   if (tc === 1660) return { ...base, pose: 'shrug', squash: 0.86 };
-  const K = { 1662: [415, 1220, 1.0, 'lunge'], 1664: [375, 1075, 1.01, 'lunge'], 1666: [330, 975, 1.02, 'lunge'], 1668: [298, 920, 1.03, 'hold'], 1670: [279, 892, 1.04, 'hold'], 1672: [269, 879, 1.045, 'hold'], 1674: [264, 874, 1.05, 'hold'], 1676: [262, 872, 1.05, 'hold'], 1678: [262, F0.y, 1.05, 'hold'] }[tc];
+  const K = { 1662: [390, 1220, 1.0, 'lunge'], 1664: [360, 1075, 1.01, 'lunge'], 1666: [330, 975, 1.02, 'lunge'], 1668: [298, 920, 1.03, 'hold'], 1670: [279, 892, 1.04, 'hold'], 1672: [269, 879, 1.045, 'hold'], 1674: [264, 874, 1.05, 'hold'], 1676: [262, 872, 1.05, 'hold'], 1678: [262, F0.y, 1.05, 'hold'] }[tc];
   const lunge = K[3] === 'lunge';
   return { ...base, x: K[0], y: K[1], s: K[2], pose: K[3], flip: tc < 1678, speed: lunge ? 4 : 0, look: tc >= 1676 ? [0, 4] : null, sweat: tc >= 1676 ? 2 : 0, squash: tc === 1662 ? 1.05 : 1 };
 }
@@ -518,7 +518,7 @@ function shot8(t, w) {
   const h = RIG.pausaHandle(pz);
   if (tc < 1654) w.black += P.leashLoose(h, RIG.chispaAnkle(cp), 120);
   else if (tc < 1660) {
-    const a0 = RIG.chispaAnkle({ ...cp, pose: 'stand', limbs: null, x: 430, y: Y7, s: 1, squash: 1 });
+    const a0 = RIG.chispaAnkle({ ...cp, pose: 'stand', limbs: null, x: 400, y: Y7, s: 1, squash: 1 });
     const kk = { 1654: 0.3, 1656: 0.65, 1658: 0.92 }[tc];
     const e = [a0[0] + (REST_END[0] - a0[0]) * kk, a0[1] + (REST_END[1] - a0[1]) * kk];
     w.black += P.leashLoose(h, e, 120 * (1 - kk) + 10, { loop: false }) + P.LOOP_OPEN(e[0], e[1], -30 * (1 - kk));

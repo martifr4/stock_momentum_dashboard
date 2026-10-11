@@ -147,7 +147,7 @@ const CH_POSES = {
   // pica: brazo estirado bajo y hacia el lado, disimulando
   pica: { pose: 'stand', limbs: { armR: [[138, 64], [160, 60]] }, hand: [160, 60] },
   // trofeo: brazos arriba (cheer); la mano derecha sostiene el pan
-  trofeo: { pose: 'cheer', limbs: {}, hand: [136, -42] },
+  trofeo: { pose: 'cheer', limbs: { armR: [[146, -10], [176, -76]] }, hand: [176, -76] },
 };
 function chispaP(name, opts) {
   const P = CH_POSES[name];
@@ -204,18 +204,19 @@ function sheetPath(x0, y0, x1, y1, seed = 7) {
   }
   return d + ` V${y1}Z`;
 }
-function listaCompra({ x0 = 104, y0 = 160, x1 = 912, y1 = 1196, rot = -1.5, mini = false, seed = 11 } = {}) {
+function listaCompra({ x0 = 104, y0 = 160, x1 = 912, y1 = 1196, rot = -1.5, mini = false, seed = 11, first = null, gap: gapIn = null } = {}) {
   const o = L();
   const d = sheetPath(x0, y0, x1, y1, seed);
   const sid = uid('sh');
   o.defs += `<clipPath id="${sid}"><path d="${d}" transform="translate(${mini ? 3 : 8} ${mini ? 4 : 10})"/></clipPath>`;
   o.black += halftone({ x0: x0, y0: y0, x1: x1 + 12, y1: y1 + 12, step: mini ? 3 : 6, rmax: mini ? 0.8 : 1.9, color: INK.black, clip: sid, fn: () => 1 });
   for (const k of ['black', 'red', 'blue']) o[k] += `<path d="${d}" fill="${W}"/>`;
+  o.black += `<path d="${d}" fill="none" stroke="${INK.black}" stroke-width="${mini ? 1.2 : 2.5}" stroke-linejoin="round" opacity="0.85"/>`;
   // pautado: margen rojo y renglones azules
   const mx = x0 + (x1 - x0) * (110 / 808);
-  const gap = (y1 - y0) * (108 / 1036);
+  const gap = gapIn || (y1 - y0) * (108 / 1036);
   o.red += `<path d="M${f(mx)} ${y0 + 14} V${y1}" stroke="${INK.red}" stroke-width="${mini ? 1 : 3}"/>`;
-  for (let yy = y0 + gap * 1.9; yy < y1 - 10; yy += gap) o.blue += `<path d="M${x0} ${f(yy)} H${x1}" stroke="${INK.blue}" stroke-width="${mini ? 0.8 : 2}"/>`;
+  for (let yy = first || y0 + gap * 1.9; yy < y1 - 10; yy += gap) o.blue += `<path d="M${x0} ${f(yy)} H${x1}" stroke="${INK.blue}" stroke-width="${mini ? 0.8 : 2}"/>`;
   if (mini) { // renglones de texto como rayas
     for (let i = 0; i < 6; i++) { const yy = y0 + gap * (2.9 + i) - gap * 0.25; o.black += `<path d="M${f(mx + 4)} ${f(yy)} h${f((x1 - mx) * (0.4 + 0.3 * ((i * 7) % 5) / 5))}" stroke="${INK.black}" stroke-width="2.2" stroke-linecap="round"/>`; }
     o.black += `<path d="M${f(mx + 4)} ${f(y0 + gap * 1.3)} h${f((x1 - mx) * 0.7)}" stroke="${INK.black}" stroke-width="3.5" stroke-linecap="round"/>`;
