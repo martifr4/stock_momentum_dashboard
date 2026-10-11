@@ -39,21 +39,21 @@ S[1] = async (M) => {
   const ly = L();
   add(ly, chrome(1, 'red'));
   add(ly, richText({ x: X0 - 4, y: 268, lines: [[h('Entraste')], [h('a por pan.')]], size: 150, lh: 0.92, ls: -0.02 }));
-  add(ly, richText({ x: X0, y: 500, lines: [[h('Chispa', 'red'), h(' salió con 43 €.')]], size: 80, ls: -0.01 }));
-  add(ly, stopBadge(X0 + 26, 590, 7, { r: 26, size: 34 }));
-  add(ly, richText({ x: X0 + 62, y: 601, lines: [[mi('trucos del súper (y cómo frenarlos)')]], size: 32 }));
-  // escena: Chispa sale empujando el carrito desbordado; Pausa va de pasajera encima del montón
-  const C = { x: 236, y: 1004, s: 1.12, lean: -8 };
+  add(ly, richText({ x: X0, y: 500, lines: [[b('Chispa', 'red'), b(' salió con 43 €.')]], size: 82, ls: -0.01 }));
+  add(ly, stopBadge(X0 + 26, 584, 7, { r: 26, size: 34 }));
+  add(ly, richText({ x: X0 + 62, y: 595, lines: [[mi('trucos del súper (y cómo frenarlos)')]], size: 32 }));
+  // escena (×1,45): Chispa sale empujando el carrito desbordado; Pausa va de pasajera encima del montón
+  const cs = 1.45;
+  const C = { x: 172, y: 1194 - 122 * cs, s: cs, lean: -8 };
   const hand = G(C, ...CH_POSES.empuja.hand);
-  const cs = 1.12;
   const cart = { x: hand[0], y: hand[1] };
   const T = (c) => P.tf(c, `translate(${cart.x} ${cart.y}) scale(${cs})`);
-  ly.black += shadowEllipse(C.x + 260, 1162, 380, 16, INK.black, 8, 3);
+  ly.black += shadowEllipse(cart.x + 120, 1196, 440, 16, INK.black, 8, 3);
   for (const c of cargaLlena({ withRider: true })) add(ly, T(c));
-  // la barra de pan, lo único que venía a comprar, asoma en diagonal (pequeña)
-  add(ly, P.baguette(cart.x + 70 * cs, cart.y - 178 * cs, 84, 18, -52));
+  // la barra de pan, lo único que venía a comprar, asoma arriba en diagonal
+  add(ly, P.baguette(cart.x + 56 * cs, cart.y - 150 * cs, 104, 28, -60, 5));
   // Pausa sentada sobre el montón; los alambres delanteros van por encima
-  const Pz = { x: cart.x + 214 * cs, y: cart.y - 20 * cs, s: 0.45 };
+  const Pz = { x: cart.x + 214 * cs, y: cart.y - 22 * cs, s: 0.58 };
   add(ly, pausa({ ...Pz, expr: 'esceptico', pose: 'sit', look: [-2, 6], knockFor: ['red', 'black'] }));
   add(ly, carrito({ x: cart.x, y: cart.y, s: cs, carga: [] }));
   add(ly, chispaP('empuja', { ...C, expr: 'euforia', look: [2, -1], sweat: 2, speed: 3 }));
@@ -103,6 +103,7 @@ S[3] = async (M) => {
   const carga = cargaMedia().map((c) => P.tf(c, `translate(${hand[0]} ${hand[1]}) scale(${cs})`));
   for (const c of carga) add(ly, c);
   add(ly, P.botella(hand[0] + 200 * cs, hand[1] - 34 * cs, 34 * cs, 92 * cs, 'red', 32)); // uno más, cayendo dentro
+  { const bx = hand[0] + 200 * cs, by = hand[1] - 34 * cs - 92 * cs; ly.black += strokeP(`M${f(bx - 30)} ${f(by - 40)} l14 22 M${f(bx - 6)} ${f(by - 52)} l12 22 M${f(bx + 18)} ${f(by - 46)} l10 18`, INK.black, 4, 'stroke-linecap="round"'); }
   add(ly, carrito({ x: hand[0], y: hand[1], s: cs }));
   add(ly, chispaP('empujaLenta', { ...C, expr: 'feliz' }));
   ly.black += nodArcs(C.x, C.y - 150 * C.s, 0.6);
@@ -170,8 +171,8 @@ S[5] = async (M) => {
   ly.black += shadowEllipse(C.x - 6, FLOOR - 4, 110, 9, INK.black, 7, 2.3);
   add(ly, chispaP('alcanza', { ...C, expr: 'euforia', look: [-4, 4], limbs: { armR: [[150, -10], [206, -46]], armL: [[-130, 62], [-122, 90]] } }));
   // línea de mirada: cono de dos trazos discontinuos, del ojo a la fila roja (sin punta)
-  const eyeP = G(C, 18, -4);
-  ly.black += strokeP(`M${f(eyeP[0] - 24)} ${f(eyeP[1] - 2)} L376 ${yb[2] - 62} M${f(eyeP[0] - 24)} ${f(eyeP[1] + 4)} L376 ${yb[2] - 4}`, INK.black, 3.5, 'stroke-dasharray="8 8" stroke-linecap="round"');
+  const eyeP = G(C, 38, -4);
+  ly.black += strokeP(`M${f(eyeP[0] - 22)} ${f(eyeP[1] - 4)} L376 ${yb[2] - 62} M${f(eyeP[0] - 22)} ${f(eyeP[1] + 6)} L376 ${yb[2] - 4}`, INK.black, 3.5, 'stroke-dasharray="8 8" stroke-linecap="round"');
   const pc = await pausaCorner(M, { expr: 'neutral', look: [0, -9], quote: '«Antes de coger nada, mira arriba y abajo.»', anchor: 900 });
   add(ly, pc.layers);
   add(ly, sourceLine([[m('Fuentes: Chandon et al. (2009), '), mi('Journal of Marketing'), m(';')], [m('Chen et al. (2021), '), mi('Journal of Marketing Research'), m('.')]]));
@@ -187,17 +188,17 @@ S[6] = async (M) => {
   y += 24 + 38 * 0.8;
   y = (await para(ly, M, [r('Un cartel llamativo hace subir las ventas incluso cuando el precio no ha bajado. Chispa ve el cartel y entiende «barato».')], { y })).next;
   const FLOOR = 1140, yb = 1010;
-  // balda corta con dos envases idénticos y dos etiquetas mudas idénticas
-  ly.black += P.balda(70, 400, yb, 8);
-  ly.black += `<rect x="90" y="${yb}" width="8" height="${FLOOR - yb}" fill="${INK.black}"/><rect x="372" y="${yb}" width="8" height="${FLOOR - yb}" fill="${INK.black}"/>`;
-  add(ly, P.botella(160, yb, 46, 120, 'black')); add(ly, P.botella(310, yb, 46, 120, 'black'));
-  ly.black += P.etiquetaMuda(160, yb + 14) + P.etiquetaMuda(310, yb + 14);
-  add(ly, P.cartelEstallido(330, 846, 100, 'OFERTA'));
-  // Chispa hipnotizada, brazos al frente
-  const C = { x: 530, y: 1010, s: 0.75, flip: true, lean: 6 };
-  ly.black += shadowEllipse(C.x, FLOOR - 4, 110, 9, INK.black, 7, 2.3);
-  add(ly, chispaP('zombi', { ...C, expr: 'espiral', sweatIdx: [1] }));
-  const pc = await pausaCorner(M, { pose: 'lupa', prop: P.lupa, expr: 'esceptico', look: [-8, 6], quote: '«Mira el precio, no el cartel.»', anchor: 880 });
+  // balda corta con dos envases idénticos y dos etiquetas mudas idénticas (a la derecha de la escena)
+  ly.black += P.balda(250, 580, yb, 8);
+  ly.black += `<rect x="270" y="${yb}" width="8" height="${FLOOR - yb}" fill="${INK.black}"/><rect x="552" y="${yb}" width="8" height="${FLOOR - yb}" fill="${INK.black}"/>`;
+  add(ly, P.botella(340, yb, 46, 120, 'black')); add(ly, P.botella(490, yb, 46, 120, 'black'));
+  ly.black += P.etiquetaMuda(340, yb + 14) + P.etiquetaMuda(490, yb + 14);
+  add(ly, P.cartelEstallido(492, 840, 96, 'OFERTA'));
+  // Chispa hipnotizada, brazos al frente, viene desde la izquierda hacia el cartel
+  const C = { x: 148, y: 1012, s: 0.72, lean: -6 };
+  ly.black += shadowEllipse(C.x, FLOOR - 4, 105, 9, INK.black, 7, 2.3);
+  add(ly, chispaP('zombi', { ...C, expr: 'espiral', sweatIdx: [0] }));
+  const pc = await pausaCorner(M, { pose: 'lupa', prop: P.lupa, raise: 'side', expr: 'esceptico', look: [-8, 6], quote: '«Mira el precio, no el cartel.»', anchor: 880 });
   add(ly, pc.layers);
   add(ly, sourceLine([[m('Fuente: Inman, McAlister y Hoyer (1990),')], [mi('Journal of Consumer Research'), m('.')]]));
   return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
@@ -210,15 +211,18 @@ S[7] = async (M) => {
   add(ly, stopHeader(5, 'PARADA 5: LA SEGUNDA UNIDAD'));
   let y = title(ly, [[h('«2.ª unidad al 50 %»')], [h('no es un 50 %')], [h('de descuento.')]], 64);
   y += 24 + 48 * 0.8;
-  add(ly, richText({ x: X0, y, lines: [[h('4 € + 2 € = 6 € por las dos → 3 € cada una.')], [h('Es un '), h('25 %', 'blue'), h('.')]].map((ln) => ln.map((sp) => ({ ...sp, t: nb(sp.t) }))), size: 48, lh: 1.08, ls: -0.005 }));
+  // línea de cálculo en 600; operadores a altura de mayúscula (cuerpo mayor, en 800); «25 %» en 800 negro
+  const op = (t) => ({ t, st: 'bold', ink: 'black', size: 60 });
+  const calc1 = [r('4 € '), op('+'), r(' 2 € '), op('='), r(' 6 € por las dos '), op('→'), r(' 3 € cada una.')];
+  add(ly, richText({ x: X0, y, lines: [calc1, [r('Es un '), b('25 %'), r('.')]], size: 48, lh: 1.12, ls: -0.005 }));
   y += 48 * 1.08 + 24 + 38;
   y = (await para(ly, M, [r('Y solo ahorras si de verdad ibas a usar las dos.')], { y })).next;
   // escena: cartel detrás y Chispa con un envase idéntico en cada mano
   ly.red += sign(300, 788, -4, nb('2.ª UNIDAD AL 50 %'), { w: 470, h: 92, size: 54 });
-  const C = { x: 300, y: 1016, s: 0.8 };
+  const C = { x: 300, y: 1016, s: 0.78 };
   ly.black += shadowEllipse(C.x, 1132, 120, 9, INK.black, 7, 2.3);
-  add(ly, chispa({ ...C, expr: 'euforia', pose: 'hold', sweatIdx: [1] }));
-  const hl = G(C, -120, -26), hr = G(C, 118, -28);
+  add(ly, chispa({ ...C, expr: 'euforia', pose: 'hold', sweatIdx: [], limbs: { armL: [[-150, 12], [-176, -30]], armR: [[148, 10], [174, -32]] } }));
+  const hl = G(C, -176, -30), hr = G(C, 174, -32);
   add(ly, P.botella(hl[0], hl[1] + 12, 34, 92, 'red', -10)); add(ly, P.botella(hr[0], hr[1] + 12, 34, 92, 'red', 10));
   ly.black += burst(C.x + 6, C.y - 130 * C.s + 4, 0.7);
   const pc = await pausaCorner(M, { expr: 'neutral', look: [-4, -8], quote: '«¿Necesitas dos? Si no, no es ahorro.»', anchor: 900 });
@@ -242,13 +246,13 @@ S[8] = async (M) => {
   add(ly, P.envaseCorte(300, yb, 120, 190, 0.7));
   ly.black += P.etiquetaMuda(150, yb - 240) + P.etiquetaMuda(300, yb - 240);
   // Chispa se lleva otra caja (la de menos) bajo el brazo, ojos cerrados
-  const C = { x: 510, y: 1010, s: 0.7 };
+  const C = { x: 470, y: 1010, s: 0.7 };
   ly.black += shadowEllipse(C.x, FLOOR - 4, 110, 9, INK.black, 7, 2.3);
   const hb = G(C, 150, 40);
   add(ly, chispaP('abraza', { ...C, expr: 'feliz' }));
   add(ly, P.envaseCorte(hb[0] + 8, hb[1] + 46, 70, 100, 0.7));
   ly.black += `<circle cx="${f(G(C, 186, 18)[0])}" cy="${f(G(C, 186, 18)[1])}" r="5" fill="${INK.black}"/>`;
-  const pc = await pausaCorner(M, { pose: 'lupa', prop: P.lupa, expr: 'neutral', look: [-8, 4], quote: '«Compara el precio por kilo o por litro.»', anchor: 880 });
+  const pc = await pausaCorner(M, { expr: 'esceptico', look: [-9, 7], quote: '«Compara el precio por kilo o por litro.»', anchor: 880 });
   add(ly, pc.layers);
   add(ly, sourceLine([[m('Reduflación: menos cantidad por el mismo precio.')]]));
   return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
@@ -266,17 +270,14 @@ S[9] = async (M) => {
   add(ly, P.mostradorCaja(400, 620, 1010, FLOOR));
   add(ly, P.expositorSnacks(300, 382, 880, FLOOR));
   // Chispa en la cola, carrito lleno detrás (cortado por el borde)
-  const C = { x: 190, y: 1020, s: 0.72 };
-  const cart = { x: C.x - 130, y: 1004 };
-  for (const c of cargaLlena()) add(ly, P.clipLayers(P.tf(c, `translate(${cart.x} ${cart.y}) scale(-0.7 0.7)`), 0, 0, 1080, 1350));
-  add(ly, carrito({ x: cart.x, y: cart.y, s: 0.7, flip: true }));
+  const C = { x: 170, y: 1020, s: 0.72 };
   ly.black += shadowEllipse(C.x, FLOOR - 4, 110, 9, INK.black, 7, 2.3);
   add(ly, chispaP('pica', { ...C, expr: 'neutral', look: [6, 3], limbs: { armR: [[140, 60], [172, 52]] } }));
   // correa en tirón: del asa de la taza de Pausa al tobillo de Chispa (Pausa llega a tiempo)
-  const pc = await pausaCorner(M, { expr: 'esceptico', look: [-8, 6], quote: '«La cola no es un pasillo más.»', anchor: 900 });
+  const pc = await pausaCorner(M, { expr: 'esceptico', look: [-8, 6], quote: '«La cola no es un pasillo más.»', anchor: 900, mugAt: [214, 58] });
   add(ly, pc.layers);
   const Pz = { x: 866, y: 1046, s: 0.7, flip: true };
-  const mugH = G(Pz, 236, 86), ankle = G(C, 40, 112);
+  const mugH = G(Pz, 236, 58), ankle = G(C, 38, 96);
   ly.black += strokeP(`M${f(mugH[0])} ${f(mugH[1])} L${f(ankle[0])} ${f(ankle[1])}`, W, 10) + P.correaTensa(mugH, ankle);
   add(ly, sourceLine([[m('Fuente: Ejlerskov et al. (2018), '), mi('PLOS Medicine'), m('.')]]));
   return riso(1080, 1350, { layers: ly, paper: PAPERS.niebla });
@@ -323,7 +324,7 @@ S[11] = async (M) => {
   const C = { x: 300, y: 1236 - 122 * 1.0 - 2, s: 1.0 };
   add(ly, chispaP('trofeo', { ...C, expr: 'euforia', look: [0, -1], sweat: 2 }));
   const hd = G(C, ...CH_POSES.trofeo.hand);
-  add(ly, P.baguette(hd[0] + 22, hd[1] - 46, 150, 28, -64));
+  add(ly, P.baguette(hd[0] + 26, hd[1] - 50, 150, 32, -62, 6));
   ly.black += burst(C.x - 30, C.y - 130 * C.s - 10, 0.9);
   const Pz = { x: 760, y: 1200 - 135 * 1.1, s: 1.1 };
   ly.black += shadowEllipse(Pz.x + 10, 1196, 230, 13, INK.black, 7, 2.8);

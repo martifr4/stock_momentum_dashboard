@@ -22,7 +22,7 @@
 - Revisado: cada slide a tamaño completo (dos rondas como mínimo), la portada a 150 px y las slides 1, 5 y 7 a 360 px. Las fuentes de 24 px se leen a 360 px.
 
 ## Desviaciones del brief
-- **Firma de la slide 11:** el brief pedía `@dinero_irracional`, pero la decisión vigente del coordinador es «sin handle»: firma «Dinero Irracional», como en el post 00.
+- **Firma de la slide 11:** `@dinero_irracional`. El handle ya existe; el coordinador lo cambió en `render.js` en la ronda 2.
 - **Slide 1:** Pausa va encima del montón, pero la carga sube algo por encima de y 650 en el bote más alto. La barra de pan es pequeña y asoma en diagonal a la izquierda.
 - **Slide 4:**
   - La ruta azul serpentea por el suelo de la escena, bajo Chispa, en vez de hacer una S alta, para no tapar el carrito.
@@ -48,3 +48,37 @@ Validada en la slide 6 a tamaño completo y a 360 px: se lee como hipnosis. Pued
 - **Slide 10:** Pausa es muy pequeña en la esquina. Es intencionado, para que la hoja se pueda recortar sola.
 - **Minimapa:** a 540 px se distingue la parada roja; a 360 px el plano es muy esquemático, pero la insignia grande de la izquierda repite el número.
 - `riso.js` no se ha tocado. Si el animador cambia la API (`limbs`, `arms`, `mug`, `knockFor`), conviene volver a renderizar con `node render.js` y revisar.
+
+## Ronda 2 — cambios (crítica 52/70)
+**Correcciones obligatorias**
+1. **Slide 7, línea de cálculo:**
+   - Va en Bricolage 600 a 48 px; solo «25 %» va en 800, y en negro (el azul queda solo para la voz de Pausa).
+   - «+», «=» y «→» van a 60 px en 800, a altura de mayúscula, y en tramos propios. Así desaparece el doble espacio antes de «→».
+2. **Slide 6:**
+   - La escena se reordena: Chispa viene desde la izquierda, con los brazos al frente hacia el cartel; la balda con las dos botellas idénticas queda a la derecha.
+   - La lupa de Pausa (muñón a media altura) apunta a la izquierda, a la etiqueta de la botella de «OFERTA», sin nada en medio.
+   - La lupa reserva ≥ 20 px de papel alrededor del aro, en las planchas roja y negra.
+3. **Pan nuevo y único** (`baguette`), usado en las slides 1, 4 y 11:
+   - Cuerpo rojo de puntas redondas, 3–4 cortes diagonales gordos en reserva y vientre tostado en trama negra.
+   - Un halo de papel opcional lo separa de otras formas rojas.
+   - El mostrador de la slide 4 lleva tres barras grandes en abanico sobre una cesta trenzada: se lee como pan.
+4. **Portada:**
+   - La escena crece a ×1,45 (antes ×1,12). La carga empieza hacia y 660 y la banda vacía desaparece.
+   - A 150 px, la cara de Chispa mide ≈ 45 px de ancho y Pausa (s 0,58) se reconoce en el carrito.
+   - «Chispa salió con 43 €.» pasa a Bricolage 800 con anchura del 88 % y 82 px: el «€» ya no parece una «C» a 150 px.
+5. **Mapa:**
+   - La caja de arriba a la izquierda se estrecha y se separa 20 px de la primera góndola (`STORE.cajas`), así que ya no forma un «1».
+   - La insignia de la parada actual en el minimapa pasa a r 18.
+
+**Extras**
+- **Slide 9:**
+  - Fuera el carrito cortado.
+  - La correa tensa sube unos 28 px: la taza va más alta en el rincón (`mugAt`) y el tobillo, más arriba. Así se separa de la base del mostrador.
+  - Las marcas de tirón son más grandes (tres trazos de 5 px).
+- **Slide 3:** la botella que cae lleva tres trazos de movimiento.
+- **Slide 7:** las botellas van fuera de la silueta de Chispa, con los brazos abiertos, y sin gota de sudor.
+- **Slide 8:** Pausa ya no repite la lupa. Está sentada, escéptica, mirando la caja que se lleva Chispa, y no hay solapes con la caja.
+- **Slide 5:** las líneas de mirada arrancan justo fuera del ojo.
+- **Líneas de fuente:** pasan a 26 px (líneas base 1183 y 1216) y mantienen los cortes.
+
+**Revisado:** todas las slides a tamaño completo y a 360 px, y la portada a 150 px.

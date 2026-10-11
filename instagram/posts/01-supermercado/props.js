@@ -80,10 +80,22 @@ function huevera(x, y, w = 96, h = 30, ink = 'black', rot = 0) {
   return rot ? tf(o, `rotate(${rot} ${x} ${y - h / 2})`) : o;
 }
 // barra de pan: negra, 3 cortes en reserva. (x,y) = centro; len = largo; rot en grados
-function baguette(x, y, len = 150, th = 30, rot = -30) {
-  const d = `M${-len / 2} 0 C${-len / 2} ${-th * 0.7} ${-len / 2 + th * 0.6} ${-th / 2} ${-len / 2 + th} ${-th / 2} H${len / 2 - th} C${len / 2 - th * 0.4} ${-th / 2} ${len / 2} ${-th * 0.6} ${len / 2} 0 C${len / 2} ${th * 0.6} ${len / 2 - th * 0.4} ${th / 2} ${len / 2 - th} ${th / 2} H${-len / 2 + th} C${-len / 2 + th * 0.6} ${th / 2} ${-len / 2} ${th * 0.7} ${-len / 2} 0Z`;
-  const o = shape(d, 'black');
-  for (const k of [-0.25, 0, 0.25]) o.black += `<path d="M${f(len * k - 12)} ${f(th * 0.2)} L${f(len * k + 12)} ${f(-th * 0.25)}" stroke="${W}" stroke-width="5" stroke-linecap="round"/>`;
+// barra de pan (Ronda 2): cuerpo rojo de puntas redondas, 3–4 cortes diagonales gordos en reserva,
+// vientre tostado en trama negra. halo = hueco de papel alrededor (para separarla de otra forma roja).
+function baguette(x, y, len = 150, th = 30, rot = -30, halo = 0) {
+  const r = th / 2;
+  const d = `M${-len / 2 + r} ${-r} H${len / 2 - r} A${r} ${r} 0 0 1 ${len / 2 - r} ${r} H${-len / 2 + r} A${r} ${r} 0 0 1 ${-len / 2 + r} ${-r}Z`;
+  const o = L();
+  if (halo) for (const k of ['red', 'black']) o[k] += `<path d="${d}" fill="${W}" stroke="${W}" stroke-width="${halo * 2}"/>`;
+  add(o, shape(d, 'red', ['black']));
+  const cid = uid('bg');
+  o.defs += `<clipPath id="${cid}"><path d="${d}"/></clipPath>`;
+  o.black += `<g clip-path="url(#${cid})">${halftone({ x0: -len / 2, y0: r * 0.25, x1: len / 2, y1: r, step: 4.5, rmax: 1.7, color: INK.black, fn: () => 1 })}</g>`;
+  const n = len > 110 ? 4 : 3;
+  for (let i = 0; i < n; i++) {
+    const cx = -len / 2 + r + ((len - 2 * r) * (i + 0.5)) / n;
+    o.red += `<path d="M${f(cx - th * 0.32)} ${f(r * 0.5)} L${f(cx + th * 0.32)} ${f(-r * 0.55)}" stroke="${W}" stroke-width="${f(Math.max(4, th * 0.22))}" stroke-linecap="round"/>`;
+  }
   return tf(o, `translate(${x} ${y}) rotate(${rot})`);
 }
 
@@ -159,6 +171,7 @@ function chispaP(name, opts) {
 const PA_ARMS = {
   up: { arm: [196, -14, 222, -74], hand: [224, -92] },        // en alto (banderín)
   side: { arm: [188, 10, 246, -18], hand: [262, -26] },       // hacia delante, a media altura (lista, lupa)
+  alto: { arm: [192, -30, 236, -104], hand: [246, -120] },    // en alto y adelantado (lupa por encima de Chispa)
 };
 const PA_HAND = PA_ARMS.up.hand;
 function pausaProp({ x, y, s, flip = false, expr = 'neutral', look, prop, raise = 'up', knockFor }) {
@@ -180,6 +193,7 @@ function banderin(hx, hy, dir = 1, s = 1) {
 function lupa(hx, hy, dir = 1, s = 1) {
   const o = L();
   const cx = hx + dir * 46 * s, cy = hy - 40 * s, r = 34 * s;
+  for (const k of ['red', 'black']) o[k] += `<circle cx="${f(cx)}" cy="${f(cy)}" r="${f(r + 5 * s + 20)}" fill="${W}"/>`;
   o.black += `<path d="M${f(hx)} ${f(hy + 8 * s)} L${f(cx - dir * r * 0.7)} ${f(cy + r * 0.7)}" stroke="${INK.black}" stroke-width="${12 * s}" stroke-linecap="round"/>`;
   o.black += `<circle cx="${f(cx)}" cy="${f(cy)}" r="${f(r)}" fill="none" stroke="${INK.black}" stroke-width="${10 * s}"/>`;
   o.blue += `<circle cx="${f(cx)}" cy="${f(cy)}" r="${f(r)}" fill="${W}"/>`;
@@ -247,7 +261,7 @@ const STORE = {
   w: 888, h: 610,
   gond: [[84, 134], [264, 314], [444, 494], [624, 674]], gondY: [150, 440],
   fondo: [600, 860, 8, 44],
-  cajas: [[20, 100, 160, 240], [20, 100, 520, 600]],
+  cajas: [[16, 64, 200, 290], [20, 100, 520, 600]],
   route: [[774, 610], [774, 95], [559, 95], [559, 480], [379, 480], [379, 95], [199, 95], [199, 480], [130, 480], [130, 610]],
   stops: [[774, 520], [680, 95], [559, 270], [469, 480], [379, 290], [199, 290], [130, 560]],
 };
@@ -342,7 +356,7 @@ function storeMap({ x, y, s, mode = 'full', current = 0 }) {
     if (todo.length > 1) o.blue += `<path d="${ptsPath(todo, X, Y)}" fill="none" stroke="${INK.blue}" stroke-width="3" stroke-dasharray="6 6" stroke-linejoin="round"/>`;
     STORE.stops.forEach((p, i) => {
       const n = i + 1, gx = X(p[0]), gy = Y(p[1]);
-      if (n === current) add(o, stopBadge(gx, gy, n, { r: 14, size: 18 }));
+      if (n === current) add(o, stopBadge(gx, gy, n, { r: 18, size: 22 }));
       else if (n < current) { o.blue += `<circle cx="${f(gx)}" cy="${f(gy)}" r="7" fill="${W}"/>`; o.black += `<circle cx="${f(gx)}" cy="${f(gy)}" r="5" fill="${INK.black}"/>`; }
       else { o.blue += `<circle cx="${f(gx)}" cy="${f(gy)}" r="6" fill="${W}"/>`; o.black += `<circle cx="${f(gx)}" cy="${f(gy)}" r="5" fill="${W}" stroke="${INK.black}" stroke-width="2"/>`; }
     });
@@ -359,11 +373,11 @@ function stopHeader(n, rotulo) {
   return o;
 }
 // Rincón de Pausa: Pausa (866, 1046) s 0,7 flip; disco + «Pausa:» + frase azul anclada en y 920
-async function pausaCorner(M, { expr = 'neutral', look, pose = 'sit', prop = null, raise = 'side', quote, size = 44, extra = null, anchor = 920 }) {
+async function pausaCorner(M, { expr = 'neutral', look, pose = 'sit', prop = null, raise = 'side', quote, size = 44, extra = null, anchor = 920, mugAt }) {
   const o = L();
   const P = { x: 866, y: 1046, s: 0.7, flip: true };
   o.black += shadowEllipse(P.x + 4, 1136, 150, 10, INK.black, 7, 2.4);
-  if (pose === 'sit') add(o, pausa({ ...P, expr, look, pose: 'sit' }));
+  if (pose === 'sit') add(o, pausa({ ...P, expr, look, pose: 'sit', ...(mugAt ? { mug: mugAt, arms: [[146, mugAt[1], 182, mugAt[1] + 10]] } : {}) }));
   else add(o, pausaProp({ ...P, expr, look, prop, raise }));
   if (extra) extra(o, P);
   let sz = size, lines = await M.wrap([{ t: quote, st: 'head', ink: 'blue' }], 376, sz);
@@ -377,8 +391,8 @@ async function pausaCorner(M, { expr = 'neutral', look, pose = 'sit', prop = nul
 }
 // línea de fuente: DM Mono 500 24 px, negro; tramos en cursiva (st: 'monoI'); base 1216 (y 1186 si hay dos)
 function sourceLine(lines) {
-  const ys = lines.length === 2 ? 1186 : 1216;
-  return richText({ x: 64, y: ys, lines: lines.map((ln) => ln.map((sp) => ({ ...sp, st: sp.st || 'mono', size: 24 }))), size: 24, lh: 1.25 });
+  const ys = lines.length === 2 ? 1183 : 1216;
+  return richText({ x: 64, y: ys, lines: lines.map((ln) => ln.map((sp) => ({ ...sp, st: sp.st || 'mono', size: 26 }))), size: 26, lh: 1.27 });
 }
 
 // ---------------------------------------------------------------- atrezo de escenas
@@ -398,14 +412,16 @@ function nota(x, y, s = 1, rot = 0, doble = false) { // corchea en trazo
   else g += `<path d="M9 -46 C22 -40 30 -30 24 -16" fill="none" stroke="${B}" stroke-width="5" stroke-linecap="round"/>`;
   return g + '</g>';
 }
-function mostradorPan(x0, yFloor) { // mostrador bajo con cesta y 3 barras
+function mostradorPan(x0, yFloor) { // mostrador bajo con cesta y 3 barras de pan bien visibles
   const o = L();
-  o.black += `<rect x="${x0}" y="${yFloor - 70}" width="110" height="70" fill="${INK.black}"/><rect x="${x0 + 8}" y="${yFloor - 50}" width="94" height="6" fill="${W}"/>`;
-  add(o, baguette(x0 + 40, yFloor - 104, 92, 20, -72));
-  add(o, baguette(x0 + 58, yFloor - 102, 96, 20, -86));
-  add(o, baguette(x0 + 76, yFloor - 100, 90, 20, 74));
-  o.black += `<path d="M${x0 + 14} ${yFloor - 92} L${x0 + 96} ${yFloor - 92} L${x0 + 88} ${yFloor - 70} L${x0 + 22} ${yFloor - 70}Z" fill="${INK.black}"/>`;
-  o.black += `<path d="M${x0 + 26} ${yFloor - 84} h58 M${x0 + 28} ${yFloor - 77} h54" stroke="${W}" stroke-width="2.5"/>`;
+  o.black += `<rect x="${x0}" y="${yFloor - 66}" width="120" height="66" fill="${INK.black}"/><rect x="${x0 + 8}" y="${yFloor - 46}" width="104" height="6" fill="${W}"/>`;
+  add(o, baguette(x0 + 20, yFloor - 136, 120, 28, -58, 5));
+  add(o, baguette(x0 + 60, yFloor - 152, 120, 28, -90, 5));
+  add(o, baguette(x0 + 100, yFloor - 136, 120, 28, 58, 5));
+  // cesta de mimbre por delante (negra, trenzado en reserva)
+  o.black += `<path d="M${x0 + 8} ${yFloor - 104} L${x0 + 112} ${yFloor - 104} L${x0 + 102} ${yFloor - 66} L${x0 + 18} ${yFloor - 66}Z" fill="${INK.black}"/>`;
+  o.red += `<path d="M${x0 + 8} ${yFloor - 104} L${x0 + 112} ${yFloor - 104} L${x0 + 102} ${yFloor - 66} L${x0 + 18} ${yFloor - 66}Z" fill="${W}"/>`;
+  o.black += `<path d="M${x0 + 18} ${yFloor - 94} h84 M${x0 + 20} ${yFloor - 84} h80 M${x0 + 22} ${yFloor - 74} h76" stroke="${W}" stroke-width="3" stroke-dasharray="8 5"/>`;
   return o;
 }
 function balda(x0, x1, y, th = 6) { return `<rect x="${x0}" y="${y}" width="${x1 - x0}" height="${th}" fill="${INK.black}"/>`; }
@@ -465,7 +481,7 @@ function expositorSnacks(x0, x1, yTop, yFloor) {
 function correaTensa(p0, p1) {
   let b = strokeP(`M${f(p0[0])} ${f(p0[1])} L${f(p1[0])} ${f(p1[1])}`, INK.black, 3.5, 'stroke-linecap="round"');
   b += `<g transform="translate(${f(p1[0])} ${f(p1[1])}) rotate(-10)" fill="none" stroke="${INK.black}" stroke-width="3.5" stroke-linecap="round"><path d="M0 0 C-12 -16 -22 -4 0 0 C12 -16 22 -4 0 0"/></g>`;
-  b += `<path d="M${f(p1[0] + 18)} ${f(p1[1] - 26)} l10 -8 M${f(p1[0] + 26)} ${f(p1[1] - 14)} l12 -4" stroke="${INK.black}" stroke-width="4" stroke-linecap="round"/>`;
+  b += `<path d="M${f(p1[0] + 16)} ${f(p1[1] - 34)} l14 -14 M${f(p1[0] + 28)} ${f(p1[1] - 16)} l20 -6 M${f(p1[0] + 4)} ${f(p1[1] - 40)} l4 -18" stroke="${INK.black}" stroke-width="5" stroke-linecap="round"/>`;
   return b;
 }
 function chincheta(x, y, s = 1) {
