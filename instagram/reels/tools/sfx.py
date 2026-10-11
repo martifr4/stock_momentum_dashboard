@@ -6,7 +6,7 @@ Cada efecto se genera con numpy a 44,1 kHz, mono, y se coloca según un
 rítmica suave (`--bed`) y mezclarlo todo con la voz, bajando la base cuando habla.
 
 Uso:
-  python3 sfx.py cues.json --duration 37.8 --out sfx.wav [--bed bed.wav]
+  python3 sfx.py cues.json --duration 37.8 --out sfx.wav [--bed bed.wav] [--tweaks sfx-mix.json]
   python3 sfx.py --mix vo.wav sfx.wav [bed.wav] --video reel.mp4 --out reel-audio.mp4
 """
 import argparse, json, subprocess, wave
@@ -192,19 +192,38 @@ def run(cmd):
     subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 
 
+def apply_tweaks(cues, tweaks):
+    """Ajustes de mezcla que no tocan el storyboard.
+
+    {"drop": ["710:thunk", ...], "move": {"197:boing": 203}, "gain": {"tick": 0.7}, "cue_gain": {"5:coins": 0.6}}
+    """
+    out = []
+    for c in cues:
+        key = f"{c['frame']}:{c['type']}"
+        if key in tweaks.get('drop', []):
+            continue
+        c = dict(c, frame=tweaks.get('move', {}).get(key, c['frame']))
+        c['gain'] = (c.get('gain', 1.0) * tweaks.get('gain', {}).get(c['type'], 1.0)
+                     * tweaks.get('cue_gain', {}).get(key, 1.0))
+        out.append(c)
+    return out
+
+
 def mix(vo, sfx, bed, video, out):
-    """Voz al frente; efectos a −6 dB; base a −20 dB que se agacha cuando hay voz."""
+    """Voz al frente; efectos a −6 dB que se agachan ~8 dB cuando hay voz; base a −20 dB que también se agacha."""
     inputs = ['-i', video, '-i', vo, '-i', sfx] + (['-i', bed] if bed else [])
-    f = '[1:a]aformat=channel_layouts=stereo,asplit=2[v][vk];[2:a]volume=0.5,aformat=channel_layouts=stereo[s];'
+    f = ('[1:a]aformat=channel_layouts=stereo,asplit=3[v][vk][vk2];[2:a]volume=0.5,aformat=channel_layouts=stereo[s0];'
+         '[s0][vk2]sidechaincompress=threshold=0.016:ratio=1.6:knee=4:attack=5:release=120[s];')
     if bed:
         f += ('[3:a]volume=0.11,aformat=channel_layouts=stereo[b];'
               '[b][vk]sidechaincompress=threshold=0.03:ratio=6:attack=15:release=250[bd];'
               '[v][s][bd]amix=inputs=3:normalize=0,')
     else:
         f += '[vk]anullsink;[v][s]amix=inputs=2:normalize=0,'
-    f += 'alimiter=limit=0.89,loudnorm=I=-14:TP=-1.5:LRA=9[a]'
+    # loudnorm sobremuestrea a 192 kHz: se vuelve a 48 kHz para Instagram.
+    f += 'alimiter=limit=0.89,loudnorm=I=-14:TP=-1.5:LRA=9,aresample=48000[a]'
     run(['ffmpeg', '-y', *inputs, '-filter_complex', f, '-map', '0:v', '-map', '[a]',
-         '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', out])
+         '-c:v', 'copy', '-c:a', 'aac', '-ar', '48000', '-b:a', '192k', '-shortest', '-movflags', '+faststart', out])
 
 
 def main():
@@ -215,6 +234,7 @@ def main():
     ap.add_argument('--bed')
     ap.add_argument('--mix', nargs='+', metavar='WAV')
     ap.add_argument('--video')
+    ap.add_argument('--tweaks')
     a = ap.parse_args()
     if a.mix:
         vo, sfx = a.mix[0], a.mix[1]
@@ -222,6 +242,8 @@ def main():
         mix(vo, sfx, bed, a.video, a.out); print('mezcla:', a.out); return
     cues = json.load(open(a.cues))
     cues = cues['cues'] if isinstance(cues, dict) else cues
+    if a.tweaks:
+        cues = apply_tweaks(cues, json.load(open(a.tweaks)))
     write(a.out, render_cues(cues, a.duration)); print('efectos:', a.out, len(cues), 'cues')
     if a.bed:
         write(a.bed, render_bed(a.duration)); print('base:', a.bed)
