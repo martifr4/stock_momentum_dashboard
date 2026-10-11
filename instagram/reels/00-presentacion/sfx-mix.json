@@ -1,7 +1,23 @@
 {
  "_note": "Ajustes de mezcla (ronda 3, crítica): no tocan el storyboard. Los aplica sfx.py --tweaks.",
- "move": {"197:boing": 195, "206:boing": 205, "215:boing": 216},
- "cue_gain": {"197:boing": 0.55, "206:boing": 0.55, "215:boing": 0.55, "5:coins": 0.6, "565:ding": 0.6},
- "drop": ["716:thunk", "729:thunk", "741:thunk"],
- "gain": {"tick": 0.7}
+ "move": {
+  "431:boing": 429,
+  "440:boing": 439,
+  "449:boing": 450
+ },
+ "cue_gain": {
+  "431:boing": 0.55,
+  "440:boing": 0.55,
+  "449:boing": 0.55,
+  "5:coins": 0.6,
+  "799:ding": 0.6
+ },
+ "drop": [
+  "950:thunk",
+  "963:thunk",
+  "975:thunk"
+ ],
+ "gain": {
+  "tick": 0.7
+ }
 }

@@ -1,0 +1,239 @@
+{
+ "fps": 30,
+ "delta_frames": 234,
+ "old_total_frames": 1134,
+ "new_block_frames": 329,
+ "total_frames": 1368,
+ "total_seconds": 45.6,
+ "note": "delta_frames is EVEN on purpose: Chispa is sampled 'on twos' by output-frame parity; an even shift keeps c3..c22 frame-identical. Card ends are exclusive. c1 and c2 are removed.",
+ "voice_tts": "Piper voice A (voiceover.py --preset A); card = voice start .. voice + 0.18 s",
+ "cards": [
+  {
+   "id": "n1",
+   "start": 0,
+   "end": 55,
+   "text": "Daniel Kahneman, Nobel de Economía,",
+   "voice": "Daniel Kahneman, Nobel de Economía,",
+   "voice_sec": 1.64,
+   "start_sec": 0.0
+  },
+  {
+   "id": "n2",
+   "start": 55,
+   "end": 118,
+   "text": "explicó que decides con dos sistemas.",
+   "voice": "explicó que decides con dos sistemas.",
+   "voice_sec": 1.92,
+   "start_sec": 1.8333
+  },
+  {
+   "id": "n3",
+   "start": 118,
+   "end": 186,
+   "text": "Sistema 1: rápido e impulsivo.",
+   "voice": "Sistema 1: rápido e impulsivo.",
+   "voice_sec": 2.1,
+   "start_sec": 3.9333
+  },
+  {
+   "id": "n4",
+   "start": 186,
+   "end": 257,
+   "text": "Sistema 2: lento y reflexivo.",
+   "voice": "Sistema 2: lento y reflexivo.",
+   "voice_sec": 2.19,
+   "start_sec": 6.2
+  },
+  {
+   "id": "n5",
+   "start": 257,
+   "end": 329,
+   "text": "Pausa será el 2. Chispa, el 1.",
+   "voice": "Pausa será el 2. Chispa, el 1.",
+   "voice_sec": 2.22,
+   "start_sec": 8.5667
+  }
+ ],
+ "shifted_cards": [
+  {
+   "id": "c3",
+   "old_start": 95,
+   "old_end": 127,
+   "new_start": 329,
+   "new_end": 361,
+   "text": "Esta es Chispa.",
+   "voice_sec_start": 10.9667
+  },
+  {
+   "id": "c4",
+   "old_start": 127,
+   "old_end": 197,
+   "new_start": 361,
+   "new_end": 431,
+   "text": "Rápida, impulsiva, decide sin preguntar.",
+   "voice_sec_start": 12.0333
+  },
+  {
+   "id": "c5",
+   "old_start": 197,
+   "old_end": 237,
+   "new_start": 431,
+   "new_end": 471,
+   "text": "¡Ya, ya, ya!",
+   "voice_sec_start": 14.3667
+  },
+  {
+   "id": "c6",
+   "old_start": 237,
+   "old_end": 272,
+   "new_start": 471,
+   "new_end": 506,
+   "text": "Y esta es Pausa.",
+   "voice_sec_start": 15.7
+  },
+  {
+   "id": "c7",
+   "old_start": 272,
+   "old_end": 319,
+   "new_start": 506,
+   "new_end": 553,
+   "text": "Tranquila. Hace las cuentas",
+   "voice_sec_start": 16.8667
+  },
+  {
+   "id": "c8",
+   "old_start": 319,
+   "old_end": 346,
+   "new_start": 553,
+   "new_end": 580,
+   "text": "cuando llega.",
+   "voice_sec_start": 18.4333
+  },
+  {
+   "id": "c9",
+   "old_start": 346,
+   "old_end": 391,
+   "new_start": 580,
+   "new_end": 625,
+   "text": "Espera, déjame pensarlo.",
+   "voice_sec_start": 19.3333
+  },
+  {
+   "id": "c10",
+   "old_start": 391,
+   "old_end": 445,
+   "new_start": 625,
+   "new_end": 679,
+   "text": "Ojo: Chispa no es la mala.",
+   "voice_sec_start": 20.8333
+  },
+  {
+   "id": "c11",
+   "old_start": 445,
+   "old_end": 500,
+   "new_start": 679,
+   "new_end": 734,
+   "text": "Sin ella, tardarías media hora",
+   "voice_sec_start": 22.6333
+  },
+  {
+   "id": "c12",
+   "old_start": 500,
+   "old_end": 535,
+   "new_start": 734,
+   "new_end": 769,
+   "text": "en cruzar la calle.",
+   "voice_sec_start": 24.4667
+  },
+  {
+   "id": "c13",
+   "old_start": 535,
+   "old_end": 604,
+   "new_start": 769,
+   "new_end": 838,
+   "text": "El problema: Chispa decide primero.",
+   "voice_sec_start": 25.6333
+  },
+  {
+   "id": "c14",
+   "old_start": 604,
+   "old_end": 648,
+   "new_start": 838,
+   "new_end": 882,
+   "text": "Pausa llega tarde.",
+   "voice_sec_start": 27.9333
+  },
+  {
+   "id": "c15",
+   "old_start": 648,
+   "old_end": 704,
+   "new_start": 882,
+   "new_end": 938,
+   "text": "Y cuando llega, Chispa ya ha pagado.",
+   "voice_sec_start": 29.4
+  },
+  {
+   "id": "c16",
+   "old_start": 704,
+   "old_end": 787,
+   "new_start": 938,
+   "new_end": 1021,
+   "text": "Ofertas flash. Cuentas atrás. Quedan dos.",
+   "voice_sec_start": 31.2667
+  },
+  {
+   "id": "c17",
+   "old_start": 787,
+   "old_end": 854,
+   "new_start": 1021,
+   "new_end": 1088,
+   "text": "Todo está diseñado para hablar con Chispa",
+   "voice_sec_start": 34.0333
+  },
+  {
+   "id": "c18",
+   "old_start": 854,
+   "old_end": 908,
+   "new_start": 1088,
+   "new_end": 1142,
+   "text": "antes de que Pausa se entere.",
+   "voice_sec_start": 36.2667
+  },
+  {
+   "id": "c19",
+   "old_start": 908,
+   "old_end": 971,
+   "new_start": 1142,
+   "new_end": 1205,
+   "text": "Todos tenemos una Chispa y una Pausa.",
+   "voice_sec_start": 38.0667
+  },
+  {
+   "id": "c20",
+   "old_start": 971,
+   "old_end": 1031,
+   "new_start": 1205,
+   "new_end": 1265,
+   "text": "Aquí enseñamos a Pausa a llegar a tiempo.",
+   "voice_sec_start": 40.1667
+  },
+  {
+   "id": "c21",
+   "old_start": 1031,
+   "old_end": 1068,
+   "new_start": 1265,
+   "new_end": 1302,
+   "text": "¿Quién manda en tu cabeza?",
+   "voice_sec_start": 42.1667
+  },
+  {
+   "id": "c22",
+   "old_start": 1068,
+   "old_end": 1134,
+   "new_start": 1302,
+   "new_end": 1368,
+   "text": "Comenta rojo o azul.",
+   "voice_sec_start": 43.4
+  }
+ ]
+}

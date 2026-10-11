@@ -1,6 +1,6 @@
 # Reel 00 — Presentación: «En tu cabeza viven dos»
 
-**Duración objetivo:** ~55 s · **Formato:** 1080×1920, 30 fps · **Estilo:** Riso (ver `characters/BIBLE.md`)
+**Duración:** 45,6 s (ronda 4: apertura Kahneman; antes ~55 s) · **Formato:** 1080×1920, 30 fps · **Estilo:** Riso (ver `characters/BIBLE.md`)
 **Base:** mismas ideas que el carrusel `posts/00-presentacion`, pero contadas con acción, no con fichas de texto.
 **Sonido:** el vídeo tiene que funcionar en silencio (subtítulos siempre). En la app se añadirá un audio en tendencia o una voz en off grabada por el dueño de la cuenta (guion de voz abajo).
 
@@ -18,6 +18,8 @@
 | 8 | 51–56 s | **Cierre y bucle.** Pregunta grande; Chispa salta (rojo) y Pausa levanta la taza (azul). Último segundo: Chispa se escapa de la correa y salta hacia el botón… y corta al fotograma 1 (bucle). | «¿Quién manda en tu cabeza?» → «Comenta 🔴 o 🔵» · «@dinero_irracional» |
 
 ## Voz en off (opcional, para grabar)
+- 0 s (apertura Kahneman, ronda 4) — «Daniel Kahneman, Nobel de Economía, explicó que decides con dos sistemas. Sistema 1: rápido e impulsivo. Sistema 2: lento y reflexivo. Pausa será el 2. Chispa, el 1.»
+- Desde «Esta es Chispa» (≈11 s) siguen las líneas de abajo, sin cambios. Los tiempos de abajo son los del guion original; los reales están en `vo.json`.
 - 0 s — «En tu cabeza viven dos. Y una acaba de gastarse tu dinero.»
 - 4 s — «Esta es Chispa: rápida, impulsiva, decide sin preguntar.»
 - 11 s — «Y esta es Pausa. Tranquila, hace las cuentas… cuando llega.»
@@ -36,7 +38,7 @@ Chispa compra. Pausa piensa. El problema es quién llega primero.
 ¿Quién manda en tu cabeza? Comenta 🔴 o 🔵 👇
 📤 Envíaselo a la Chispa de tu grupo.
 
-Inspirado en el Sistema 1 y el Sistema 2 de Daniel Kahneman. Contenido divulgativo.
+Inspirado en el Sistema 1 y el Sistema 2 de Daniel Kahneman (Pensar rápido, pensar despacio, 2011). Son metáforas, no zonas del cerebro. Contenido divulgativo.
 
 #psicologia #finanzaspersonales #ahorro #educacionfinanciera #economiaconductual
 ```
