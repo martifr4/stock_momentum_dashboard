@@ -210,7 +210,7 @@ function shot23(t, w) {
   if (t >= 156 && t < 230) {
     const sp = card('c3').lines[0].spans[1];
     const bx = sp.x + sp.w / 2 + 18, by = card('c3').lines[0].base - 96 * 0.34 + 10;
-    w.screenRed = P.inkSplash(bx, by, t < 158 ? 0 : t < 160 ? 1 : 2, { rx: 1.55 });
+    w.screenRed = P.inkSplash(bx, by, t < 158 ? 0 : t < 160 ? 1 : 2, { rx: 1.3 });
   }
   // ---- plano 3: Pausa (unos) y el gag de la plancha azul ----
   if (t >= 330) {

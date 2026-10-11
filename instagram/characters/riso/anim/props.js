@@ -60,7 +60,7 @@ function inkSplash(x, y, step = 2, { ink = INK.red, rx = 1.6 } = {}) {
   const radii = lob.map((k, i) => R0 * k * (i % 2 ? 1 : 1.04));
   let s = `<g transform="translate(${f(x)} ${f(y)}) scale(${rx} 1) translate(${f(-x)} ${f(-y)})"><path d="${blobPath(x, y, radii)}" fill="${ink}"/></g>`;
   if (step >= 1) {
-    const drops = [[-150, -20, 0.9], [-120, 40, 0.7], [150, -34, 0.8], [168, 22, 0.65], [40, 70, 0.6]];
+    const drops = [[-40, -112, 0.8], [-56, 96, 0.7], [150, -34, 0.8], [168, 22, 0.65], [60, 92, 0.6]];
     const k = step === 1 ? 1.12 : 1.3;
     for (const [dx, dy, sc] of drops) {
       const a = (Math.atan2(dy, dx) * 180) / Math.PI;

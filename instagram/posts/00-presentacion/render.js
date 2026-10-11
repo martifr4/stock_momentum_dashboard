@@ -281,7 +281,7 @@ S[8] = async (M) => {
   add(ly, richText({ x: X0, y: y2, lines: p2, size: 44, lh: 1.2 }));
   const y3 = y2 + (p2.length - 1) * 52.8 + 62;
   ly.black += `<rect x="${X0}" y="${y3}" width="72" height="2" fill="${INK.black}"/>`;
-  add(ly, richText({ x: X0, y: y3 + 44, lines: [[{ t: 'Aquí todo va con fuentes. Sin humo.', st: 'monoI', ink: 'black' }]], size: 30 }));
+  add(ly, richText({ x: X0, y: y3 + 44, lines: [[{ t: 'Aquí todo va con fuentes.', st: 'monoI', ink: 'black' }]], size: 30 }));
   // Chispa asomada por detrás (Pausa reserva su silueta en la plancha roja)
   const P = { x: 500, y: 1018, s: 1.16 };
   const C = { x: 620, y: 818, s: 0.9 };

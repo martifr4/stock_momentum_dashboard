@@ -65,7 +65,7 @@
 **8 · De dónde salen**
 > Chispa y Pausa se inspiran en el **Sistema 1** y el **Sistema 2** del psicólogo **Daniel Kahneman**, premio Nobel de Economía en 2002.
 > Son una forma de entender cómo decides, no dos trozos reales de tu cerebro.
-> *Aquí todo va con fuentes. Sin humo.*
+> *Aquí todo va con fuentes.*
 
 *Un libro abierto o una ficha de laboratorio; Pausa con gafas leyendo, Chispa asomando por detrás.*
 
@@ -89,7 +89,7 @@ En tu cabeza viven dos. Te las presento. 👇
 
 Las dos son necesarias. El problema es que Chispa siempre llega primero, y las ofertas, las cuentas atrás y los «solo quedan 2» están hechos para hablar con ella.
 
-En esta cuenta vas a aprender a reconocer a tu Chispa y a despertar a tu Pausa a tiempo. Un sesgo cada semana, explicado con fuentes y sin humo.
+En esta cuenta vas a aprender a reconocer a tu Chispa y a despertar a tu Pausa a tiempo. Un sesgo cada semana, explicado con fuentes.
 
 👉 ¿Quién manda más en tu cabeza? Comenta 🔴 o 🔵.
 📤 Envíaselo a la Chispa de tu grupo.
