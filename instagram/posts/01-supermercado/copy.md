@@ -1,6 +1,6 @@
 # Post 01 — El supermercado está diseñado para Chispa
 
-**Formato:** carrusel, 11 slides, 1080×1350, estilo Riso · **Estado:** borrador v2 (revisado por el dueño de la cuenta)
+**Formato:** carrusel, 11 slides, 1080×1350, estilo Riso · **Estado:** final (ronda 2 de crítica de arte aplicada; portada sin mascotas en el texto, regla del dueño)
 **Fuentes en los slides:** cada slide con estudio lleva una línea de fuente pequeña al pie del slide, encima de la barra inferior.
 **Idea:** recorrer el súper como una ruta, de la entrada a la caja. En cada parada Chispa cae en un truco y Pausa le da el antídoto. Al final, «la lista de la compra de Pausa» para guardar.
 **Neutro:** «súper», «carrito», «estante», «dulces y snacks» (sin *lineal*, *chuches*, *carro*).
@@ -10,8 +10,8 @@
 ## Slides
 
 **1 · Portada**
-> Entraste a por pan.
-> **Chispa salió con 43 €.**
+> Fuiste a por pan,
+> **pero saliste con la bolsa llena.**
 > *7 trucos del súper (y cómo frenarlos)*
 
 **2 · El mapa**
@@ -86,7 +86,7 @@
 ## Pie de foto
 
 ```
-Entraste a por pan. Saliste con el carrito lleno. No es mala suerte: es diseño. 🛒
+Fuiste a por pan, pero saliste con la bolsa llena. No es mala suerte: es diseño. 🛒
 
 El súper está pensado para hablar con tu Chispa: música, carteles, estantes, ofertas… Hoy lo recorremos con Pausa de guía. Los datos hablan por sí solos.
 
@@ -103,6 +103,20 @@ Contenido divulgativo.
 
 #ahorro #supermercado #finanzaspersonales #psicologia #educacionfinanciera
 ```
+
+## Texto alternativo (Instagram: Configuración avanzada → Texto alternativo, uno por imagen)
+
+1. Titular «Fuiste a por pan, pero saliste con la bolsa llena. 7 trucos del súper (y cómo frenarlos)». Debajo, Chispa, un cerebro rojo con cara de euforia, empuja un carrito desbordado de productos, con una baguette asomando; Pausa, un cerebro azul, va sentada encima con gesto escéptico.
+2. Plano del súper visto desde arriba con una ruta punteada azul y siete paradas numeradas, de la entrada al fondo y a la caja. Pausa, azul, hace de guía junto al texto «El súper no es un sitio neutral».
+3. Parada 1, la música: Chispa pasea feliz con el carrito junto a un altavoz con notas musicales; Pausa le aconseja entrar con lista. Fuente: Milliman (1982).
+4. Parada 2, lo básico al fondo: Chispa cruza el súper hacia el mostrador del pan, con el carrito cada vez más lleno, y una línea punteada marca el camino. Pausa aconseja ir directa a lo que necesitas.
+5. Parada 3, el estante: Chispa mira una estantería con paquetes rojos en la balda a la altura de sus ojos; una línea punteada señala que lo más mirado está algo más abajo. Pausa dice que mires arriba y abajo.
+6. Parada 4, el cartel: sobre una mesa hay dos botellas idénticas y un cartel rojo de «OFERTA»; Chispa lo mira con los ojos muy abiertos y Pausa lo examina con una lupa.
+7. Parada 5, la segunda unidad: un cartel rojo «2.ª unidad al 50 %» y Chispa con una botella en cada mano. Debajo, el cálculo: 4 € + 2 € = 6 € por las dos, 3 € cada una, un 25 % de descuento, no un 50 %.
+8. Parada 6, la reduflación: dos envases de aspecto casi idéntico, uno más vacío que el otro, y Chispa entre ellos sin fijarse. Pausa aconseja comparar el precio por kilo o por litro.
+9. Parada 7, la caja: Chispa espera en la cola entre expositores de dulces y snacks, atada a la taza de Pausa por una correa tensa. Pausa dice que la cola no es un pasillo más. Fuente: Ejlerskov et al. (2018).
+10. Una hoja de cuaderno titulada «La lista de la compra de Pausa» con siete casillas: entra con lista, ve a lo básico, mira arriba y abajo, precio y no cartel, ¿necesitas dos?, precio por kilo y en la caja nada nuevo.
+11. Pregunta «¿En qué parada cae tu Chispa siempre?» con los números del 1 al 7 en círculos rojos y la petición de comentar el número. Chispa corre con una baguette y Pausa, enorme, sostiene su taza.
 
 ## Comprobación de datos (interna)
 - **Música (Milliman 1982):** la música lenta frente a la rápida ralentizó a los clientes y dio más ventas. La comparación es lenta frente a rápida; frente a sin música no hubo diferencia significativa en ventas. Por eso el texto dice «que con música rápida». Sin la cifra del 38 %, que no he podido verificar en el original.

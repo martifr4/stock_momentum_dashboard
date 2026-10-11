@@ -79,7 +79,7 @@ El carrusel es **una ruta**: se entra por la puerta en la portada y se sale por 
 - Envases **genéricos y en blanco**: cajas, botellas, latas, bolsas de snack, cartón de leche, huevera y barra de pan.
 - **Sin marcas ni logos, y sin texto en los envases.** Las «etiquetas» son bandas en reserva o rayas.
 - Los envases van en negro y rojo; el **azul es solo de Pausa**, de su ruta y del sudor de Chispa.
-- **Precios solo donde los pone el guion:** 43 € (slide 1) y 4 €, 2 €, 3 €, 6 € y 25 % (slide 7). En el resto, las etiquetas de precio son formas sin cifras.
+- **Precios solo donde los pone el guion:** 4 €, 2 €, 3 €, 6 € y 25 % (slide 7). En el resto, las etiquetas de precio son formas sin cifras.
 - **Nada de imaginería de bolsa:** ni flechas arriba o abajo, ni barras, ni líneas de cotización. Ojo con las baldas, el minimapa y las «líneas de mirada»: que no se lean como gráficos.
 
 ---
@@ -155,17 +155,16 @@ Las 7 slides comparten esqueleto píxel a píxel. Solo cambian el contenido y la
 ## Slide 1 · Portada
 
 **Texto (literal):**
-> Entraste a por pan.
-> **Chispa salió con 43 €.**
+> Fuiste a por pan,
+> **pero saliste con la bolsa llena.**
 > *7 trucos del súper (y cómo frenarlos)*
 
 **Maqueta (texto en y 150–630):**
-- «Entraste a por pan.»:
-  - Bricolage 800, ≈ 150 px, interlineado 0,92, en dos líneas («Entraste / a por pan.»).
+- «Fuiste a por pan,»:
+  - Bricolage 800, ≈ 150 px, interlineado 0,92, en dos líneas («Fuiste / a por pan,»).
   - Es el gancho y debe leerse en la miniatura.
-- «Chispa salió con 43 €.»:
-  - Bricolage 800, ≈ 80 px, una línea; «Chispa» en rojo y el resto en negro.
-  - Cifra y € unidos.
+- «pero saliste con la bolsa llena.»:
+  - Bricolage 800, ≈ 70 px, una línea, en rojo.
 - «7 trucos del súper (y cómo frenarlos)»:
   - El **«7» va dentro de una `stopBadge` roja** de r 26: es la primera aparición del sistema de paradas, y el carácter sigue siendo el del guion.
   - El resto, en DM Mono 500 cursiva de 32 px, en negro, en la misma línea (≈ y 600).
@@ -639,7 +638,7 @@ Todo se construye **importando** `riso.js`; **no se edita la librería**. Cada f
   - Insignia y minimapa con la parada correcta.
   - Antídoto azul junto a Pausa, siempre en el mismo sitio.
   - **Línea de fuente negra, en mono, de 24 px, encima del filete y sin ningún dibujo en y 1160–1230.**
-- Ningún envase con marca, logo ni texto. Precios solo en la 1 (43 €) y la 7.
+- Ningún envase con marca, logo ni texto. Precios solo en la 7.
 - Nada que parezca un gráfico de bolsa: baldas, minimapa, ruta y líneas de mirada incluidas.
 - Ninguna cara con ciruela; Chispa sin rotaciones de más de 8°; base plana visible.
 - **No se ha modificado `characters/riso/riso.js`** (comprobar con `git diff --stat` antes de entregar; no hacer commit).

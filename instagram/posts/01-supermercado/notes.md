@@ -82,3 +82,11 @@ Validada en la slide 6 a tamaño completo y a 360 px: se lee como hipnosis. Pued
 - **Líneas de fuente:** pasan a 26 px (líneas base 1183 y 1216) y mantienen los cortes.
 
 **Revisado:** todas las slides a tamaño completo y a 360 px, y la portada a 150 px.
+
+
+## Ronda 3 · portada (por indicación del dueño)
+- **Portada sin Chispa ni Pausa en el texto:** habla a la persona y a lo que le pasa.
+  - Antes: «Entraste a por pan. / Chispa salió con 43 €.»
+  - Ahora: «Fuiste / a por pan, / pero saliste con la bolsa llena.» (titular 150 px; la segunda parte, en rojo a 70 px).
+  - La ilustración no cambia. Los 43 € ya no salen en la portada.
+- Se añade texto alternativo de las 11 slides en `copy.md`, y el estado pasa a «final».

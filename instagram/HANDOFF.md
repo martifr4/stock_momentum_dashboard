@@ -12,6 +12,7 @@ State as of 2026-10-11. Branch: `ccr-47970a53-7k0uvr`. Everything lives under `i
   - Cite the source briefly at the foot of each slide.
   - Address the reader with gender-neutral wording.
   - No investment recommendations (CNMV rules).
+  - **Cover / first slide (owner rule, always):** the text of the first image of every content post does NOT mention Chispa or Pausa. It speaks to the reader and to what happens to them, in plain everyday terms (e.g. «Fuiste a por pan, pero saliste con la bolsa llena.»). The mascots may appear in the illustration. From slide 2 on, introduce Chispa as the culprit and Pausa as the antidote. The same goes for the first caption line and the Reel's first caption. Exception: the intro/pinned post (00), which exists to present the characters.
 - **Owner preferences:** dislikes generic or «obviously AI» looks. Wants dynamic, scroll-proof Reels with no dead silences.
 
 ## Agents (`.claude/agents/`)
@@ -24,7 +25,7 @@ State as of 2026-10-11. Branch: `ccr-47970a53-7k0uvr`. Everything lives under `i
 | Item | Folder | Status |
 |---|---|---|
 | Post 00: intro (pinned), 9 slides | `posts/00-presentacion/` | **Final.** ZIP plus `copy.md` (caption, alt text). The owner publishes and pins it manually. |
-| Post 01: supermarket, 11 slides | `posts/01-supermercado/` | **Final** after critic round 2. ZIP plus `copy.md`. |
+| Post 01: supermarket, 11 slides | `posts/01-supermercado/` | **Final.** Cover reworded to speak to the reader (no Chispa/Pausa in the text). ZIP, `copy.md` (caption, alt text per slide). |
 | Reel 00: intro | `reels/00-presentacion/` | **Round 3 done; sent to the owner for approval.** Silent `reel.mp4` is 37.8 s. Voice A is mixed with SFX and bed into `reel-final.mp4` (gitignored; rebuild it as shown below). Critic score 58/70; all MUST FIX items are fixed. |
 
 ### Reel 00: state and how to rebuild

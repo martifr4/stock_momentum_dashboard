@@ -38,8 +38,8 @@ const S = {};
 S[1] = async (M) => {
   const ly = L();
   add(ly, chrome(1, 'red'));
-  add(ly, richText({ x: X0 - 4, y: 268, lines: [[h('Entraste')], [h('a por pan.')]], size: 150, lh: 0.92, ls: -0.02 }));
-  add(ly, richText({ x: X0, y: 500, lines: [[b('Chispa', 'red'), b(' salió con 43 €.')]], size: 82, ls: -0.01 }));
+  add(ly, richText({ x: X0 - 4, y: 268, lines: [[h('Fuiste')], [h('a por pan,')]], size: 150, lh: 0.92, ls: -0.02 }));
+  add(ly, richText({ x: X0, y: 500, lines: [[b('pero saliste con la bolsa llena.', 'red')]], size: 70, ls: -0.01 }));
   add(ly, stopBadge(X0 + 26, 584, 7, { r: 26, size: 34 }));
   add(ly, richText({ x: X0 + 62, y: 595, lines: [[mi('trucos del súper (y cómo frenarlos)')]], size: 32 }));
   // escena (×1,45): Chispa sale empujando el carrito desbordado; Pausa va de pasajera encima del montón

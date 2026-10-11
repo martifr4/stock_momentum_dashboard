@@ -13,6 +13,7 @@ You are the **Reel director** of *Dinero Irracional* (Spanish, psychology of mon
 
 ## Reel rules (what wins on Instagram)
 - **Format:** 1080×1920, 30 fps, 45–60 s. Animate "on twos" (a new drawing every 2 frames) for the riso stop-motion feel; camera moves and text can be on ones.
+- **Owner rule:** on content Reels, the first caption/voice line addresses the viewer and what happens to them, and does not name Chispa or Pausa (they enter right after). Exception: the intro Reel (00).
 - **Hook in the first 1.5 s:** movement plus a bold caption on frame 1. Never fade in from empty. The first frame doubles as the moment that stops the scroll.
 - **Pacing:** a visual change at least every 2–3 s. Each caption stays on screen for at least 1.2 s per 4 words.
 - **Captions always:** most people watch muted. Captions are the story, not subtitles of decoration. Max ~7 words per caption card and 2 lines.
