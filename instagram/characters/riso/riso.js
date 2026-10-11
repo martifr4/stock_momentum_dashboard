@@ -21,6 +21,7 @@ const PAPERS = {
 
 let UID = 0;
 const uid = (p) => `${p}${++UID}`;
+const resetUid = () => { UID = 0; }; // animación: ids estables por fotograma
 const f = (n) => Math.round(n * 100) / 100;
 const L = () => ({ blue: '', red: '', black: '', defs: '' });
 function add(a, b) { for (const k in b) a[k] = (a[k] || '') + (b[k] || ''); return a; }
@@ -76,6 +77,7 @@ function shadowEllipse(cx, cy, rx, ry, color = INK.black, step = 8, rmax = 3.6, 
 }
 
 // ---------- OJOS (compartidos: misma construcción para los dos) ----------
+const eyeFn = (o) => eye(o);
 // lid: 0 = abierto, 0.5 = media asta. tilt: inclinación del párpado. look: [dx,dy] de la pupila.
 function eye({ cx, cy, r, lid = 0, tilt = 0, look = [0, 0], pr = null, lidW = 5, shine = true, whiteLayer = 'red' }) {
   const out = L();
@@ -133,10 +135,12 @@ function chispaArc(scale, a0, a1, amp, cy, teeth = CHISPA_TEETH) {
   return pts;
 }
 const CHISPA_DOME = chispaArc(1, Math.PI * 0.86, Math.PI * 0.12, 26, 0);
+// «chisporroteo» (biblia § 9): segunda versión de los lóbulos (±0,08), mismas 3 puntas. Solo para Reels.
+const CHISPA_TEETH_B = [0.88, 1.12, 1.03, 1.27, 0.92, 1.23, 0.83];
+const CHISPA_DOME_B = chispaArc(1, Math.PI * 0.86, Math.PI * 0.12, 26, 0, CHISPA_TEETH_B);
 // Contorno: facetas laterales + cúpula de lóbulos. Los lóbulos romos son arcos (cúbicas);
 // solo 3 son puntas afiladas: el nervio de Chispa, sin que deje de ser un cerebro.
-function chispaBodyPath() {
-  const D = CHISPA_DOME;
+function chispaBodyPath(D = CHISPA_DOME) {
   let d = 'M-66 70 L-92 56 Q-100 51 -104 44 L-118 8 L-110 -24 L' + D[0].join(' ');
   for (let i = 0; i + 2 < D.length; i += 2) {
     const v0 = D[i], p = D[i + 1], v1 = D[i + 2];
@@ -148,6 +152,7 @@ function chispaBodyPath() {
   return d + ' L112 -18 L118 10 L104 42 Q100 50 92 54 L64 70 Z';
 }
 const CHISPA_BODY_D = chispaBodyPath();
+const CHISPA_BODY_D_B = chispaBodyPath(CHISPA_DOME_B);
 // surcos: dos zigzags concéntricos + cisura horizontal en la nuca
 const CHISPA_FOLDS = [
   chispaArc(0.8, Math.PI * 0.84, Math.PI * 0.2, 13, 0, [1, 1.2, 0.9, 1.25, 1, 1.1, 0.9]).slice(1, -1),
@@ -157,11 +162,29 @@ const CHISPA_FOLDS = [
 // enchufes fijos de las extremidades (siempre en la mitad baja, lejos de la cara)
 const SOCK = { legL: [-34, 68], legR: [32, 68], armL: [-106, 36], armR: [106, 34] };
 // look: desplazamiento de pupila [dx, dy]; si se omite, cada expresión usa el suyo.
-function chispaFace(expr, look) {
+// espiral de hipnosis (2,5 vueltas) en lugar de pupila; spin 0/1 = girada 0° / 90°
+function spiralPath(cx, cy, rmax, spin = 0) {
+  const pts = [], turns = 2.5, n = 60, a0 = (spin ? Math.PI / 2 : 0);
+  for (let i = 0; i <= n; i++) { const t = i / n, a = a0 + t * turns * 2 * Math.PI, r = 1.5 + t * (rmax - 1.5); pts.push([f(cx + r * Math.cos(a)), f(cy + r * Math.sin(a))]); }
+  return 'M' + pts.map((p) => p.join(' ')).join(' L');
+}
+function chispaFace(expr, look, { blink = false, spin = 0 } = {}) {
   const o = L();
   const E1 = [-14, -2], E2 = [38, -4];
   const ex = expr;
   const lk = (d) => look || d;
+  // parpadeo rápido (Reels): cada ojo abierto se sustituye por una línea cerrada; cejas y boca no cambian
+  const eye = (o2) => (blink ? { black: strokeP(`M${o2.cx - o2.r + 2} ${o2.cy + 2} Q${o2.cx} ${o2.cy + 8} ${o2.cx + o2.r - 2} ${o2.cy + 2}`, INK.black, 5.5, 'stroke-linecap="round"') } : eyeFn(o2));
+  if (ex === 'espiral') {
+    // hipnotizada: blancos grandes con espiral negra; cejas y boca de alarma
+    for (const [cx, cy] of [[E1[0] - 2, E1[1] - 2], [E2[0] + 2, E2[1] - 3]]) {
+      o.red += `<circle cx="${cx}" cy="${cy}" r="20" fill="${W}"/>`;
+      o.black += strokeP(spiralPath(cx, cy, 16, spin), INK.black, 4, 'stroke-linecap="round" stroke-linejoin="round"');
+    }
+    o.black += strokeP(`M-36 -40 L-20 -48 L-4 -38 M26 -40 L42 -50 L58 -40`, INK.black, 5, 'stroke-linecap="round" stroke-linejoin="round"');
+    o.black += `<path d="${roundPoly([[2, 26], [30, 24], [32, 44], [0, 46]], 7)}" fill="${INK.black}"/>`;
+    return o;
+  }
   if (ex === 'neutral') {
     add(o, eye({ cx: E1[0], cy: E1[1], r: 17, look: lk([4, 1]) }));
     add(o, eye({ cx: E2[0], cy: E2[1], r: 17, look: lk([4, 1]) }));
@@ -214,6 +237,16 @@ const CHISPA_POSES = {
   // tiesa: brazos pegados al cuerpo (hipnotizada)
   tiesa: { legL: [[-40, 96], [-38, 122]], legR: [[36, 96], [34, 122]], feet: [-1, 1], armL: [[-120, 64], [-112, 92]], armR: [[120, 62], [112, 90]] },
   armsUp: { armL: [[-134, 10], [-130, -30]], armR: [[132, 6], [140, -34]] },
+  // --- Reels (reel 00) ---
+  // golpe: los dos puños abajo, sobre lo que golpea; piernas recogidas
+  golpe: { legL: [[-62, 92], [-44, 108]], legR: [[58, 90], [40, 108]], feet: [-1, 1], armL: [[-140, 70], [-70, 136]], armR: [[138, 70], [70, 136]] },
+  // ciclo de carrera de 2 dibujos (con lean −12 y speed 4)
+  corre_a: { legL: [[-70, 86], [-112, 96]], legR: [[56, 96], [60, 122]], feet: [-1, 1], armL: [[-138, 8], [-152, -24]], armR: [[140, 12], [178, -22]] },
+  corre_b: { legL: [[-40, 96], [-44, 122]], legR: [[74, 84], [104, 100]], feet: [-1, 1], armL: [[-138, 8], [-152, -24]], armR: [[118, 60], [96, 88]] },
+  // frena: derrape, piernas adelantadas y rígidas, brazos atrás (con lean +8)
+  frena: { legL: [[-20, 98], [10, 122]], legR: [[62, 96], [96, 118]], feet: [1, 1], armL: [[-140, 20], [-170, 4]], armR: [[120, 10], [100, -20]] },
+  // agachada: brazos de shrug y rodillas dobladas hacia fuera (los pies quedan en y local ≈ 90)
+  agachada: { legL: [[-84, 64], [-66, 86]], legR: [[80, 62], [62, 86]], feet: [-1, 1], armL: [[-136, 46], [-146, 24]], armR: [[132, 46], [142, 24]] },
   none: null,
 };
 // Bolsa de la compra genérica: tinta negra, asa en reserva, sin logos. (hx,hy) = mano.
@@ -224,10 +257,11 @@ function bag(hx, hy) {
   return b;
 }
 // halo: hueco de reserva alrededor de la silueta (para separarla de una trama de su misma tinta)
-function chispa({ x = 0, y = 0, s = 1, rot = 0, lean = 0, flip = false, expr = 'neutral', pose = 'stand', look = null, sweat = 0, sweatIdx = null, speed = 0, knockFor = null, knockClip = null, faceKnock = null, halo = 0, hands = null, limbs = null }) {
+// Parámetros de Reels: squash (aplasta desde los pies, y local 127), sizzle (lóbulos B), blink, spin (espiral).
+function chispa({ x = 0, y = 0, s = 1, rot = 0, lean = 0, flip = false, expr = 'neutral', pose = 'stand', look = null, sweat = 0, sweatIdx = null, speed = 0, knockFor = null, knockClip = null, faceKnock = null, halo = 0, hands = null, limbs = null, squash = 1, sizzle = false, blink = false, spin = 0 }) {
   const o = L();
   const P = CHISPA_POSES[pose] && limbs ? { ...CHISPA_POSES[pose], ...limbs } : CHISPA_POSES[pose];
-  const body = CHISPA_BODY_D;
+  const body = sizzle ? CHISPA_BODY_D_B : CHISPA_BODY_D;
   if (halo) o.red += `<path d="${body}" fill="${W}" stroke="${W}" stroke-width="${halo * 2}" stroke-linejoin="round"/>`;
   if (P) {
     const legs = P.legL ? [[SOCK.legL, ...P.legL], [SOCK.legR, ...P.legR]] : [];
@@ -252,14 +286,15 @@ function chispa({ x = 0, y = 0, s = 1, rot = 0, lean = 0, flip = false, expr = '
     if (knockClip) { const cid = uid('mk'); o.defs += `<clipPath id="${cid}"><rect x="${knockClip[0]}" y="${knockClip[1]}" width="${knockClip[2]}" height="${knockClip[3]}"/></clipPath>`; clip = `clip-path="url(#${cid})"`; }
     for (const k of knockFor) o[k] += `<path d="${body}" fill="${W}" ${clip}/>`;
   }
-  const face = chispaFace(expr, look);
+  const face = chispaFace(expr, look, { blink, spin });
   if (faceKnock) for (const k of faceKnock) o[k] += face.red;
   add(o, face);
   const drops = [[-112, -78, 1.25, -25], [124, -64, 1.0, 25], [-136, -40, 0.85, -40]];
   for (const i of sweatIdx || [...Array(sweat).keys()]) o.blue += teardrop(...drops[i]);
   const sp = [[-178, -48, -236], [-176, -12, -262], [-172, 22, -226], [-150, 54, -196]];
   for (let i = 0; i < speed; i++) { const [x1, yy, x2] = sp[i]; o.black += strokeP(`M${x1} ${yy} L${x2} ${yy}`, INK.black, 5, 'stroke-linecap="round"'); }
-  return wrap(o, `translate(${x} ${y}) rotate(${rot}) skewX(${lean}) scale(${flip ? -s : s} ${s})`);
+  const sq = squash !== 1 ? ` translate(0 127) scale(${f(1 / squash ** 0.5)} ${squash}) translate(0 -127)` : '';
+  return wrap(o, `translate(${x} ${y}) rotate(${rot}) skewX(${lean}) scale(${flip ? -s : s} ${s})${sq}`);
 }
 // marcas de exaltación (tres trazos) — coordenadas de escena
 function burst(x, y, s = 1, color = INK.black) {
@@ -289,13 +324,19 @@ function pausaBlush() {
 function pausaSmileD(mx, my) {
   return `<path d="M${mx - 26} ${my - 8} Q${mx} ${my - 2} ${mx + 26} ${my - 10} Q${mx + 22} ${my + 22} ${mx} ${my + 22} Q${mx - 22} ${my + 22} ${mx - 26} ${my - 8}Z" fill="${INK.black}"/>`;
 }
-function pausaFace(expr, lookIn) {
+// lid (Reels): sobrescribe la media asta (0,5) de los ojos de párpado; ≥ 0,97 = cerrado (arco de dormida)
+function pausaFace(expr, lookIn, lidIn = null) {
   const o = L();
   const [E1, E2] = [PAUSA_E1, PAUSA_E2], [mx, my] = PAUSA_MOUTH;
   const wl = 'blue', R = 27, PR = 12;
   const halfEyes = (look, tilt = 3) => {
-    add(o, eye({ cx: E1[0], cy: E1[1], r: R, lid: 0.5, tilt: -tilt, look, pr: PR, whiteLayer: wl, lidW: 8 }));
-    add(o, eye({ cx: E2[0], cy: E2[1], r: R, lid: 0.5, tilt, look, pr: PR, whiteLayer: wl, lidW: 8 }));
+    const lid = lidIn ?? 0.5;
+    if (lid >= 0.97) {
+      for (const [ex, ey] of [E1, E2]) o.black += strokeP(`M${ex - 22} ${ey + 4} Q${ex} ${ey + 14} ${ex + 22} ${ey + 4}`, INK.black, 7, 'stroke-linecap="round"');
+      return;
+    }
+    add(o, eye({ cx: E1[0], cy: E1[1], r: R, lid, tilt: -tilt, look, pr: PR, whiteLayer: wl, lidW: 8 }));
+    add(o, eye({ cx: E2[0], cy: E2[1], r: R, lid, tilt, look, pr: PR, whiteLayer: wl, lidW: 8 }));
   };
   if (expr === 'neutral') {
     halfEyes(lookIn || [4, 6]);
@@ -339,13 +380,14 @@ function stub(x1, y1, x2, y2, w = 36) {
          `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${INK.blue}" stroke-width="${w}" stroke-linecap="round"/>`;
 }
 // steam: 'vapor' | 'salpica' | false
-function mug(x, y, s = 1, steam = 'vapor') {
+function mug(x, y, s = 1, steam = 'vapor', rot = 0) {
   if (steam === true) steam = 'vapor';
-  let b = `<g transform="translate(${x} ${y}) scale(${s})">`;
+  let b = `<g transform="translate(${x} ${y})${rot ? ` rotate(${rot})` : ''} scale(${s})">`;
   b += `<path d="M-23 -26 L23 -26 L21 20 Q20 28 12 28 L-12 28 Q-20 28 -21 20Z" fill="${INK.black}"/>`;
   b += `<path d="M22 -14 C40 -14 40 12 21 12" fill="none" stroke="${INK.black}" stroke-width="7"/>`;
   b += `<rect x="-22" y="-12" width="44" height="6" fill="${W}"/>`;
   if (steam === 'vapor') b += strokeP(`M-8 -36 C-16 -46 0 -52 -8 -64 M8 -38 C0 -50 16 -56 8 -70`, INK.black, 3.5, 'stroke-linecap="round"');
+  if (steam === 'vapor2') b += strokeP(`M-8 -36 C0 -46 -16 -52 -8 -66 M8 -38 C16 -50 0 -56 8 -68`, INK.black, 3.5, 'stroke-linecap="round"'); // vapor alterno (Reels)
   if (steam === 'salpica') { // gotas que salen de la taza en arco hacia delante (la punta mira atrás)
     const arc = [[8, -40, 1.0, 70], [30, -56, 0.85, 95], [54, -58, 0.7, 115], [76, -46, 0.55, 140]];
     for (const [dx, dy, sc, r] of arc) b += teardrop(dx, dy, sc, r, INK.black);
@@ -388,10 +430,14 @@ const PAUSA_POSES = {
   lee: { arms: [[-36, 104, -54, 124], [150, 100, 140, 124]], mug: null, feet: true, book: [52, 156], bookS: 0.86, glasses: true },
   // brindis: muñón derecho a la altura de la cúpula con la taza arriba
   brindis: { arms: [[204, -6, 226, -74]], mug: [234, -112], feet: true },
+  // sorbo (Reels): la taza sube hasta la comisura
+  sorbo: { arms: [[140, 80, 112, 66]], mug: [100, 56], feet: true },
 };
-function pausa({ x = 0, y = 0, s = 1, rot = 0, flip = false, expr = 'neutral', pose = 'sit', look, knockFor = null, shine = true, squash = 1, halo = 0 }) {
+// Parámetros de Reels: lid (párpado), arms / mug (sobrescriben la pose para interpolar), steam, mugRot.
+function pausa({ x = 0, y = 0, s = 1, rot = 0, flip = false, expr = 'neutral', pose = 'sit', look, knockFor = null, shine = true, squash = 1, halo = 0, lid = null, arms = null, mug: mugAt = undefined, steam = undefined, mugRot = 0 }) {
   const o = L();
-  const P = PAUSA_POSES[pose];
+  const P0 = PAUSA_POSES[pose];
+  const P = { ...P0, ...(arms ? { arms } : {}), ...(mugAt !== undefined ? { mug: mugAt } : {}), ...(steam !== undefined ? { steam } : {}) };
   if (halo) o.blue += `<path d="${PAUSA_BODY}" fill="${W}" stroke="${W}" stroke-width="${halo * 2}" stroke-linejoin="round"/>`;
   if (P.stride) o.blue += `<ellipse cx="-92" cy="120" rx="38" ry="15" fill="${INK.blue}"/><ellipse cx="78" cy="110" rx="38" ry="15" fill="${INK.blue}" transform="rotate(-18 78 110)"/>`;
   else if (P.feet) o.blue += `<ellipse cx="-74" cy="120" rx="38" ry="15" fill="${INK.blue}"/><ellipse cx="62" cy="122" rx="38" ry="15" fill="${INK.blue}"/>`;
@@ -405,11 +451,11 @@ function pausa({ x = 0, y = 0, s = 1, rot = 0, flip = false, expr = 'neutral', p
       fn: (px, py) => 0.95 * (1 - smooth(0.0, 1, Math.hypot((px + 120) / 120, (py + 80) / 85))) });
   }
   if (knockFor) for (const k of knockFor) o[k] += `<path d="${PAUSA_BODY}" fill="${W}"/>`;
-  add(o, pausaFace(expr, look));
+  add(o, pausaFace(expr, look, lid));
   if (P.glasses) o.black += glasses();
   if (P.book) add(o, book(P.book[0], P.book[1], P.bookS || 0.92));
   for (const a of P.arms) o.blue += stub(...a);
-  if (P.mug) o.black += mug(P.mug[0], P.mug[1], 1.2, P.steam === undefined ? 'vapor' : P.steam);
+  if (P.mug) o.black += mug(P.mug[0], P.mug[1], 1.2, P.steam === undefined ? 'vapor' : P.steam, mugRot);
   // squash de canto rodado: se aplasta desde la base
   const sq = squash !== 1 ? ` translate(0 122) scale(${1 / squash ** 0.5} ${squash}) translate(0 -122)` : '';
   return wrap(o, `translate(${x} ${y}) rotate(${rot}) scale(${flip ? -s : s} ${s})${sq}`);
@@ -683,7 +729,7 @@ async function render(jobs) {
 }
 
 module.exports = {
-  INK, PAPERS, W, L, add, wrap, uid, f, smooth, roundPoly, poly, strokeP, halftone, shadowEllipse, liftedShadow, teardrop, eye, closedEye,
+  INK, PAPERS, W, L, add, wrap, uid, resetUid, f, FONTS_CSS, inkFilter, CHISPA_POSES, PAUSA_POSES, spiralPath, smooth, roundPoly, poly, strokeP, halftone, shadowEllipse, liftedShadow, teardrop, eye, closedEye,
   chispa, pausa, CHISPA_BODY_D, PAUSA_BODY, SOCK, burst, pausaSweat, nodMarks, mug, bag, book, glasses, stub, priceTag, sign, coin,
   text, richText, measurer, STY, styleCss, pageChrome, fichaCard, CARD, wrapRot, riso, render, FONT_HEAD, FONT_MONO,
 };
