@@ -31,8 +31,9 @@ State as of 2026-10-11. Branch: `ccr-47970a53-7k0uvr`. Everything lives under `i
 1. The owner found the 53.9 s version boring, with silences. Round-3 brief: `pacing-v3.md` and `pacing-v3.json`. The voice leads: target **37.8 s / 1134 frames**, each caption lasts its voice line plus 0.18 s, nothing static for more than 0.5 s, a pop and a camera punch on every caption change, quick cuts.
 2. The animator was **stopped mid-round-3**:
    - `scene.js`, `anim/rigs.js`, `anim/captions.js`, `build.js`, `captions.srt`, `sfx-cues.json` and `notes.md` are partly updated.
-   - `reel.mp4` is still the OLD 53.9 s encode.
-   - Its last note: «a run of 28 near-static frames around f1003–1030 (card 20) breaks the 0.5 s rule; list all runs >15 frames before fixing».
+   - `reel.mp4` and the covers are still the OLD 53.9 s round-2 encode (restored; the round-3 encode was interrupted). Re-render and encode needed.
+   - `notes.md` already has the «Ronda 3» changelog: the 1134-frame timeline is built, `captions.srt` and `sfx-cues.json` are regenerated, and the c18 ticks are tuned.
+   - Last open issue: near-static runs (e.g. about f1003–1030, card 20) must be checked against the 0.5 s rule before the final encode.
 3. **To finish:**
    - Resume with `ig-animator` (render frames outside the repo).
    - Encode the silent `reel.mp4` (~37.8 s).
