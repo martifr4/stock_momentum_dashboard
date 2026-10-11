@@ -31,7 +31,7 @@
 **4 · Parada 2: lo básico, al fondo**
 > **El pan está al fondo. Por algo.**
 > Pan, leche, huevos: lo que compras siempre suele estar lejos de la entrada. Para llegar, cruzas medio súper… y Chispa va llenando el carrito.
-> 🔵 **Pausa:** «Ve directa a lo que necesitas. Sin pasear pasillos.»
+> 🔵 **Pausa:** «Ve directamente a lo que necesitas. Sin pasear pasillos.»
 > <sub>Práctica habitual en la distribución de tiendas.</sub>
 
 **5 · Parada 3: el estante**
@@ -43,13 +43,13 @@
 
 **6 · Parada 4: el cartel**
 > **El cartel de oferta vende… aunque no haya oferta.**
-> Un cartel llamativo hace subir las ventas incluso cuando el precio no ha bajado. Chispa ve amarillo y entiende «barato».
+> Un cartel llamativo hace subir las ventas incluso cuando el precio no ha bajado. Chispa ve el cartel y entiende «barato».
 > 🔵 **Pausa:** «Mira el precio, no el cartel.»
 > <sub>Fuente: Inman, McAlister y Hoyer (1990), *Journal of Consumer Research*.</sub>
 
 **7 · Parada 5: la segunda unidad**
 > **«2.ª unidad al 50 %» no es un 50 % de descuento.**
-> 2 × 4 € = 6 € → 3 € cada una. Es un **25 %**.
+> 4 € + 2 € = 6 € por las dos → 3 € cada una. Es un **25 %**.
 > Y solo ahorras si de verdad ibas a usar las dos.
 > 🔵 **Pausa:** «¿Necesitas dos? Si no, no es ahorro.»
 > <sub>Cálculo: (4 € + 2 €) ÷ 2 = 3 € por unidad.</sub>
@@ -62,13 +62,13 @@
 
 **9 · Parada 7: la caja**
 > **La última trampa está en la cola.**
-> Dulces y snacks junto a la caja, justo cuando esperas y estás cansado. En supermercados británicos que los quitaron de ahí, se compraron bastantes menos.
+> Dulces y snacks junto a la caja, justo cuando esperas y te puede el cansancio. En supermercados británicos que los quitaron de ahí, se compraron bastantes menos.
 > 🔵 **Pausa:** «La cola no es un pasillo más.»
 > <sub>Fuente: Ejlerskov et al. (2018), *PLOS Medicine*.</sub>
 
 **10 · La lista de la compra de Pausa** *(para guardar)*
 > ☐ Entra con lista y sal al acabarla.
-> ☐ Ve directa a lo básico.
+> ☐ Ve directamente a lo básico.
 > ☐ Mira arriba y abajo.
 > ☐ Precio, no cartel.
 > ☐ ¿Necesitas dos?
