@@ -505,7 +505,7 @@ function shot8(t, w) {
   const c = chispa8(tc);
   const cp = { ...c }; delete cp.burst; delete cp.fall;
   if (c.fall) { w.black += R.liftedShadow(320, 1238, 104 - (908 - c.y) * 0.1, 7); w.black += P.fallLines(c.x, c.y - 203); }
-  else chShadow(w, cp, cp.y + 127 * cp.s > 1300 ? 1400 : 1238);
+  else chShadow(w, cp, cp.x > 170 && cp.x < 470 && cp.y + 127 * cp.s < 1238 ? 1238 : 1400);
   CH(w, cp);
   if (c.burst) { const b = RIG.GC(cp, 6, -150); w.black += R.burst(b[0], b[1], 1.1); }
   // correa: atada hasta f1653; el lazo se suelta y cae (3 dibujos) al trazado de reposo
