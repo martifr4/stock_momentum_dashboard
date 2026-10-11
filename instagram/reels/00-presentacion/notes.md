@@ -66,7 +66,7 @@
 11. **Grano:** el storyboard (§ 0) y la biblia (§ 5) piden que no hierva, así que es fijo. El motor lo admite (`texture.bake({ variants })`), pero no se usa.
 12. **Losas de subtítulo:** son reserva en las tres planchas, y en papel no se ven. En «Esta es Chispa.» no hay losa: la palabra roja lleva un contorno de reserva de 12 px para leerse sobre la salpicadura, que es de su misma tinta.
 
-## Render
+## Render (ronda 1, histórico)
 - **Máquina:** 4 núcleos, 15 GB de RAM. 4 workers de Playwright con trozos de 24 fotogramas.
 - **Texturas** (una vez, en el scratchpad): ≈ 6 s.
 - **Render completo** (1680 fotogramas): **757 s** (12 min 37 s). 1480 dibujados y 200 copiados por repetición; ≈ 1,8 s por dibujo y worker, de los que ≈ 1 s son filtros de plancha.
@@ -82,7 +82,7 @@
   ```
   o `node build.js all`. `REEL_FRAMES` / `REEL_SCRATCH` cambian las carpetas.
 
-## Control de calidad hecho
+## Control de calidad hecho (ronda 1)
 - Por plano, fotogramas clave revisados a tamaño completo y en tiras secuenciales.
 - Al menos dos iteraciones por plano:
   - **1:** contactos de puños y pies con la tapa.
@@ -169,3 +169,20 @@
 - En los planos 7 y 8, Chispa está delante del botón (con halo) y tapa parte del rótulo «COMPRAR YA».
 - La percha tumbada del plano 2 asoma en el borde derecho hasta f329.
 - El grano sigue fijo en pantalla (efecto «cristal» en el paneo y los empujes).
+
+### Render (ronda 2)
+- **Render completo** (1618 fotogramas, 4 workers): **857 s** (14 min 17 s), con 1439 dibujos y 179 copias.
+- **Re-render** de la salida 988–1617 (planos 6–8, tras las correcciones de capas): **382 s**.
+- **Codificación + portada + cuadrículas + hoja + preview + SRT:** 93 s.
+- **`reel.mp4` (ffprobe):** H.264 High, yuv420p, 1080 × 1920, 30/1 fps, 1618 fotogramas, **53,933 s**, **29,01 MB** (≈ 4,30 Mb/s). Solo hay una pista de vídeo, sin audio: la voz en off se añade aparte.
+- **Carrusel:** `posts/00-presentacion/render.js 5 7` sigue saliendo idéntico (PNG píxel a píxel, SVG byte a byte). Los archivos de las slides se han restaurado a su estado previo.
+
+### Control de calidad (ronda 2)
+- **Plano a plano:** tiras de fotogramas clave revisadas a tamaño completo y a 360 px de ancho (prueba de móvil). Los subtítulos se leen a 360 px y los espacios entre tintas son correctos.
+- **Iteraciones:**
+  - Plano 7: la zambullida se rehízo una vez, porque la primera versión aún parecía «de pie sobre el botón».
+  - Planos 7 y 8: Chispa pasó al plano delantero para quitar las rayas de reserva sobre la base, y la correa se pasó por detrás de ella.
+  - Plano 6: los carteles se recortan por debajo de los subtítulos.
+  - Plano 2: la salpicadura se apartó dos veces.
+- **Costura:** salida 1608–1617 → 0–10 revisada en una tira. Mismo dibujo de Chispa en el ápice, `fallLines` desde f0 y Pausa, correa y botón idénticos.
+- **Portada:** revisada a 150 px en el recorte 3:4.

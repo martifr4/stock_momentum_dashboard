@@ -50,7 +50,7 @@ async function cover() {
 
 // captions.srt en tiempo de salida: textos del SRT original (contrato), tiempos del storyboard → remapeo por los recortes
 function srt() {
-  const src = fs.readFileSync(path.join(SCRATCH, 'captions-r1.srt'), 'utf8').trim().split(/\n\s*\n/);
+  const src = fs.readFileSync(path.join(OUT, 'captions.srt'), 'utf8').trim().split(/\n\s*\n/);
   const toF = (s) => { const [h, m, r] = s.split(':'); return Math.round((+h * 3600 + +m * 60 + parseFloat(r.replace(',', '.'))) * 30); };
   const ts = (fr) => { const ms = Math.round((fr / 30) * 1000), h = Math.floor(ms / 3600000), m = Math.floor(ms / 60000) % 60, s = Math.floor(ms / 1000) % 60; return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')},${String(ms % 1000).padStart(3, '0')}`; };
   const byId = Object.fromEntries(scene.CARDS.map((c) => [c.id, c]));
