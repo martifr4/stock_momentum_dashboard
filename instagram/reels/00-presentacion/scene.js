@@ -337,12 +337,14 @@ function shot5(t, w) {
   const arrived = t >= 960;
   const x = arrived ? 330 : 250 + (80 * (t - 780)) / 180;
   const y = GB - 122 + (arrived ? 0 : 5 * Math.sin(((t - 780) / 30) * 2 * Math.PI));
-  const pz = { x, y, s: 1.0, pose: 'llega', expr: arrived ? 'jadeo' : 'neutral', look: arrived ? undefined : [6, 6] };
+  // jadeo tras llegar (ronda 3): respiración rápida en tiempo de salida para que el empuje final no quede quieto
+  const pant = arrived ? RIG.breathe(CUR_U, 10, 0.022) : 1;
+  const pz = { x, y, s: 1.0, pose: 'llega', expr: arrived ? 'jadeo' : 'neutral', look: arrived ? undefined : [6, 6], squash: pant };
   B.black += R.shadowEllipse(x + 6, GB, 205, 13, INK.black, 7, 2.6);
   const pl = R.pausa(pz);
   if (arrived) { const kk = t < 990 ? 0 : T.ramp(t, 990, 1010, 0, 1, 'out'); RIG.shiftPlate(pl, 'blue', 12 * (1 - kk), 7 * (1 - kk)); }
   add(B, pl);
-  if (arrived) { const s0 = RIG.GP(pz, 10, -150); B.red += R.pausaSweat(s0[0], s0[1], 1.05); }
+  if (arrived) { const s0 = RIG.GP(pz, 10, -150); B.red += R.pausaSweat(s0[0], s0[1] + 4 * Math.sin((CUR_U / 10) * 2 * Math.PI), 1.05); }
   if (push) { add(w, A); add(w, B); } // al empujar desaparecen los marcos (y los recortes)
   else {
     add(w, clipPanel(A, PA)); add(w, clipPanel(B, PB));
