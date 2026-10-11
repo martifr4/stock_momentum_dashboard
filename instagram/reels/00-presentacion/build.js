@@ -48,17 +48,17 @@ async function cover() {
   execFileSync('python3', ['-I', '-c', `from PIL import Image; im=Image.open('${path.join(OUT, 'cover.png')}'); im.crop((0,240,1080,1680)).save('${path.join(OUT, 'cover-grid.png')}', optimize=True); im.crop((0,285,1080,1635)).save('${path.join(OUT, 'cover-grid-4x5.png')}', optimize=True)`]);
 }
 
-// captions.srt en tiempo de salida: textos del SRT original (contrato), tiempos del storyboard → remapeo por los recortes
+// captions.srt (ronda 4): bloque nuevo N1–N5 (texto del storyboard-opening § 11) + c3…c22 (textos del SRT anterior, +234 f).
+// Idempotente: de los bloques existentes se leen solo los 20 últimos (c3…c22), con o sin la apertura nueva.
 function srt() {
-  const src = fs.readFileSync(path.join(OUT, 'captions.srt'), 'utf8').trim().split(/\n\s*\n/);
-  const toF = (s) => { const [h, m, r] = s.split(':'); return Math.round((+h * 3600 + +m * 60 + parseFloat(r.replace(',', '.'))) * 30); };
+  const src = fs.readFileSync(path.join(OUT, 'captions.srt'), 'utf8').trim().split(/\n\s*\n/).slice(-20);
   const ts = (fr) => { const ms = Math.round((fr / 30) * 1000), h = Math.floor(ms / 3600000), m = Math.floor(ms / 60000) % 60, s = Math.floor(ms / 1000) % 60; return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')},${String(ms % 1000).padStart(3, '0')}`; };
+  const NEWTXT = ['Daniel Kahneman,\nNobel de Economía,', 'explicó que decides\ncon dos sistemas.', 'Sistema 1:\nrápido e impulsivo.', 'Sistema 2:\nlento y reflexivo.', 'Pausa será el 2.\nChispa, el 1.'];
+  const out = scene.NEW_CARDS.map(([id, a, b], i) => `${i + 1}\n${ts(a)} --> ${ts(b)}\n${NEWTXT[i]}`);
   const byId = Object.fromEntries(scene.CARDS.map((c) => [c.id, c]));
-  const out = src.map((blk) => {
-    const [n, tl, ...txt] = blk.split('\n');
-    const c = byId['c' + n];
-    const a = c ? c.in : toF(tl.split(' --> ')[0]), b = c ? c.out : toF(tl.split(' --> ')[1]);
-    return `${n}\n${ts(scene.outOf(a))} --> ${ts(scene.outOf(b))}\n${txt.join('\n')}`;
+  src.forEach((blk, i) => {
+    const txt = blk.split('\n').slice(2).join('\n'), c = byId['c' + (i + 3)];
+    out.push(`${i + 6}\n${ts(scene.outOf(c.in))} --> ${ts(scene.outOf(c.out))}\n${txt}`);
   });
   fs.writeFileSync(path.join(OUT, 'captions.srt'), out.join('\n\n') + '\n');
   console.log('captions.srt', out.length, 'subtítulos');
@@ -83,7 +83,7 @@ function encode() {
   }
   if (cmd === 'stills') await frames(null, a1.split(',').map(Number), a2 || path.join(SCRATCH, 'review'));
   if (cmd === 'all') await frames([0, N - 1]);
-  if (cmd === 'cover' || cmd === 'all' || cmd === 'encode') await cover();
+  if (cmd === 'cover' || cmd === 'all') await cover(); // ronda 4: 'encode' ya no regenera la portada (no cambia)
   if (cmd === 'srt' || cmd === 'encode' || cmd === 'all') srt();
   if (cmd === 'sfx' || cmd === 'encode' || cmd === 'all') { fs.writeFileSync(path.join(OUT, 'sfx-cues.json'), JSON.stringify({ fps: 30, frames: N, cues: scene.sfxCues() }, null, 1)); console.log('sfx-cues.json'); }
   if (cmd === 'encode' || cmd === 'all') encode();

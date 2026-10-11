@@ -12,7 +12,7 @@ const MISREG = { blue: [3.5, 2.5, 0.12], red: [-2, -1, -0.06], black: [0, 0, 0] 
 
 function templateHtml(w, h, { misreg = MISREG } = {}) {
   const plate = (k, filt) => { const [dx, dy, r] = misreg[k]; return `<g style="mix-blend-mode:multiply" filter="url(#${filt})"><g transform="translate(${dx} ${dy}) rotate(${r} ${w / 2} ${h / 2})" id="p_${k}"></g></g>`; };
-  const prime = ['800 96px "Bricolage Grotesque"', '600 40px "Bricolage Grotesque"', '500 40px "DM Mono"'];
+  const prime = ['800 96px "Bricolage Grotesque"', '600 40px "Bricolage Grotesque"', '500 40px "DM Mono"', 'italic 500 40px "DM Mono"'];
   return `<!doctype html><html><head><meta charset="utf-8"><style>${R.FONTS_CSS} html,body{margin:0;background:#fff;overflow:hidden}
   #prime span{font-size:20px}</style></head><body>
 <svg id="svg" xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block">
@@ -23,7 +23,8 @@ ${plate('blue', 'inkBlue')}${plate('red', 'inkRed')}${plate('black', 'inkBlack')
 <div id="prime" style="position:absolute;left:-9999px;top:0">
 <span style="font-family:'Bricolage Grotesque';font-weight:800;font-stretch:75%;font-variation-settings:'opsz' 96">Aa¿¡«»…−0123456789 €</span>
 <span style="font-family:'Bricolage Grotesque';font-weight:600;font-stretch:88%">Aa</span>
-<span style="font-family:'DM Mono';font-weight:500">Aa0123456789,:€</span></div>
+<span style="font-family:'DM Mono';font-weight:500">Aa0123456789,:€</span>
+<span style="font-family:'DM Mono';font-weight:500;font-style:italic">Aa0123456789,:€ áéíóú</span></div>
 <script>window.__prime = ${JSON.stringify(prime)};</script>
 </body></html>`;
 }

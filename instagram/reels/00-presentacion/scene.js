@@ -70,6 +70,12 @@ const CARDS = [
   { id: 'c22', in: 1590, out: 1680, size: 120, segs: [1590, 1594, 1600], lines: [[k('Comenta ', 'black', 0), { dot: 'red', r: 36, seg: 1 }, k(' o ', 'black', 0), { dot: 'blue', r: 36, seg: 2 }]] },
   { id: 'c22b', in: 1590, out: 1680, size: 60, st: 'mono', ls: 0.06, base: [436], lines: [[k('@dinero_irracional')]] },
   { id: 'chispaNo', in: 1322, out: 1362, size: 96, cx: 735, base: [1080], lines: [[k('Chispa, no.', 'blue')]] },
+  // ---- ronda 4 · apertura Kahneman (el sistema de tiempos las pinta por U, no por t; in/out no se usan) ----
+  { id: 'n1', in: 1e9, out: 1e9, size: 100, top: 256, lines: [[k('Daniel Kahneman,')], [k('Nobel de Economía,')]] },
+  { id: 'n2', in: 1e9, out: 1e9, size: 104, top: 256, lines: [[k('explicó que decides')], [k('con dos sistemas.')]] },
+  { id: 'n3', in: 1e9, out: 1e9, size: 104, top: 256, lines: [[k('Sistema 1:', 'red')], [k('rápido e impulsivo.')]] },
+  { id: 'n4', in: 1e9, out: 1e9, size: 104, top: 256, lines: [[k('Sistema 2:', 'blue')], [k('lento y reflexivo.')]] },
+  { id: 'n5', in: 1e9, out: 1e9, size: 104, top: 256, segs: [257, 295], lines: [[k('Pausa', 'blue', 0), k(' será el ', 'black', 0), k('2.', 'blue', 0)], [k('Chispa', 'red', 1), k(', el ', 'black', 1), k('1.', 'red', 1)]] },
   { id: 'cover', in: -1e9, out: 1e9, size: 150, maxW: 880, base: [470, 610], lines: [[k('En tu cabeza')], [k('viven dos.')]] },
 ];
 // ticket del plano 5 (sale por la ranura de la caja, se pliega y baja a la derecha de Pausa)
@@ -104,7 +110,9 @@ function chShadow(o, c, g) {
 const pzShadow = (o, p, g) => { o.black += R.shadowEllipse(p.x + (p.flip ? -8 : 8), g, 205 * p.s, 14, INK.black, 7, 2.6); };
 const steamAlt = (t) => (Math.floor(t / 8) % 2 ? 'vapor2' : 'vapor');
 // respiración de Pausa en tiempo de SALIDA: 13 ciclos exactos en el Reel, el bucle no salta
-const breath = () => RIG.breathe(CUR_U, FRAMES / 13, 0.015);
+// (ronda 4) en el bloque nuevo (U < 291) la fase viene de BR_PHASE (ver breathN); de f291 en adelante se usa el tiempo ANTIGUO (u - 234), idéntico
+let BR_PHASE = null;
+const breath = () => (BR_PHASE != null ? 1 + 0.015 * Math.sin(BR_PHASE * 2 * Math.PI) : RIG.breathe(CUR_U, FRAMES / 13, 0.015));
 const rest = (tc, amp = 1) => ({ dx: T.jitter(tc, amp), sizzle: Math.floor(tc / 2) % 2 === 1 });
 const lerpPts = (a, b, k2) => a.map((v, i) => (Array.isArray(v) ? lerpPts(v, b[i], k2) : v + (b[i] - v) * k2));
 const SIT = R.PAUSA_POSES.sit, BRINDIS = R.PAUSA_POSES.brindis, SORBO = R.PAUSA_POSES.sorbo;
@@ -136,7 +144,9 @@ function coinsAt(tc, { minY = -1e9 } = {}) {
 }
 const CS1 = 1.05, YST1 = Math.round(CAP_DOWN - 127 * CS1); // de pie sobre la tapa pulsada
 const Y1 = (yo) => Math.round(YST1 + (yo - 1110) * 0.875);
-function chispa1(tc) {
+let YBUMP = 0; // ronda 4: respingo de Chispa (solo en f50 y f52 del bloque nuevo; 0 en todo lo demás)
+function chispa1(tc) { const c = chispa1Raw(tc); return YBUMP ? { ...c, y: c.y - YBUMP } : c; }
+function chispa1Raw(tc) {
   const base = { s: CS1, x: BTN.cx, pose: 'hold', expr: 'euforia', look: [0, 4], sweat: 2 };
   if (tc <= 4) return { ...base, y: Y1({ 0: 778, 2: 818, 4: 908 }[tc]), fall: true };
   if (tc <= 10) return { ...base, pose: 'golpe', y: Y1({ 6: 1078, 8: 1086, 10: 1090 }[tc]), squash: { 6: 0.9, 8: 0.95, 10: 1 }[tc], halo: 8 };
@@ -599,7 +609,7 @@ function speedLines(u) {
   return R.strokeP(d, INK.black, 6, 'stroke-linecap="round"');
 }
 
-function frame(u, opt = {}) {
+function frameOld(u, opt = {}) {
   R.resetUid();
   let t, tc;
   if (opt.story) { t = u; tc = T.onTwos(Math.round(u)); CUR_U = outOf(u); }
@@ -621,10 +631,12 @@ function frame(u, opt = {}) {
   else if (t < 1530) res = shot7(t, w);
   else res = shot8(t, w);
   const scr = L();
+  if (opt.hook) opt.hook({ w, scr, t, tc, u });
   if (w.screenRed) { scr.red += w.screenRed; delete w.screenRed; }
   if (opt.cover) add(scr, CAP.render(card('cover'), 0));
-  else for (const c of LAY.cards) {
+  else if (!opt.noCards) for (const c of LAY.cards) {
     if (c.id === 'cover' || t < c.in || t >= c.out) continue;
+    if (opt.skipOld && (c.id === 'c1' || c.id === 'c2')) continue;
     // el «pop» se cuenta en fotogramas de salida desde la entrada de la tarjeta (o de cada segmento)
     const cu = { ...c, in: -1e9, out: 1e9, segs: (c.segs || [c.in]).map(outOf), kind: 'pop6' };
     const r = CAP.render(cu, u);
@@ -640,8 +652,182 @@ function frame(u, opt = {}) {
   return out;
 }
 
+// =====================================================================================
+// RONDA 4 · APERTURA «Kahneman y los dos sistemas» (storyboard-opening.md, opening-v4.json)
+// Bloque nuevo f0–328 (N1–N5). De f291 en adelante se reproduce el Reel anterior desplazado DELTA = 234 f (PAR, para
+// que Chispa «en dos» conserve sus dibujos): frame(U) = frameOld(U − 234) con tiempo, respiración, vapor y barridos ANTIGUOS.
+// =====================================================================================
+const DELTA = 234, JOIN = 57 + DELTA, TOTAL = FRAMES + DELTA; // 291, 1368
+const NEW_CARDS = [ // [id, in, out (exclusivo), texto de la voz]
+  ['n1', 0, 55, 'Daniel Kahneman, Nobel de Economía,'], ['n2', 55, 118, 'explicó que decides con dos sistemas.'],
+  ['n3', 118, 186, 'Sistema 1: rápido e impulsivo.'], ['n4', 186, 257, 'Sistema 2: lento y reflexivo.'], ['n5', 257, 329, 'Pausa será el 2. Chispa, el 1.'],
+];
+// Respiración de Pausa en el bloque nuevo: f0 = fase 0 (como el antiguo f0; así el bucle f1367 → f0 no salta, igual que antes) y
+// en f291 la misma fase que tenía el antiguo f57, con 3 ciclos enteros de más (periodo ≈ 79,7 f frente a 87,2).
+// De f291 en adelante rige el tiempo antiguo (u − 234, FRAMES/13): esos fotogramas siguen siendo idénticos.
+const BR_CYCLES = 3 + 57 / (FRAMES / 13);
+const brPhase = (U) => (U / JOIN) * BR_CYCLES;
+
+// ---------- etiquetas ----------
+const STAMP_B = (k) => (k < 0 ? null : k >= 3 ? 1 : [1.3, 1.15, 1.05][k]); // sello 1,3 → 1,0 en 3 f
+const stampAbout = (str, sc, cx, cy) => (sc === 1 || sc == null ? str : `<g transform="translate(${f(cx)} ${f(cy)}) scale(${sc}) translate(${f(-cx)} ${f(-cy)})">${str}</g>`);
+// dotBadge(x, y, r, ink, label?): disco de tinta (rojo o azul) con aro de reserva de 3 px y, si hay label, la cifra en reserva
+// (Bricolage 800, 1,15·r px); halo de reserva de 6 px en las otras planchas. Devuelve capas.
+function dotBadge(x, y, r, ink, label) {
+  const o = L();
+  o[ink] += `<g transform="translate(${f(x)} ${f(y)})"><circle r="${r}" fill="${INK[ink]}"/><circle r="${r - 6}" fill="none" stroke="${W}" stroke-width="3"/>` +
+    (label ? R.text(0, r * 1.15 * 0.36, label, { size: r * 1.15, fill: W, anchor: 'middle' }) : '') + '</g>';
+  for (const kk of ['blue', 'red', 'black']) if (kk !== ink) o[kk] += `<circle cx="${f(x)}" cy="${f(y)}" r="${r + 6}" fill="${W}"/>`;
+  return o;
+}
+const putLayers = (w, layers, sc, cx, cy) => { for (const kk of ['blue', 'red', 'black']) if (layers[kk]) w[kk] += stampAbout(layers[kk], sc, cx, cy); };
+// píldora «SISTEMA n»: sign() de riso.js con las esquinas a rx 46
+const pill = (x, y, rot, label, ink) => R.sign(x, y, rot, label, { w: 360, h: 92, size: 50, ink: INK[ink] }).replace('rx="8"', 'rx="46"');
+
+// línea de fuente y aviso de metáfora (en pantalla, sin cámara): DM Mono 30 px, interletra 0,06; el título del libro en cursiva
+function sourceLines(U) {
+  const o = L();
+  const line = (txt, y, st, f0, until) => {
+    if (U < f0 || U >= until) return;
+    const sc = [1.08, 1.03, 1][Math.min(U - f0, 2)];
+    o.black += stampAbout(`<text x="500" y="${y}" text-anchor="middle" style="${R.styleCss(st, 30, 0.06)}white-space:pre" fill="${INK.black}">${txt}</text>`, sc, 500, y - 10);
+  };
+  line('Kahneman (2011),', 492, 'mono', 12, 118);
+  line('Pensar rápido, pensar despacio', 530, 'monoI', 12, 118);
+  line('Son metáforas, no zonas del cerebro.', 568, 'mono', 61, 118);
+  return o;
+}
+
+// ---------- cámara del bloque nuevo (tabla del § 4) ----------
+let Z0 = null; // z del antiguo f57 (= punch(57)), leído del propio código
+function camN(U) {
+  if (Z0 == null) Z0 = punch(57);
+  const rp = T.ramp;
+  if (U < 8) return { z: rp(U, 0, 8, 1.0, 1.12, 'out'), ax: 470 };
+  if (U < 34) return { z: rp(U, 8, 34, 1.12, 1.14), ax: 470 };
+  if (U < 55) return { z: rp(U, 34, 55, 1.14, 1.10), ax: 470 };
+  if (U < 118) return { z: U < 59 ? rp(U, 55, 59, 1.10, 1.03, 'out') : rp(U, 58, 118, 1.03, 1.06), ax: 470 };
+  if (U < 186) return { z: U < 122 ? rp(U, 118, 122, 1.06, 1.11, 'out') : rp(U, 121, 186, 1.11, 1.13), ax: 470 };
+  if (U < 257) return { z: U < 190 ? rp(U, 186, 190, 1.13, 1.05, 'out') : rp(U, 189, 257, 1.05, 1.08), ax: rp(U, 186, 200, 470, 680, 'io') };
+  const ax = rp(U, 257, 265, 680, 540, 'out');
+  return { z: U < 261 ? rp(U, 257, 261, 1.08, 1.12, 'out') : rp(U, 260, JOIN, 1.12, Z0), ax };
+}
+
+// ---------- reparto del bloque nuevo ----------
+const hopPh = (tc, base) => ((Math.round((tc - base) / 2) % 4) + 4) % 4;
+function chispaN(U, tc) {
+  const base = { s: CS1, x: BTN.cx, pose: 'cheer', expr: 'euforia', look: [0, 2], sweat: 2, halo: 8, y: YST1 };
+  const r = rest(tc);
+  const happy = (sq = 1) => ({ ...base, x: BTN.cx + r.dx, pose: 'happy', expr: 'feliz', sweat: 0, sweatIdx: [1], sizzle: r.sizzle, squash: sq });
+  const hop = (b, extra = {}) => { const ph = hopPh(tc, b); return { ...base, ...extra, y: YST1 + [0, -30, -44, -30][ph], squash: ph === 0 ? 0.95 : 1, ph }; };
+  if (U < 59) return happy(tc <= 54 ? 0.93 : tc === 56 ? 0.97 : 1); // N2: aterriza
+  if (U < 115) return hop(58); // N2: saltitos de 8 f (y 0, −30, −44, −30)
+  if (U < 118) return happy();
+  if (U < 182) return hop(126, { sweat: 3 }); // N3: foco, saltitos seguidos
+  if (U < 186) return { ...base, sweat: 3, squash: 0.95 }; // aterriza antes de N4
+  if (U < 258) { // N4: de pie, impaciente (golpeteo A/B cada 4 f)
+    return { ...base, x: BTN.cx + r.dx, pose: 'stand', expr: U >= 240 ? 'esceptico' : 'neutral', look: [8, 0], sweat: 0, sweatIdx: [1], limbs: KICK[Math.floor(tc / 4) % 2], sizzle: r.sizzle };
+  }
+  if (U < 274) return hop(258); // N5: dos ciclos
+  if (U < 278) return happy(tc === 274 ? 0.92 : 0.96);
+  return happy();
+}
+function pausaN(U) {
+  const look = T.track([[0, [8, 6]], [55, [8, 6]], [66, [0, 6], 'io'], [95, [0, 6]], [103, [-8, 4], 'io'], [186, [-8, 4]], [198, [0, 8], 'io'], [228, [0, 8]], [240, [-8, 4], 'io'], [257, [-8, 4]], [262, [0, 6], 'io'], [268, [0, 6]], [284, [8, 6], 'io']])(U);
+  let arms = SIT.arms, mug = SIT.mug, lid = null;
+  if (U >= 186 && U < 246) { // N4: sube la taza, bebe, mantiene, baja
+    const up = U < 204 ? T.ramp(U, 186, 204, 0, 1, 'io') : U < 226 ? 1 : T.ramp(U, 226, 246, 1, 0, 'io');
+    arms = lerpPts(SIT.arms, SORBO.arms, up); mug = lerpPts(SIT.mug, SORBO.mug, up);
+    lid = U < 204 ? 0.5 : U < 216 ? T.ramp(U, 204, 216, 0.5, 0.8, 'io') : U < 226 ? 0.8 : T.ramp(U, 226, 246, 0.8, 0.5, 'io');
+  }
+  const bl = RIG.blinkSlow(U, 258, { down: 8, hold: 8, up: 14 }); // termina en f288 con lid 0,5
+  if (bl != null) lid = bl;
+  return { ...PZ0, pose: 'sit', expr: 'neutral', look, lid, arms, mug, steam: steamAlt(U), squash: breath() };
+}
+const TD = [[690, 1190], [722, 1170], [756, 1160]]; // puntos de pensar sobre la cúpula de Pausa
+function shotN(U, w, tc) {
+  button(w, { pressed: true });
+  const pz = pausaN(U);
+  pzShadow(w, pz, G);
+  PZ(w, pz);
+  w.black += P.leashRest(RIG.pausaHandle(pz), REST_END);
+  const c = chispaN(U, tc);
+  const ph = c.ph; delete c.ph;
+  w.black += R.shadowEllipse(BTN.cx, CAP_DOWN + 2, 92, 8, INK.black, 7, 2.2);
+  CH(w, c);
+  if (U >= 118 && U < 186) { // N3: se ve «rápido»: chispas en cada pico y rayitas a ambos lados (versión nueva cada 2 f)
+    if (ph === 2) { const b = RIG.GC(c, 6, -150); w.black += R.burst(b[0], b[1], 1.2); }
+    const v = Math.floor(U / 2) % 2, yy = c.y + 50 + (v ? 6 : -6), len = v ? 44 : 34;
+    w.black += P.motionLines(c.x - 96 * CS1, yy, { dir: -1, len, gap: 26, w: 5 });
+    w.red += P.motionLines(c.x + 96 * CS1, yy, { dir: 1, len, gap: 26, w: 5 }).replace(INK.black, INK.red);
+  }
+  // etiquetas
+  if (U >= 89 && U < 118) putLayers(w, dotBadge(262, 880, 30, 'red'), STAMP_B(U - 89), 262, 880);
+  if (U >= 95 && U < 118) putLayers(w, dotBadge(742, 1085, 30, 'blue'), STAMP_B(U - 95), 742, 1085);
+  if (U >= 118 && U < 186) w.red += stampAbout(pill(300, 820 + T.jitter(U, 3), -4, 'SISTEMA 1', 'red'), STAMP_B(U - 118), 300, 820);
+  if (U >= 186 && U < 257) {
+    w.blue += stampAbout(pill(660, 1060 + T.jitter(U, 3), 4, 'SISTEMA 2', 'blue'), STAMP_B(U - 186), 660, 1060);
+    putLayers(w, dotBadge(262, 900, 26, 'red'), 1, 262, 900);
+    if (U >= 196) w.blue += P.thinkDots(TD, U < 210 ? 1 : U < 224 ? 2 : U < 240 ? 3 : 0, 11);
+  }
+  if (U >= 257) putLayers(w, dotBadge(742, 1085, 54, 'blue', '2'), STAMP_B(U - 257), 742, 1085);
+  return { cam: { shake: [0, 0] } };
+}
+
+function addCardN(scr, id, U) {
+  const c = card(id), segs = id === 'n5' ? [257, 295] : [NEW_CARDS.find((x) => x[0] === id)[1]];
+  const r = CAP.render({ ...c, in: -1e9, out: 1e9, segs, kind: 'pop6' }, U);
+  if (r) add(scr, r);
+}
+const cardIdAt = (U) => (U < 55 ? 'n1' : U < 118 ? 'n2' : U < 186 ? 'n3' : U < 257 ? 'n4' : 'n5');
+
+// ---------- frame(U): fotograma de salida del Reel nuevo ----------
+function frame(U, opt = {}) {
+  if (opt.cover || opt.story || opt.noNew) return frameOld(U, opt); // portada y pruebas: el dibujo antiguo
+  if (U >= JOIN) { // f291–1367: Reel anterior (u = U − 234), con la tarjeta N5 y la insignia «1» en f291–328
+    BR_PHASE = null;
+    YBUMP = 0;
+    return frameOld(U - DELTA, {
+      skipOld: true, noCards: opt.noCards,
+      hook: ({ w, scr, tc }) => {
+        if (opt.noCards) return;
+        if (U >= 295 && U < 300) { // insignia roja «1» sobre Chispa; la sigue con 2 f de retraso y se corta en f300
+          const c = chispa1(Math.max(98, tc - 2)), bx = c.x, by = c.y - 281;
+          if (U <= 297) w.black += R.burst(bx, by, 2.4);
+          putLayers(w, dotBadge(bx, by, 54, 'red', '1'), STAMP_B(U - 295), bx, by);
+        }
+        if (U < 329) addCardN(scr, 'n5', U);
+      },
+    });
+  }
+  R.resetUid();
+  CUR_U = U;
+  BR_PHASE = brPhase(U);
+  YBUMP = U === 50 || U === 52 ? 8 : 0; // respingo de Chispa (−8 px) para no quedarse quieta en f43–54
+  const w = L();
+  let tc, res;
+  if (U < 55) {
+    const tOf = (x) => (x < 43 ? storyT(x) : 51 + (x - 43)); // f43–54 a 1:1 del antiguo tc 51–62
+    tc = T.onTwos(Math.floor(tOf(U - (U % 2))));
+    CUR_TC = tc;
+    res = shot1(tOf(U), w, {});
+  } else {
+    tc = T.onTwos(U);
+    CUR_TC = tc;
+    res = shotN(U, w, tc);
+  }
+  const scr = L();
+  if (!opt.noCards) addCardN(scr, cardIdAt(U), U);
+  if (!opt.noCards) add(scr, sourceLines(U));
+  const { z, ax } = camN(U);
+  const tf = `translate(${f(ax * (1 - z))} ${f(1150 * (1 - z))}) scale(${f(z * 10000) / 10000}) ${RIG.camTransform(res.cam || {})}`;
+  const out = { defs: (w.defs || '') + (scr.defs || '') };
+  for (const kk of ['blue', 'red', 'black']) out[kk] = `<g transform="${tf}">${w[kk] || ''}</g>${scr[kk] || ''}`;
+  return out;
+}
+
 // ---------- efectos de sonido (para la mezcla; tiempos de salida) ----------
-function sfxCues() {
+function sfxCuesOld() {
   const S = (t, type) => ({ frame: outOf(t), type });
   const cues = [S(6, 'clac'), S(6, 'coins'), S(108, 'swoosh'), S(156, 'splash')];
   for (const t of [290, 300, 310, 572, 1536, 1560, 1594]) cues.push(S(t, 'boing'));
@@ -657,4 +843,12 @@ function sfxCues() {
   return cues.sort((a, b) => a.frame - b.frame || a.type.localeCompare(b.type));
 }
 
-module.exports = { WIDTH, HEIGHT, FRAMES, STORY_FRAMES, SEGS, WHIPS, CARDS, storyT, outOf, prepare, setup, frame, sfxCues };
+function sfxCues() {
+  // bloque nuevo (storyboard § 9) + efectos antiguos con frame >= 57 desplazados +234 (los de f5 no cambian)
+  const own = [[5, 'clac'], [5, 'coins'], [55, 'swoosh'], [89, 'boing'], [95, 'boing'], [118, 'pop'], [134, 'boing'], [150, 'boing'], [186, 'slide'], [186, 'swoosh'], [204, 'tick'], [228, 'tick'], [257, 'pop']];
+  const cues = own.map(([frame, type]) => ({ frame, type }));
+  for (const c of sfxCuesOld()) if (c.frame >= 57) cues.push({ frame: c.frame + DELTA, type: c.type });
+  return cues.sort((a, b) => a.frame - b.frame || a.type.localeCompare(b.type));
+}
+
+module.exports = { WIDTH, HEIGHT, FRAMES: TOTAL, DELTA, JOIN, STORY_FRAMES, SEGS, WHIPS, CARDS, NEW_CARDS, storyT, outOf: (t) => outOf(t) + DELTA, prepare, setup, frame, frameOld, sfxCues, sfxCuesOld };

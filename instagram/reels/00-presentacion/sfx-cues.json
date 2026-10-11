@@ -1,6 +1,6 @@
 {
  "fps": 30,
- "frames": 1134,
+ "frames": 1368,
  "cues": [
   {
    "frame": 5,
@@ -11,203 +11,247 @@
    "type": "coins"
   },
   {
-   "frame": 63,
+   "frame": 55,
    "type": "swoosh"
   },
   {
-   "frame": 68,
-   "type": "whoosh"
+   "frame": 89,
+   "type": "boing"
   },
   {
    "frame": 95,
-   "type": "splash"
-  },
-  {
-   "frame": 197,
    "type": "boing"
   },
   {
-   "frame": 206,
-   "type": "boing"
-  },
-  {
-   "frame": 215,
-   "type": "boing"
-  },
-  {
-   "frame": 231,
-   "type": "whoosh"
-  },
-  {
-   "frame": 237,
+   "frame": 118,
    "type": "pop"
   },
   {
-   "frame": 284,
+   "frame": 134,
+   "type": "boing"
+  },
+  {
+   "frame": 150,
+   "type": "boing"
+  },
+  {
+   "frame": 186,
    "type": "slide"
   },
   {
-   "frame": 391,
-   "type": "pop"
-  },
-  {
-   "frame": 392,
-   "type": "boing"
-  },
-  {
-   "frame": 404,
-   "type": "whoosh"
-  },
-  {
-   "frame": 412,
-   "type": "whoosh"
-  },
-  {
-   "frame": 442,
-   "type": "whoosh"
-  },
-  {
-   "frame": 532,
-   "type": "whoosh"
-  },
-  {
-   "frame": 565,
-   "type": "ding"
-  },
-  {
-   "frame": 569,
-   "type": "print"
-  },
-  {
-   "frame": 604,
-   "type": "pop"
-  },
-  {
-   "frame": 704,
-   "type": "zzz"
-  },
-  {
-   "frame": 710,
-   "type": "thunk"
-  },
-  {
-   "frame": 716,
-   "type": "thunk"
-  },
-  {
-   "frame": 723,
-   "type": "thunk"
-  },
-  {
-   "frame": 729,
-   "type": "thunk"
-  },
-  {
-   "frame": 735,
-   "type": "thunk"
-  },
-  {
-   "frame": 741,
-   "type": "thunk"
-  },
-  {
-   "frame": 746,
-   "type": "tick"
-  },
-  {
-   "frame": 756,
-   "type": "tick"
-  },
-  {
-   "frame": 766,
-   "type": "tick"
-  },
-  {
-   "frame": 777,
-   "type": "tick"
-  },
-  {
-   "frame": 787,
-   "type": "tick"
-  },
-  {
-   "frame": 795,
-   "type": "tick"
-  },
-  {
-   "frame": 804,
-   "type": "tick"
-  },
-  {
-   "frame": 812,
-   "type": "tick"
-  },
-  {
-   "frame": 821,
-   "type": "tick"
-  },
-  {
-   "frame": 829,
-   "type": "tick"
-  },
-  {
-   "frame": 837,
-   "type": "tick"
-  },
-  {
-   "frame": 846,
-   "type": "tick"
-  },
-  {
-   "frame": 854,
-   "type": "tick"
-  },
-  {
-   "frame": 857,
-   "type": "zzz"
-  },
-  {
-   "frame": 864,
-   "type": "tick"
-  },
-  {
-   "frame": 874,
-   "type": "tick"
-  },
-  {
-   "frame": 877,
-   "type": "whoosh"
-  },
-  {
-   "frame": 897,
+   "frame": 186,
    "type": "swoosh"
   },
   {
-   "frame": 900,
+   "frame": 204,
+   "type": "tick"
+  },
+  {
+   "frame": 228,
+   "type": "tick"
+  },
+  {
+   "frame": 257,
+   "type": "pop"
+  },
+  {
+   "frame": 297,
+   "type": "swoosh"
+  },
+  {
+   "frame": 302,
+   "type": "whoosh"
+  },
+  {
+   "frame": 329,
+   "type": "splash"
+  },
+  {
+   "frame": 431,
+   "type": "boing"
+  },
+  {
+   "frame": 440,
+   "type": "boing"
+  },
+  {
+   "frame": 449,
+   "type": "boing"
+  },
+  {
+   "frame": 465,
+   "type": "whoosh"
+  },
+  {
+   "frame": 471,
+   "type": "pop"
+  },
+  {
+   "frame": 518,
+   "type": "slide"
+  },
+  {
+   "frame": 625,
+   "type": "pop"
+  },
+  {
+   "frame": 626,
+   "type": "boing"
+  },
+  {
+   "frame": 638,
+   "type": "whoosh"
+  },
+  {
+   "frame": 646,
+   "type": "whoosh"
+  },
+  {
+   "frame": 676,
+   "type": "whoosh"
+  },
+  {
+   "frame": 766,
+   "type": "whoosh"
+  },
+  {
+   "frame": 799,
+   "type": "ding"
+  },
+  {
+   "frame": 803,
+   "type": "print"
+  },
+  {
+   "frame": 838,
+   "type": "pop"
+  },
+  {
+   "frame": 938,
+   "type": "zzz"
+  },
+  {
+   "frame": 944,
+   "type": "thunk"
+  },
+  {
+   "frame": 950,
+   "type": "thunk"
+  },
+  {
+   "frame": 957,
+   "type": "thunk"
+  },
+  {
+   "frame": 963,
+   "type": "thunk"
+  },
+  {
+   "frame": 969,
+   "type": "thunk"
+  },
+  {
+   "frame": 975,
+   "type": "thunk"
+  },
+  {
+   "frame": 980,
+   "type": "tick"
+  },
+  {
+   "frame": 990,
+   "type": "tick"
+  },
+  {
+   "frame": 1000,
+   "type": "tick"
+  },
+  {
+   "frame": 1011,
+   "type": "tick"
+  },
+  {
+   "frame": 1021,
+   "type": "tick"
+  },
+  {
+   "frame": 1029,
+   "type": "tick"
+  },
+  {
+   "frame": 1038,
+   "type": "tick"
+  },
+  {
+   "frame": 1046,
+   "type": "tick"
+  },
+  {
+   "frame": 1055,
+   "type": "tick"
+  },
+  {
+   "frame": 1063,
+   "type": "tick"
+  },
+  {
+   "frame": 1071,
+   "type": "tick"
+  },
+  {
+   "frame": 1080,
+   "type": "tick"
+  },
+  {
+   "frame": 1088,
+   "type": "tick"
+  },
+  {
+   "frame": 1091,
+   "type": "zzz"
+  },
+  {
+   "frame": 1098,
+   "type": "tick"
+  },
+  {
+   "frame": 1108,
+   "type": "tick"
+  },
+  {
+   "frame": 1111,
+   "type": "whoosh"
+  },
+  {
+   "frame": 1131,
+   "type": "swoosh"
+  },
+  {
+   "frame": 1134,
    "type": "snap"
   },
   {
-   "frame": 908,
+   "frame": 1142,
    "type": "pop"
   },
   {
-   "frame": 1035,
+   "frame": 1269,
    "type": "boing"
   },
   {
-   "frame": 1050,
+   "frame": 1284,
    "type": "boing"
   },
   {
-   "frame": 1071,
+   "frame": 1305,
    "type": "boing"
   },
   {
-   "frame": 1071,
+   "frame": 1305,
    "type": "pop"
   },
   {
-   "frame": 1116,
+   "frame": 1350,
    "type": "swoosh"
   }
  ]
