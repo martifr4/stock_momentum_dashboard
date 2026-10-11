@@ -71,11 +71,11 @@ const CARDS = [
   { id: 'c22b', in: 1590, out: 1680, size: 60, st: 'mono', ls: 0.06, base: [436], lines: [[k('@dinero_irracional')]] },
   { id: 'chispaNo', in: 1322, out: 1362, size: 96, cx: 735, base: [1080], lines: [[k('Chispa, no.', 'blue')]] },
   // ---- ronda 4 · apertura Kahneman (el sistema de tiempos las pinta por U, no por t; in/out no se usan) ----
-  { id: 'n1', in: 1e9, out: 1e9, size: 100, top: 256, lines: [[k('Daniel Kahneman,')], [k('Nobel de Economía,')]] },
-  { id: 'n2', in: 1e9, out: 1e9, size: 104, top: 256, lines: [[k('explicó que decides')], [k('con dos sistemas.')]] },
-  { id: 'n3', in: 1e9, out: 1e9, size: 104, top: 256, lines: [[k('Sistema 1:', 'red')], [k('rápido e impulsivo.')]] },
-  { id: 'n4', in: 1e9, out: 1e9, size: 104, top: 256, lines: [[k('Sistema 2:', 'blue')], [k('lento y reflexivo.')]] },
-  { id: 'n5', in: 1e9, out: 1e9, size: 104, top: 256, segs: [257, 295], lines: [[k('Pausa', 'blue', 0), k(' será el ', 'black', 0), k('2.', 'blue', 0)], [k('Chispa', 'red', 1), k(', el ', 'black', 1), k('1.', 'red', 1)]] },
+  { id: 'n1', in: 1e9, out: 1e9, size: 112, top: 256, lines: [[k('Daniel Kahneman,')], [k('Nobel de Economía,')]] },
+  { id: 'n2', in: 1e9, out: 1e9, size: 112, top: 256, lines: [[k('explicó que decides')], [k('con dos sistemas.')]] },
+  { id: 'n3', in: 1e9, out: 1e9, size: 112, top: 256, lines: [[k('Sistema 1:', 'red')], [k('rápido e impulsivo.')]] },
+  { id: 'n4', in: 1e9, out: 1e9, size: 112, top: 256, lines: [[k('Sistema 2:', 'blue')], [k('lento y reflexivo.')]] },
+  { id: 'n5', in: 1e9, out: 1e9, size: 112, top: 256, segs: [257, 295], lines: [[k('Pausa', 'blue', 0), k(' será el ', 'black', 0), k('2.', 'blue', 0)], [k('Chispa', 'red', 1), k(', el ', 'black', 1), k('1.', 'red', 1)]] },
   { id: 'cover', in: -1e9, out: 1e9, size: 150, maxW: 880, base: [470, 610], lines: [[k('En tu cabeza')], [k('viven dos.')]] },
 ];
 // ticket del plano 5 (sale por la ranura de la caja, se pliega y baja a la derecha de Pausa)
@@ -682,31 +682,33 @@ function dotBadge(x, y, r, ink, label) {
 }
 const putLayers = (w, layers, sc, cx, cy) => { for (const kk of ['blue', 'red', 'black']) if (layers[kk]) w[kk] += stampAbout(layers[kk], sc, cx, cy); };
 // píldora «SISTEMA n»: sign() de riso.js con las esquinas a rx 46
-const pill = (x, y, rot, label, ink) => R.sign(x, y, rot, label, { w: 360, h: 92, size: 50, ink: INK[ink] }).replace('rx="8"', 'rx="46"');
+const pill = (x, y, rot, label, ink, w = 360) => R.sign(x, y, rot, label, { w, h: 92, size: 50, ink: INK[ink] }).replace('rx="8"', 'rx="46"');
 
 // línea de fuente y aviso de metáfora (en pantalla, sin cámara): DM Mono 30 px, interletra 0,06; el título del libro en cursiva
 function sourceLines(U) {
   const o = L();
-  const line = (txt, y, st, f0, until) => {
+  const line = (txt, y, st, f0, until, size = 38) => {
     if (U < f0 || U >= until) return;
     const sc = [1.08, 1.03, 1][Math.min(U - f0, 2)];
-    o.black += stampAbout(`<text x="500" y="${y}" text-anchor="middle" style="${R.styleCss(st, 30, 0.06)}white-space:pre" fill="${INK.black}">${txt}</text>`, sc, 500, y - 10);
+    o.black += stampAbout(`<text x="500" y="${y}" text-anchor="middle" style="${R.styleCss(st, size, 0.04)}white-space:pre" fill="${INK.black}">${txt}</text>`, sc, 500, y - 10);
   };
-  line('Kahneman (2011),', 492, 'mono', 12, 118);
-  line('Pensar rápido, pensar despacio', 530, 'monoI', 12, 118);
-  line('Son metáforas, no zonas del cerebro.', 568, 'mono', 61, 118);
+  line('Kahneman (2011),', 522, 'mono', 12, 118);
+  line('Pensar rápido, pensar despacio', 564, 'monoI', 12, 118);
+  line('Metáforas, no zonas del cerebro.', 614, 'mono', 61, 140, 40); // ronda 4 · revisión: 40 px, una línea, hasta f139
   return o;
 }
 
 // ---------- cámara del bloque nuevo (tabla del § 4) ----------
 let Z0 = null; // z del antiguo f57 (= punch(57)), leído del propio código
+const HOOK_Z0 = 1.15, HOOK_Z1 = 1.17;
+const HOOK_DY = -230; // ronda 4 · revisión: el empuje del gancho sube también el encuadre (f1–40) para cerrar el vacío bajo el título; f0 intacto
 function camN(U) {
   if (Z0 == null) Z0 = punch(57);
   const rp = T.ramp;
-  if (U < 8) return { z: rp(U, 0, 8, 1.0, 1.12, 'out'), ax: 470 };
-  if (U < 34) return { z: rp(U, 8, 34, 1.12, 1.14), ax: 470 };
-  if (U < 55) return { z: rp(U, 34, 55, 1.14, 1.10), ax: 470 };
-  if (U < 118) return { z: U < 59 ? rp(U, 55, 59, 1.10, 1.03, 'out') : rp(U, 58, 118, 1.03, 1.06), ax: 470 };
+  if (U < 8) return { z: rp(U, 0, 8, 1.0, HOOK_Z0, 'out'), ax: rp(U, 0, 8, 470, 340, 'out'), dy: rp(U, 0, 8, 0, HOOK_DY, 'out') };
+  if (U < 34) return { z: rp(U, 8, 34, HOOK_Z0, HOOK_Z1), ax: 340, dy: HOOK_DY };
+  if (U < 55) return { z: rp(U, 34, 55, HOOK_Z1, 1.10), ax: rp(U, 34, 55, 340, 470, 'io'), dy: U < 42 ? HOOK_DY : rp(U, 42, 59, HOOK_DY, 0, 'io') };
+  if (U < 118) return { z: U < 59 ? rp(U, 55, 59, 1.10, 1.03, 'out') : rp(U, 58, 118, 1.03, 1.06), ax: 470, dy: U < 59 ? rp(U, 42, 59, HOOK_DY, 0, 'io') : 0 };
   if (U < 186) return { z: U < 122 ? rp(U, 118, 122, 1.06, 1.11, 'out') : rp(U, 121, 186, 1.11, 1.13), ax: 470 };
   if (U < 257) return { z: U < 190 ? rp(U, 186, 190, 1.13, 1.05, 'out') : rp(U, 189, 257, 1.05, 1.08), ax: rp(U, 186, 200, 470, 680, 'io') };
   const ax = rp(U, 257, 265, 680, 540, 'out');
@@ -744,7 +746,7 @@ function pausaN(U) {
   if (bl != null) lid = bl;
   return { ...PZ0, pose: 'sit', expr: 'neutral', look, lid, arms, mug, steam: steamAlt(U), squash: breath() };
 }
-const TD = [[690, 1190], [722, 1170], [756, 1160]]; // puntos de pensar sobre la cúpula de Pausa
+const TD = [[698, 1160], [726, 1126], [754, 1092]]; // puntos de pensar sobre la cúpula de Pausa
 function shotN(U, w, tc) {
   button(w, { pressed: true });
   const pz = pausaN(U);
@@ -766,9 +768,9 @@ function shotN(U, w, tc) {
   if (U >= 95 && U < 118) putLayers(w, dotBadge(742, 1085, 30, 'blue'), STAMP_B(U - 95), 742, 1085);
   if (U >= 118 && U < 186) w.red += stampAbout(pill(300, 820 + T.jitter(U, 3), -4, 'SISTEMA 1', 'red'), STAMP_B(U - 118), 300, 820);
   if (U >= 186 && U < 257) {
-    w.blue += stampAbout(pill(660, 1060 + T.jitter(U, 3), 4, 'SISTEMA 2', 'blue'), STAMP_B(U - 186), 660, 1060);
-    putLayers(w, dotBadge(262, 900, 26, 'red'), 1, 262, 900);
-    if (U >= 196) w.blue += P.thinkDots(TD, U < 210 ? 1 : U < 224 ? 2 : U < 240 ? 3 : 0, 11);
+    w.blue += stampAbout(pill(725, 1020 + T.jitter(U, 3), 3, 'SISTEMA 2', 'blue', 330), STAMP_B(U - 186), 725, 1020);
+    putLayers(w, dotBadge(262, 930, 46, 'red', '1'), STAMP_B(U - 186), 262, 930);
+    if (U >= 196) w.blue += P.thinkDots(TD, U < 210 ? 1 : U < 224 ? 2 : U < 240 ? 3 : 0, 15);
   }
   if (U >= 257) putLayers(w, dotBadge(742, 1085, 54, 'blue', '2'), STAMP_B(U - 257), 742, 1085);
   return { cam: { shake: [0, 0] } };
@@ -819,8 +821,8 @@ function frame(U, opt = {}) {
   const scr = L();
   if (!opt.noCards) addCardN(scr, cardIdAt(U), U);
   if (!opt.noCards) add(scr, sourceLines(U));
-  const { z, ax } = camN(U);
-  const tf = `translate(${f(ax * (1 - z))} ${f(1150 * (1 - z))}) scale(${f(z * 10000) / 10000}) ${RIG.camTransform(res.cam || {})}`;
+  const { z, ax, dy = 0 } = camN(U);
+  const tf = `translate(${f(ax * (1 - z))} ${f(1150 * (1 - z) + dy)}) scale(${f(z * 10000) / 10000}) ${RIG.camTransform(res.cam || {})}`;
   const out = { defs: (w.defs || '') + (scr.defs || '') };
   for (const kk of ['blue', 'red', 'black']) out[kk] = `<g transform="${tf}">${w[kk] || ''}</g>${scr[kk] || ''}`;
   return out;

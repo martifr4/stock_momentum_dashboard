@@ -26,28 +26,20 @@ State as of 2026-10-11. Branch: `ccr-47970a53-7k0uvr`. Everything lives under `i
 |---|---|---|
 | Post 00: intro (pinned), 9 slides | `posts/00-presentacion/` | **Final.** ZIP plus `copy.md` (caption, alt text). The owner publishes and pins it manually. |
 | Post 01: supermarket, 11 slides | `posts/01-supermercado/` | **Final.** Cover reworded to speak to the reader (no Chispa/Pausa in the text). ZIP, `copy.md` (caption, alt text per slide). |
-| Reel 00: intro | `reels/00-presentacion/` | **Round 3 done; sent to the owner for approval.** Silent `reel.mp4` is 37.8 s. Voice A is mixed with SFX and bed into `reel-final.mp4` (gitignored; rebuild it as shown below). Critic score 58/70; all MUST FIX items are fixed. |
+| Reel 00: intro | `reels/00-presentacion/` | **Round 4 done: new Kahneman opening (45.6 s).** Sent to the owner for approval. `reel-final.mp4` is gitignored; rebuild it as shown below. |
 
 ### Reel 00: state and how to rebuild
-- **Round 3 is closed.**
-  - Critic score: 58/70.
-  - Fixes applied:
-    - SFX are ducked under the voice, with mix tweaks in `sfx-mix.json`.
-    - Audio is 48 kHz.
-    - Pausa's face on card 19 is moved left of the IG buttons.
-    - Card 1 gets a hook push-in.
-  - Details are in `notes.md` («Ronda 3» and «Ronda 3 · revisión»).
-- **Final audio:** −14 LUFS, true peak −2.9 dBTP, no silences over 0.5 s.
-- **Open nice-to-haves for a later round:**
-  - Caption size jumps between cards; aim for a minimum 60 px cap height.
-  - Card 4 (5.3–6.4 s) is low-motion, but passes freezedetect at default settings.
+- **Round 4 (owner request):** the first ~11 s (cards N1–N5, f0–328) explain Kahneman's two systems and present Chispa = System 1, Pausa = System 2. Cards c3…c22 are the approved round-3 cut, shifted +234 frames (keep any shift EVEN: Chispa is drawn on twos). Total 1368 f = 45.6 s. Storyboard in `storyboard-opening.md`, data in `opening-v4.json`, log in `notes.md` («Ronda 4» and «Ronda 4 · revisión»).
+- **Critic round 4:** 48/70 before the revision (weak hook, small text, orphan dot, SFX too quiet). The revision fixed: bigger headline and closer scene, bigger source/metaphor text, «1» badge, bigger think dots, louder opening SFX (`sfx-mix.json`). Not re-reviewed after the revision.
+- **Open owner decision:** alternative opening that speaks to the viewer first («Tu cabeza decide con dos sistemas.» / «Lo explicó Kahneman, Nobel de Economía.»), about 2 s shorter. Needs a new voice measure and a re-render of N1–N2.
+- **Open nice-to-haves:** blue coins pass behind the source line around f12–35; empty band under the title in N2–N5; button base may touch x=0 in N3/N4; caption sizes vary in the c3+ cards.
 - **Rebuild the audio** from `reels/00-presentacion/`, with `$S` set to any scratch dir:
   ```
   python3 ../tools/voiceover.py vo.json --preset A --out $S/vo.wav
-  python3 ../tools/sfx.py sfx-cues.json --duration 37.8 --out $S/sfx.wav --bed $S/bed.wav --tweaks sfx-mix.json
+  python3 ../tools/sfx.py sfx-cues.json --duration 45.6 --out $S/sfx.wav --bed $S/bed.wav --tweaks sfx-mix.json
   python3 ../tools/sfx.py --mix $S/vo.wav $S/sfx.wav $S/bed.wav --video reel.mp4 --out reel-final.mp4
   ```
-- **Voice:** the owner wants to change it later. `vo.json` line times match the 22 cards (one line per card).
+- **Voice:** voice A (Piper); the owner wants to change it later. `vo.json` has one line per caption card (25).
 
 ## Pending decisions and notes for the owner
 - **Voice:** current audio is synthetic (Piper). For a better voice: an ElevenLabs or Google TTS API key as an environment variable, or the owner records it.
