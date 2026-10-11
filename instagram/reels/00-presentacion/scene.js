@@ -423,6 +423,7 @@ const CS7 = 1.0, Y7 = G - 127 * CS7;
 const GF = 1540, YF = GF - 127;
 const HAND_R = 12, GAP = 30;
 const LEAN7 = -10;
+const PUSH7 = Number(process.env.PUSH7 || 1.35), SHIFT7 = Number(process.env.SHIFT7 || 0); // empuje de la tarjeta 19 (revisión)
 const YDIVE = CAP_UP - GAP - HAND_R - HAND[1] * CS7; // yema a 30 px de la tapa
 function chispa7(tc) {
   const base = { s: CS7, expr: 'euforia' };
@@ -492,10 +493,13 @@ function shot7(t, w) {
   if (tc < 1366) w.black += leash;
   // cámara: empuje fuerte hacia la yema del dedo durante el congelado, y vuelta
   const FT = RIG.GC({ ...cp, x: 330, y: YDIVE, flip: true, lean: LEAN7, s: CS7, squash: 1 }, HAND[0], HAND[1] + HAND_R / CS7);
+  // ronda 3 · revisión: el empuje va acompañado de un desplazamiento a la izquierda proporcional (z − 1),
+  // para que la cara de Pausa (su reacción es el remate) quede por debajo de x 940, fuera de la columna de botones.
+  // A z = 1 el desplazamiento es 0, así que las entradas y salidas de la tarjeta 19 no cambian.
   let z = 1;
-  if (t >= 1330 && t <= 1361) z = T.ramp(t, 1330, 1340, 1, 1.35, 'out');
-  if (t > 1361) z = T.ramp(t, 1362, 1378, 1.35, 1, 'io');
-  return { cam: { z, A: FT } };
+  if (t >= 1330 && t <= 1361) z = T.ramp(t, 1330, 1340, 1, PUSH7, 'out');
+  if (t > 1361) z = T.ramp(t, 1362, 1378, PUSH7, 1, 'io');
+  return { cam: { z, A: FT, x: (SHIFT7 * (z - 1)) / (PUSH7 - 1) } };
 }
 
 // =====================================================================================
