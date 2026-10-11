@@ -13,7 +13,7 @@ const { RENDER } = require('../../characters/riso/anim/index.js');
 const scene = require('./scene.js');
 
 const OUT = __dirname;
-const SCRATCH = process.env.REEL_SCRATCH || '/tmp/claude-0/-home-user-stock-momentum-dashboard/1bc5c2b5-f9cc-5ad3-b1d1-7ad18c5dedd4/scratchpad';
+const SCRATCH = process.env.REEL_SCRATCH || '/tmp/claude-0/-home-user-stock-momentum-dashboard/78867374-d319-526b-9188-4424541604ab/scratchpad';
 const FRAMES_DIR = process.env.REEL_FRAMES || path.join(SCRATCH, 'reel00-frames');
 const TEX = path.join(SCRATCH, 'reel00-tex');
 const LAYOUT = path.join(SCRATCH, 'reel00-layout.json');
@@ -66,7 +66,7 @@ function srt() {
 
 function encode() {
   const t0 = Date.now();
-  RENDER.encode(FRAMES_DIR, path.join(OUT, 'reel.mp4'));
+  RENDER.encode(FRAMES_DIR, path.join(OUT, 'reel.mp4'), { crf: 21 }); // ronda 3: crf 21 ≈ 26 MB (crf 18 daba 34 MB)
   RENDER.preview(path.join(OUT, 'reel.mp4'), path.join(OUT, 'preview-540.mp4'), 540);
   RENDER.contactSheet(FRAMES_DIR, path.join(OUT, 'contact-sheet.png'), { total: N, every: 60, cols: 7, thumbW: 216 });
   console.log('encode', ((Date.now() - t0) / 1000).toFixed(1), 's');

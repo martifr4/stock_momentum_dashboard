@@ -232,3 +232,23 @@
 - **Duración:** exacta, 1134 f = 37,8 s.
 - **Ticket:** a ×1 son 35 f (1,17 s), no 1,0 s, porque crece durante «El problema…» y queda completo al entrar «Pausa llega tarde.».
 - **Velocidad de c4:** va a 0,86× (60 f del storyboard en 70 de salida). Es la única tarjeta ralentizada; se nota poco porque Chispa sigue en dos y la cámara deriva.
+
+### Comprobación «nada quieto más de 0,5 s» (cierre de la ronda 3)
+Dos medidas sobre la línea de tiempo final de 1134 f:
+1. **Dibujo idéntico sin cámara.** Se compara el SVG de cada fotograma con el anterior, quitando la transformación de cámara.
+   - Antes del arreglo había **un tramo de 24 f (f680–703, tarjeta c15, empuje sobre Pausa)** en el que solo se movía la cámara.
+   - Después del arreglo no queda **ningún** tramo de más de 15 f.
+2. **Diferencia de píxeles entre fotogramas consecutivos.** Se mide en gris a 270×480 sobre los PNG finales: la diferencia media y el % de píxeles que cambian más de 12 niveles. La deriva de cámara sola da ≈ 0,00 %.
+   - El tramo más largo en el que solo se mueve la cámara dura **7 f** (f397–403), por debajo de los 15 f.
+   - **f1003–1030 (c20) no estaba quieto:** Chispa bota cada 2 f (diferencia media ≈ 1,1), la taza de Pausa se mece y Pausa parpadea en f≈1016.
+   - Los tramos de menos movimiento son f327–345 (c8) y f351–390 (c9). Ahí solo hay movimiento secundario (vapor de la taza cada ≈ 6 f, respiración, la mirada de Pausa). Cumple la regla 1 del brief.
+
+**Arreglo:** Pausa ahora **jadea** al llegar en el plano 5 (f648–703). Es un squash de ±2,2 % con un periodo de 10 f de salida, y las gotas de sudor botan 4 px en fase. Se ha re-renderizado f648–703 y se ha comprobado que sigue on-model.
+
+### Render y codificación finales (ronda 3)
+- **Render completo:** 1134 f, 4 workers, **609 s**. Más el re-render de f648–703 (47 s). Los fotogramas están en el scratchpad, fuera del repo.
+- **`reel.mp4`:** H.264 High, yuv420p, 1080×1920, 30 fps, sin audio, **37,8 s / 1134 f**.
+  - Se ha codificado con **crf 21**, que da **26,2 MB** (≈ 5,6 Mb/s, PSNR medio 43,2 dB). Con crf 18 eran 34,4 MB, por encima del límite de unos 30 MB.
+  - `build.js encode` usa ahora crf 21.
+- **Regenerados:** `preview-540.mp4`, `contact-sheet.png`, `cover.png`, `cover-grid.png` (3:4) y `cover-grid-4x5.png`.
+- **`captions.srt` y `sfx-cues.json`:** se han regenerado contra el mapa final y salen idénticos a la versión del WIP. Son 22 subtítulos y 52 efectos; el último efecto está en f1116.
